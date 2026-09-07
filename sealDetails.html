@@ -179,7 +179,7 @@
             <div class="flex justify-end gap-3 pt-4 border-t mt-6">
                 <button type="button" onclick="closeSealModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer">Cancel</button>
                 <button type="submit" id="save-seal-btn" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
-                    <i data-lucide="save" class="w-4 h-4"></i> <span>Save Record</span>
+                    <i data-lucide="save" class="w-4 h-4"></i> Save Record
                 </button>
             </div>
         </form>
@@ -197,9 +197,43 @@
     .resizer:hover, .resizing { background-color: #38bdf8; }
     th.resizable-th { position: relative; }
 
-    /* 🎯 Fix for html2canvas letter-spacing rendering bugs */
-    .pdf-rendering-active,
-    .pdf-rendering-active * {
+    /* 🎯 PDF Print Active State Styles */
+    body.pdf-mode-active {
+        background: white !important;
+    }
+    body.pdf-mode-active #main-container {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    body.pdf-mode-active #pdf-tracker-wrapper {
+        width: 1250px !important; /* Maps perfectly to WindowWidth to stop side cropping */
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    body.pdf-mode-active .hide-on-print {
+        display: none !important;
+    }
+    body.pdf-mode-active .scroll-lockable {
+        overflow: visible !important;
+    }
+    body.pdf-mode-active table {
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+    body.pdf-mode-active th, 
+    body.pdf-mode-active td {
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+    }
+    /* 🎯 Prevent letter-spacing jump bug in PDF Engine */
+    body.pdf-mode-active, 
+    body.pdf-mode-active * {
         letter-spacing: normal !important;
     }
 </style>
@@ -429,9 +463,15 @@
         return null;
     }
 
+    // 🎯 FIX: Repair multi-line sequence breaking bug!
     function expandSealRange(inputStr) {
         if (!inputStr) return [];
-        let tokens = String(inputStr).split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+        
+        let normalizedStr = String(inputStr)
+            .replace(/(to|-)\s*\n\s*/gi, '$1 ')
+            .replace(/\s*\n\s*(to|-)/gi, ' $1');
+
+        let tokens = normalizedStr.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
         let results = new Set();
 
         tokens.forEach(token => {
@@ -443,9 +483,15 @@
                 if (fromParsed && toParsed && fromParsed.prefix === toParsed.prefix) {
                     let start = Math.min(fromParsed.num, toParsed.num);
                     let end = Math.max(fromParsed.num, toParsed.num);
-                    for (let i = start; i <= end; i++) results.add(fromParsed.prefix + String(i).padStart(fromParsed.padding, '0'));
-                } else results.add(token);
-            } else results.add(token);
+                    for (let i = start; i <= end; i++) {
+                        results.add(fromParsed.prefix + String(i).padStart(fromParsed.padding, '0'));
+                    }
+                } else {
+                    results.add(token);
+                }
+            } else {
+                results.add(token);
+            }
         });
         return Array.from(results);
     }
@@ -664,7 +710,6 @@
         let inspHtml = "";
         let sortedInsps = Object.values(inspectorData).sort((a, b) => a.name.localeCompare(b.name));
 
-        // Note: Mathematical percentages sum exactly to 100% for flawless PDF formatting
         sortedInsps.forEach(inspObj => {
             let typesObj = inspObj.types;
             let typesList = Object.keys(typesObj).sort();
@@ -718,7 +763,7 @@
 
                 rowsHtml += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0 align-top">
-                        <td data-col-index="i0" data-default-width="12%" style="width: 150px; min-width: 120px;" class="p-2.5 border-r font-bold text-slate-700"><strong>${type}</strong></td>
+                        <td data-col-index="i0" data-default-width="12%" style="width: 150px; min-width: 120px;" class="p-2.5 border-r font-bold text-slate-700 break-words"><strong>${type}</strong></td>
                         <td data-col-index="i1" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r text-center font-mono font-bold text-blue-700 bg-blue-50/30">${issuedArr.length}</td>
                         <td data-col-index="i2" data-default-width="20%" style="width: 250px; min-width: 180px;" class="p-2.5 border-r font-mono text-[9px] leading-tight text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(issuedArr)}</td>
                         <td data-col-index="i3" data-default-width="26%" style="width: 280px; min-width: 220px;" class="p-2.5 border-r font-mono text-[10px] leading-tight text-slate-700 break-words whitespace-pre-wrap">${discomBreakdownHtml}</td>
@@ -822,7 +867,7 @@
     }
 
     // ==========================================
-    // FLAWLESS ANTI-CROP NODE RELOCATION EXPORT
+    // FLAWLESS ANTI-CROP PDF EXPORT
     // ==========================================
     function downloadTrackerPDF() {
         const filterDiscom = document.getElementById("tracker-discom-filter").value;
@@ -870,87 +915,46 @@
                 el.style.overflow = 'visible';
             });
 
-            // 4. 🎯 NODE RELOCATION: Move the LIVE DOM wrapper absolutely to the body.
-            const originalParent = wrapper.parentNode;
-            const originalNextSibling = wrapper.nextSibling;
-            
-            const printAnchor = document.createElement('div');
-            printAnchor.style.position = 'absolute';
-            printAnchor.style.top = '0';
-            printAnchor.style.left = '0';
-            printAnchor.style.width = '1250px'; // 🎯 Exact width for A4 landscape
-            printAnchor.style.minHeight = '100vh';
-            printAnchor.style.background = 'white';
-            printAnchor.style.zIndex = '99999';
-            
-            // Apply bug-fixing class directly to the anchor
-            printAnchor.classList.add('pdf-rendering-active');
-            
-            printAnchor.appendChild(wrapper);
-            document.body.appendChild(printAnchor);
+            // 4. Force Print State
+            document.body.classList.add("pdf-mode-active");
+            window.scrollTo(0, 0);
 
-            // Hide resizers during print
-            wrapper.querySelectorAll('.resizer, .hide-on-print').forEach(el => el.style.display = 'none');
-            
-            // Override table styles inside anchor
-            wrapper.querySelectorAll('table').forEach(table => {
-                table.style.width = '100%';
-                table.style.tableLayout = 'fixed';
-                table.style.minWidth = '100%';
-            });
-            wrapper.querySelectorAll('th, td').forEach(cell => {
-                cell.style.whiteSpace = "pre-wrap";
-                cell.style.wordBreak = "break-word";
-                cell.style.overflowWrap = "break-word";
-            });
+            setTimeout(() => {
+                // 5. Print Configuration (A4 Landscape)
+                const opt = {
+                    margin:       [0.3, 0.3, 0.3, 0.3], 
+                    filename:     `Seal_Tracker_Report_${dStr}.pdf`,
+                    image:        { type: 'jpeg', quality: 1.0 },
+                    html2canvas:  { 
+                        scale: 2,             
+                        useCORS: true,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: 1250 
+                    },
+                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }, 
+                    pagebreak:    { mode: ['css', 'legacy'], avoid: ['.pdf-accordion', 'tr', 'thead'] } 
+                };
 
-            // 5. Print Configuration (A4 Landscape)
-            const opt = {
-                margin:       [0.3, 0.3, 0.3, 0.3], 
-                filename:     `Seal_Tracker_Report_${dStr}.pdf`,
-                image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { 
-                    scale: 2,             
-                    useCORS: true,
-                    scrollX: 0,
-                    scrollY: 0
-                },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }, 
-                pagebreak:    { mode: ['css', 'legacy'], avoid: ['.pdf-accordion', 'tr', 'thead'] } 
-            };
+                window.html2pdf().set(opt).from(wrapper).save().then(() => {
+                    
+                    document.body.classList.remove("pdf-mode-active");
+                    
+                    scrollContainers.forEach(el => {
+                        el.classList.add('overflow-x-auto', 'custom-scrollbar');
+                        el.style.overflow = '';
+                    });
 
-            window.html2pdf().set(opt).from(wrapper).save().then(() => {
-                
-                // 6. Restore DOM to normal
-                if (originalNextSibling) {
-                    originalParent.insertBefore(wrapper, originalNextSibling);
-                } else {
-                    originalParent.appendChild(wrapper);
-                }
-                document.body.removeChild(printAnchor);
-                
-                // Reset styles
-                wrapper.querySelectorAll('table').forEach(table => {
-                    table.style.width = '';
-                    table.style.tableLayout = '';
-                    table.style.minWidth = '';
+                    titleEl.classList.add('hidden');
+                    accordions.forEach(el => el.classList.add('hidden'));
+
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    
+                    processAndRenderTracker(); 
+                    if (window.lucide) lucide.createIcons();
                 });
-                wrapper.querySelectorAll('.resizer, .hide-on-print').forEach(el => el.style.display = '');
-
-                scrollContainers.forEach(el => {
-                    el.classList.add('overflow-x-auto', 'custom-scrollbar');
-                    el.style.overflow = '';
-                });
-
-                titleEl.classList.add('hidden');
-                accordions.forEach(el => el.classList.add('hidden'));
-
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                
-                processAndRenderTracker(); 
-                if (window.lucide) lucide.createIcons();
-            });
+            }, 200);
         };
 
         if (typeof window.html2pdf === 'undefined') {
