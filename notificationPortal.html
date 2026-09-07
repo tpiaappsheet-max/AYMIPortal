@@ -1,0 +1,520 @@
+<div class="max-w-7xl mx-auto space-y-6 animate-fade-in pb-12">
+    
+    <!-- Top Header & Filter Controls -->
+    <div class="bg-white p-5 sm:p-6 rounded-3xl border shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+            <div>
+                <h3 class="font-black text-sm uppercase text-slate-900 flex items-center gap-2">
+                    <i data-lucide="bell-ring" class="text-rose-500 w-5 h-5"></i> Live Command Center
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Real-time alerts, daily operational targets, and compliance bottlenecks.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="cc-record-count-badge" class="text-[11px] font-mono px-3 py-1 rounded-xl bg-slate-100 text-slate-700 font-bold border">
+                    Loading Network Data...
+                </span>
+            </div>
+        </div>
+
+        <div class="flex items-center flex-wrap gap-2 pt-2">
+            <span class="text-[10px] font-black uppercase text-slate-400 mr-2"><i data-lucide="filter" class="w-3 h-3 inline"></i> View:</span>
+            <button onclick="window.filterCommandCenter('ALL')" id="cc-btn-ALL" class="px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer bg-blue-600 text-white shadow-xs">All Operations</button>
+            <button onclick="window.filterCommandCenter('NBPDCL')" id="cc-btn-NBPDCL" class="px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer bg-slate-100 text-slate-600 hover:text-slate-900">NBPDCL</button>
+            <button onclick="window.filterCommandCenter('SBPDCL')" id="cc-btn-SBPDCL" class="px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer bg-slate-100 text-slate-600 hover:text-slate-900">SBPDCL</button>
+            <button onclick="window.filterCommandCenter('PVVNL')" id="cc-btn-PVVNL" class="px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer bg-slate-100 text-slate-600 hover:text-slate-900">PVVNL</button>
+        </div>
+    </div>
+
+    <!-- Live Executive Summary Board -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+        <!-- Call Volume -->
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-slate-400 block tracking-wider">Total Calls</span>
+            <p id="cc-total-calls" class="text-xl font-black text-slate-900 mt-1">0</p>
+        </div>
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-blue-600 block tracking-wider">Valid Calls</span>
+            <p id="cc-valid-calls" class="text-xl font-black text-blue-700 mt-1">0</p>
+        </div>
+        <div class="bg-amber-50/50 p-3 rounded-2xl border border-amber-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-amber-600 block tracking-wider">Scheduled</span>
+            <p id="cc-scheduled" class="text-xl font-black text-amber-700 mt-1">0</p>
+        </div>
+        <div class="bg-rose-50/50 p-3 rounded-2xl border border-rose-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-rose-600 block tracking-wider">Pending</span>
+            <p id="cc-pending" class="text-xl font-black text-rose-700 mt-1">0</p>
+        </div>
+        <div class="bg-emerald-50/50 p-3 rounded-2xl border border-emerald-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-emerald-600 block tracking-wider">Completed</span>
+            <p id="cc-completed" class="text-xl font-black text-emerald-700 mt-1">0</p>
+        </div>
+        <div class="bg-purple-50/50 p-3 rounded-2xl border border-purple-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-purple-600 block tracking-wider">Billed</span>
+            <p id="cc-billed" class="text-xl font-black text-purple-700 mt-1">0</p>
+        </div>
+        <!-- Reports -->
+        <div class="bg-indigo-50/50 p-3 rounded-2xl border border-indigo-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-indigo-600 block tracking-wider">Rep Recv</span>
+            <p id="cc-rep-recv" class="text-xl font-black text-indigo-700 mt-1">0</p>
+        </div>
+        <div class="bg-cyan-50/50 p-3 rounded-2xl border border-cyan-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[9px] font-black uppercase text-cyan-600 block tracking-wider">Rep Mailed</span>
+            <p id="cc-rep-mail" class="text-xl font-black text-cyan-700 mt-1">0</p>
+        </div>
+    </div>
+
+    <!-- Alert Grids Container (3 Rows x 2 Columns) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        
+        <!-- ROW 1, PANEL 1: TODAY'S SCHEDULE -->
+        <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+            <div class="bg-blue-50 p-4 border-b border-blue-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-blue-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="calendar-clock" class="w-5 h-5"></i> Today's Schedule 
+                    <span id="count-today-sched" class="bg-blue-200 text-blue-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-blue-600 font-bold mt-1">Inspections officially scheduled to execute today.</p>
+            </div>
+            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+                        <tr>
+                            <th class="p-3 w-28">Inspection ID</th>
+                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3 w-40">Inspector</th>
+                            <th class="p-3">Manufacturer</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-today-sched-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ROW 1, PANEL 2: CALLS RECEIVED TODAY -->
+        <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+            <div class="bg-emerald-50 p-4 border-b border-emerald-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-emerald-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="inbox" class="w-5 h-5"></i> New Calls Received Today 
+                    <span id="count-today-recv" class="bg-emerald-200 text-emerald-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-emerald-600 font-bold mt-1">Fresh inspection assignments logged into the system today.</p>
+            </div>
+            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+                        <tr>
+                            <th class="p-3 w-28">Inspection ID</th>
+                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 w-32">Letter No</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-today-recv-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ROW 2, PANEL 1: URGENT DEADLINES -->
+        <div class="bg-white rounded-3xl border border-rose-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+            <div class="bg-rose-50 p-4 border-b border-rose-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-rose-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="alarm-clock" class="w-5 h-5"></i> Approaching Deadlines 
+                    <span id="count-deadlines" class="bg-rose-200 text-rose-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-rose-600 font-bold mt-1">Unfinished valid inspections mapped against target completion dates (<= 3 Days).</p>
+            </div>
+            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+                        <tr>
+                            <th class="p-3 w-28">Inspection ID</th>
+                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 text-center w-24">Deadline</th>
+                            <th class="p-3 text-right w-24">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-deadlines-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ROW 2, PANEL 2: OVERDUE FOR SCHEDULING -->
+        <div class="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+            <div class="bg-orange-50 p-4 border-b border-orange-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-orange-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="clock-alert" class="w-5 h-5"></i> Overdue for Scheduling
+                    <span id="count-overdue-sched" class="bg-orange-200 text-orange-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-orange-600 font-bold mt-1">Calls received > 3 days ago but still pending assignment.</p>
+            </div>
+            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+                        <tr>
+                            <th class="p-3 w-28">Inspection ID</th>
+                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 text-center w-24">Recv Date</th>
+                            <th class="p-3 text-center w-20">Days Wait</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-overdue-sched-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ROW 3, PANEL 1: NABL REPORTS PENDING MAILING -->
+        <div class="bg-white rounded-3xl border border-indigo-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+            <div class="bg-indigo-50 p-4 border-b border-indigo-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-indigo-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="mail-warning" class="w-5 h-5"></i> NABL Dispatched, Unmailed
+                    <span id="count-nabl" class="bg-indigo-200 text-indigo-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-indigo-600 font-bold mt-1">Samples sent to NABL but final report transmission remains pending.</p>
+            </div>
+            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+                        <tr>
+                            <th class="p-3 w-28">Inspection ID</th>
+                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 text-center w-28">NABL Send Date</th>
+                            <th class="p-3 text-center w-20">Days Elapsed</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-nabl-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ROW 3, PANEL 2: READY FOR BILLING -->
+        <div class="bg-white rounded-3xl border border-purple-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+            <div class="bg-purple-50 p-4 border-b border-purple-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-purple-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="receipt" class="w-5 h-5"></i> Ready for Billing
+                    <span id="count-ready-billing" class="bg-purple-200 text-purple-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-purple-600 font-bold mt-1">Inspections successfully completed but billing status is pending.</p>
+            </div>
+            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+                        <tr>
+                            <th class="p-3 w-28">Inspection ID</th>
+                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 text-center w-24">Outcome</th>
+                            <th class="p-3 text-center w-20">Man-Days</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-ready-billing-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    window.ccRawData = [];
+    window.ccActiveDiscom = "ALL";
+
+    // 🎯 Defensive helpers to prevent "Cannot set properties of null" errors during tab switching
+    const safeSetText = (id, text) => { 
+        const el = document.getElementById(id); 
+        if (el) el.innerText = text; 
+    };
+    const safeSetHtml = (id, html) => { 
+        const el = document.getElementById(id); 
+        if (el) el.innerHTML = html; 
+    };
+
+    async function initCommandCenter() {
+        try {
+            const res = await fetch(`${API_URL}?action=getCombinedInspections`);
+            const textData = await res.text();
+            const parsed = JSON.parse(textData);
+            
+            if (parsed.status && parsed.data) {
+                window.ccRawData = parsed.data;
+                renderCommandCenter();
+            } else {
+                safeSetText("cc-record-count-badge", "Data Unavailable");
+            }
+        } catch (e) {
+            safeSetText("cc-record-count-badge", "Network Error");
+        }
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function parseAnyDateObj(str) {
+        if (!str) return null;
+        let s = String(str).trim();
+        let match = s.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+        if (match) return new Date(match[3], match[2] - 1, match[1], 0, 0, 0, 0);
+        
+        if (s.includes('T')) {
+            const dp = s.split('T')[0].split('-');
+            if (dp.length === 3) return new Date(dp[0], dp[1]-1, dp[2], 0, 0, 0, 0);
+        }
+        
+        const d = new Date(s);
+        d.setHours(0,0,0,0);
+        return isNaN(d.getTime()) ? null : d;
+    }
+
+    function isSameDate(d1, d2) {
+        if (!d1 || !d2) return false;
+        return d1.getDate() === d2.getDate() && 
+               d1.getMonth() === d2.getMonth() && 
+               d1.getFullYear() === d2.getFullYear();
+    }
+
+    window.filterCommandCenter = function(discom) {
+        window.ccActiveDiscom = discom;
+        
+        const btns = ["ALL", "NBPDCL", "SBPDCL", "PVVNL"];
+        const activeClass = "px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer bg-blue-600 text-white shadow-xs";
+        const inactiveClass = "px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer bg-slate-100 text-slate-600 hover:text-slate-900";
+
+        btns.forEach(b => {
+            const el = document.getElementById(`cc-btn-${b}`);
+            if (el) {
+                el.className = (b === discom) ? activeClass : inactiveClass;
+            }
+        });
+
+        renderCommandCenter();
+    }
+
+    function renderCommandCenter() {
+        if (!window.ccRawData) return;
+
+        const records = window.ccRawData.filter(r => {
+            if (window.ccActiveDiscom !== "ALL" && String(r.discom || "").trim().toUpperCase() !== window.ccActiveDiscom) return false;
+            return true;
+        });
+
+        safeSetText("cc-record-count-badge", `Live Scanning: ${records.length} Records`);
+
+        let tTotal = records.length;
+        let tCancelRev = 0;
+        let tValid = 0;
+        let tSched = 0;
+        let tPend = 0;
+        let tComp = 0;
+        let tBill = 0;
+        let tRepRecv = 0;
+        let tRepMail = 0;
+
+        let deadlineAlerts = [];
+        let nablAlerts = [];
+        let todaySchedAlerts = [];
+        let todayRecvAlerts = [];
+        let overdueSchedAlerts = [];
+        let readyBillingAlerts = [];
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            const bill = String(r.billingStatus || "").trim().toLowerCase();
+            const discom = String(r.discom || "").trim().toUpperCase();
+
+            // 1. KPI Counts
+            if (stat.includes("cancel") || stat.includes("revis")) {
+                tCancelRev++;
+            } else {
+                tValid++;
+                if (stat === "schedule" || stat === "scheduled") tSched++;
+                else if (stat.includes("pend") || sub.includes("pend")) tPend++;
+                if (sub.includes("pass") || sub.includes("mom")) tComp++;
+            }
+
+            if (bill === "billed") tBill++;
+            if (String(r.reportReceived || "").trim().toLowerCase() === "yes") tRepRecv++;
+            if (String(r.reportMail || "").trim().toLowerCase() === "yes") tRepMail++;
+
+            // Ignore cancelled/revised for operational alerts entirely
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            let dSch = parseAnyDateObj(r.scheduleDate);
+            let dRec = parseAnyDateObj(r.receivedDate);
+
+            // TODAY SCHEDULE
+            if (isSameDate(dSch, today)) {
+                todaySchedAlerts.push({
+                    id: r.inspectionId || r.InspectionID || 'N/A',
+                    discom: discom,
+                    insp: r.conductedBy || r.tpiaInspector || 'Not Appointed',
+                    mfg: r.manufacturer || 'N/A'
+                });
+            }
+
+            // RECEIVED TODAY
+            if (isSameDate(dRec, today)) {
+                todayRecvAlerts.push({
+                    id: r.inspectionId || r.InspectionID || 'N/A',
+                    discom: discom,
+                    mfg: r.manufacturer || 'N/A',
+                    letter: r.letterNo || 'N/A'
+                });
+            }
+
+            // OVERDUE FOR SCHEDULING (> 3 days wait, no schedule date, still pending)
+            if (dRec && !dSch && stat.includes("pend")) {
+                let diffDays = Math.floor((today - dRec) / (1000 * 60 * 60 * 24));
+                if (diffDays >= 3) {
+                    overdueSchedAlerts.push({
+                        id: r.inspectionId || r.InspectionID || 'N/A',
+                        discom: discom,
+                        mfg: r.manufacturer || 'N/A',
+                        recvDate: `${String(dRec.getDate()).padStart(2,'0')}/${String(dRec.getMonth()+1).padStart(2,'0')}/${dRec.getFullYear()}`,
+                        daysWait: diffDays
+                    });
+                }
+            }
+
+            // READY FOR BILLING
+            if ((sub.includes("pass") || sub.includes("mom")) && bill !== "billed") {
+                readyBillingAlerts.push({
+                    id: r.inspectionId || r.InspectionID || 'N/A',
+                    discom: discom,
+                    mfg: r.manufacturer || 'N/A',
+                    outcome: sub.includes("pass") ? "Material Pass" : "MOM Notice",
+                    md: r.manDays || "0"
+                });
+            }
+
+            // APPROACHING DEADLINES (Unfinished only)
+            if (!sub.includes("pass") && !sub.includes("mom")) {
+                if (dRec) {
+                    let dl = new Date(dRec);
+                    dl.setDate(dl.getDate() + (discom === 'PVVNL' ? 7 : 15));
+                    dl.setHours(0,0,0,0);
+                    let diffDays = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
+                    if (diffDays <= 3) {
+                        deadlineAlerts.push({
+                            id: r.inspectionId || r.InspectionID || 'N/A',
+                            discom: discom,
+                            mfg: r.manufacturer || 'N/A',
+                            deadlineDate: `${String(dl.getDate()).padStart(2,'0')}/${String(dl.getMonth()+1).padStart(2,'0')}/${dl.getFullYear()}`,
+                            daysLeft: diffDays
+                        });
+                    }
+                }
+            }
+
+            // NABL ALERTS
+            const nablRaw = String(r.nablStatusDate || "").trim();
+            if (nablRaw.toLowerCase().includes("sample send for nabl test") && String(r.reportMail || "").trim().toLowerCase() !== "yes") {
+                let extractedDate = "No Date Found";
+                let diffDays = 0;
+                let dMatch = nablRaw.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+                if (dMatch) {
+                    extractedDate = `${dMatch[1]}/${dMatch[2]}/${dMatch[3]}`;
+                    let nablDate = new Date(dMatch[3], dMatch[2] - 1, dMatch[1]);
+                    nablDate.setHours(0,0,0,0);
+                    diffDays = Math.ceil((today - nablDate) / (1000 * 60 * 60 * 24));
+                }
+
+                nablAlerts.push({
+                    id: r.inspectionId || r.InspectionID || 'N/A',
+                    discom: discom,
+                    mfg: r.manufacturer || 'N/A',
+                    nablDate: extractedDate,
+                    daysElapsed: diffDays
+                });
+            }
+        });
+
+        // 🎯 Safely update Top Summaries
+        safeSetText("cc-total-calls", tTotal);
+        safeSetText("cc-valid-calls", tValid);
+        safeSetText("cc-scheduled", tSched);
+        safeSetText("cc-pending", tPend);
+        safeSetText("cc-completed", tComp);
+        safeSetText("cc-billed", tBill);
+        safeSetText("cc-rep-recv", tRepRecv);
+        safeSetText("cc-rep-mail", tRepMail);
+
+        // 🎯 Safely update Header Count Badges
+        safeSetText("count-today-sched", todaySchedAlerts.length);
+        safeSetText("count-today-recv", todayRecvAlerts.length);
+        safeSetText("count-deadlines", deadlineAlerts.length);
+        safeSetText("count-overdue-sched", overdueSchedAlerts.length);
+        safeSetText("count-nabl", nablAlerts.length);
+        safeSetText("count-ready-billing", readyBillingAlerts.length);
+
+        // RENDER: TODAY SCHEDULE
+        let tsHtml = "";
+        todaySchedAlerts.forEach(a => {
+            tsHtml += `<tr class="hover:bg-blue-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.insp}">${a.insp}</td><td class="p-3 text-slate-600 truncate max-w-[150px]" title="${a.mfg}">${a.mfg}</td></tr>`;
+        });
+        safeSetHtml("cc-today-sched-body", tsHtml || `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No inspections scheduled for today.</td></tr>`);
+
+        // RENDER: CALLS RECEIVED TODAY
+        let trHtml = "";
+        todayRecvAlerts.forEach(a => {
+            trHtml += `<tr class="hover:bg-emerald-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-medium text-emerald-700 truncate max-w-[120px]" title="${a.letter}">${a.letter}</td></tr>`;
+        });
+        safeSetHtml("cc-today-recv-body", trHtml || `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No new calls received today.</td></tr>`);
+
+        // RENDER: DEADLINES
+        deadlineAlerts.sort((a, b) => a.daysLeft - b.daysLeft);
+        let dlHtml = "";
+        deadlineAlerts.forEach(a => {
+            let statusBadge = "";
+            if (a.daysLeft < 0) statusBadge = `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-300 shadow-xs">Overdue by ${Math.abs(a.daysLeft)}d</span>`;
+            else if (a.daysLeft === 0) statusBadge = `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-bold border border-orange-300 shadow-xs">Due Today</span>`;
+            else statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 shadow-xs">Due in ${a.daysLeft}d</span>`;
+
+            dlHtml += `<tr class="hover:bg-rose-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-bold text-slate-600 text-center border-r">${a.deadlineDate}</td><td class="p-3 text-right">${statusBadge}</td></tr>`;
+        });
+        safeSetHtml("cc-deadlines-body", dlHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No urgent deadlines approaching.</td></tr>`);
+
+        // RENDER: OVERDUE FOR SCHEDULING
+        overdueSchedAlerts.sort((a, b) => b.daysWait - a.daysWait);
+        let osHtml = "";
+        overdueSchedAlerts.forEach(a => {
+            osHtml += `<tr class="hover:bg-orange-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-bold text-orange-700 text-center border-r">${a.recvDate}</td><td class="p-3 text-center font-black text-orange-600">${a.daysWait} days</td></tr>`;
+        });
+        safeSetHtml("cc-overdue-sched-body", osHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No calls overdue for scheduling.</td></tr>`);
+
+        // RENDER: NABL PENDING
+        nablAlerts.sort((a, b) => b.daysElapsed - a.daysElapsed);
+        let nblHtml = "";
+        nablAlerts.forEach(a => {
+            nblHtml += `<tr class="hover:bg-indigo-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-bold text-indigo-700 text-center border-r">${a.nablDate}</td><td class="p-3 text-center font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'}">${a.daysElapsed} days</td></tr>`;
+        });
+        safeSetHtml("cc-nabl-body", nblHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No pending NABL reports found.</td></tr>`);
+
+        // RENDER: READY FOR BILLING
+        let rbHtml = "";
+        readyBillingAlerts.forEach(a => {
+            const outColor = a.outcome === "Material Pass" ? "text-emerald-700" : "text-purple-700";
+            rbHtml += `<tr class="hover:bg-purple-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-bold ${outColor} text-center border-r">${a.outcome}</td><td class="p-3 text-center font-mono font-bold text-slate-600">${a.md}</td></tr>`;
+        });
+        safeSetHtml("cc-ready-billing-body", rbHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No unbilled completions found.</td></tr>`);
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    setTimeout(initCommandCenter, 50);
+</script>

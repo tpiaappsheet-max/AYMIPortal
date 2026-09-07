@@ -1,0 +1,975 @@
+<!-- html2pdf Library will be dynamically loaded via script to prevent router scope errors -->
+
+<div class="max-w-7xl mx-auto space-y-4 animate-fade-in pb-12" id="main-container">
+    
+    <!-- Tab Navigation -->
+    <div class="bg-white p-2 rounded-2xl border shadow-sm flex items-center gap-2 mb-4 w-fit hide-on-print">
+        <button onclick="switchSealTab('inventory')" id="tab-btn-inventory" class="px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center gap-2 cursor-pointer">
+            <i data-lucide="edit-3" class="w-4 h-4"></i> Seal Inventory Entry
+        </button>
+        <button onclick="switchSealTab('tracker')" id="tab-btn-tracker" class="px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-transparent text-slate-500 hover:bg-slate-100 flex items-center gap-2 cursor-pointer">
+            <i data-lucide="radar" class="w-4 h-4"></i> Seal Usage Tracker
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: INVENTORY ENTRY                     -->
+    <!-- ========================================== -->
+    <div id="tab-inventory" class="space-y-4 block">
+        <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <h3 class="font-black text-sm uppercase text-slate-800 flex items-center gap-2">
+                    <i data-lucide="lock" class="text-amber-600 w-5 h-5"></i> <span>Seal Inventory Entry</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Procure, allocate, and manage seal numbering sequences.</p>
+            </div>
+            <button onclick="openSealModal()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> <span>Add New Allocation</span>
+            </button>
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl border shadow-sm">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-900 text-white uppercase text-[10px] font-mono">
+                        <tr>
+                            <th class="p-3 border-r border-slate-700 w-12 text-center">Sr No</th>
+                            <th class="p-3 border-r border-slate-700 w-48">Type of Seal</th>
+                            <th class="p-3 border-r border-slate-700 text-amber-300">TPIA Inspector (Issued To)</th>
+                            <th class="p-3 border-r border-slate-700 w-32">Seal No From</th>
+                            <th class="p-3 border-r border-slate-700 w-32">Seal No To</th>
+                            <th class="p-3 border-r border-slate-700 text-center w-24">Total</th>
+                            <th class="p-3 text-center w-24">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="seal-table-body" class="divide-y font-medium text-slate-700">
+                        <tr><td colspan="7" class="p-12 text-center text-slate-400 animate-pulse">Synchronizing inventory data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: USAGE TRACKER                       -->
+    <!-- ========================================== -->
+    <div id="tab-tracker" class="space-y-4 hidden">
+        <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 hide-on-print">
+            <div>
+                <h3 class="font-black text-sm uppercase text-slate-800 flex items-center gap-2">
+                    <i data-lucide="radar" class="text-rose-600 w-5 h-5"></i> <span>Seal Usage & Cross-Transfer Tracker</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Real-time breakdown of assigned stock, field execution, and borrowed/lent inventory.</p>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap">
+                <button id="export-tracker-pdf-btn" onclick="downloadTrackerPDF()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-slate-800 hover:bg-slate-900 text-white shadow-md flex items-center gap-2">
+                    <i data-lucide="download-cloud" class="w-4 h-4"></i> <span>Export PDF Report</span>
+                </button>
+                <div>
+                    <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Usage By Discom</label>
+                    <select id="tracker-discom-filter" onchange="processAndRenderTracker()" class="p-2 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-slate-50 focus:bg-white cursor-pointer w-full sm:w-48 transition">
+                        <option value="ALL">All Discoms (Combined)</option>
+                        <option value="NBPDCL">NBPDCL</option>
+                        <option value="SBPDCL">SBPDCL</option>
+                        <option value="PVVNL">PVVNL</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🎯 Container for Tracker Data -->
+        <div id="pdf-tracker-wrapper" class="space-y-6 bg-white p-6 rounded-3xl border shadow-sm w-full block">
+            <h2 id="pdf-tracker-title" class="hidden font-black text-lg mb-6 uppercase tracking-wider text-center text-slate-800">
+                <span>Detailed Seal Inventory & Usage Report</span>
+            </h2>
+
+            <!-- Type-wise Summary Banner -->
+            <div>
+                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2 mb-3">
+                    <i data-lucide="pie-chart" class="w-4 h-4 text-blue-600"></i> <span>Type-Wise Summary Breakdown</span>
+                </h4>
+                <div id="dynamic-summary-banner" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+
+            <!-- 1. Central Inventory (Unassigned) -->
+            <div class="pt-2">
+                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2 mb-3">
+                    <i data-lucide="box" class="w-4 h-4 text-amber-600"></i> <span>Central Inventory (Unassigned Stock)</span>
+                </h4>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl scroll-lockable custom-scrollbar">
+                    <table class="w-full text-left text-xs border-collapse table-fixed resizable-table min-w-[700px]">
+                        <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] font-black border-b">
+                            <tr>
+                                <th data-col-index="c0" data-default-width="20%" style="width: 250px; min-width: 250px;" class="p-3 border-r resizable-th relative">Seal Type<div class="resizer hide-on-print"></div></th>
+                                <th data-col-index="c1" data-default-width="10%" style="width: 120px; min-width: 120px;" class="p-3 border-r text-center resizable-th relative">Stock Qty<div class="resizer hide-on-print"></div></th>
+                                <th data-col-index="c2" data-default-width="70%" style="width: 600px; min-width: 600px;" class="p-3 font-mono resizable-th relative">Available Sequences<div class="resizer hide-on-print"></div></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tracker-central-body" class="divide-y font-medium text-slate-700 bg-white">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. Inspector Allocations -->
+            <div class="pt-4 border-t border-slate-200">
+                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2 mb-4">
+                    <i data-lucide="users" class="w-4 h-4 text-blue-600"></i> <span>Inspector-Wise Allocations, Discom Usage & Cross-Transfers</span>
+                </h4>
+                <div id="tracker-inspectors-body" class="space-y-4">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Add/Edit Inventory -->
+<div id="seal-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 relative border">
+        <div class="flex items-center justify-between border-b pb-4 mb-4">
+            <h3 class="font-black text-sm uppercase text-slate-900 flex items-center gap-2">
+                <i data-lucide="lock" class="text-amber-600 w-5 h-5"></i> <span id="seal-modal-title">Add Seal Allocation</span>
+            </h3>
+            <button onclick="closeSealModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form onsubmit="handleSaveSeal(event)" class="space-y-4">
+            <input type="hidden" id="seal-id">
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Type of Seal</label>
+                    <select id="seal-type" required class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 cursor-pointer">
+                        <option value="">-- Select Type --</option>
+                        <option value="Polycarbonate Seal">Polycarbonate Seal</option>
+                        <option value="Holographic Seal">Holographic Seal</option>
+                        <option value="HS Cable Seal">HS Cable Seal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">TPIA Inspector (Issue To)</label>
+                    <select id="seal-tpia" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-blue-500 cursor-pointer text-blue-700">
+                        <option value="">-- Unassigned (Inventory) --</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Seal No From</label>
+                    <input type="text" id="seal-from" oninput="autoCalculateSeals()" required placeholder="e.g. SL-1001" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 font-mono">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Seal No To</label>
+                    <input type="text" id="seal-to" oninput="autoCalculateSeals()" required placeholder="e.g. SL-1500" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 font-mono">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Total Number of Seals</label>
+                <input type="number" id="seal-total" required placeholder="Auto-calculated or enter manually" class="w-full p-2.5 border rounded-xl text-xs font-black outline-none bg-slate-50 focus:border-amber-500 focus:bg-white">
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+                <button type="button" onclick="closeSealModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer">Cancel</button>
+                <button type="submit" id="save-seal-btn" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> <span>Save Record</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 2px solid #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Dynamic Column Resizer Styles */
+    .resizer { position: absolute; top: 0; right: 0; width: 6px; cursor: col-resize; user-select: none; touch-action: none; height: 100%; background-color: rgba(0, 0, 0, 0.05); transition: background-color 0.2s; z-index: 10; }
+    .resizer:hover, .resizing { background-color: #38bdf8; }
+    th.resizable-th { position: relative; }
+
+    /* 🎯 Fix for html2canvas letter-spacing rendering bugs */
+    .pdf-rendering-active,
+    .pdf-rendering-active * {
+        letter-spacing: normal !important;
+    }
+</style>
+
+<script>
+    window.sealRecordsData = [];
+    window.trackerMasterInspections = [];
+    window.miInspectorsList = [];
+    window.trackerDataLoaded = false;
+
+    async function initSealModule() {
+        try {
+            const [sealsRes, inspRes, masterRes] = await Promise.all([
+                fetch(`${API_URL}?action=getSealDetails`),
+                fetch(`${API_URL}?action=getInspectors`),
+                fetch(`${API_URL}?action=getCombinedInspections`)
+            ]);
+
+            const sealData = await sealsRes.json();
+            if (sealData.status) window.sealRecordsData = sealData.data || [];
+
+            const inspText = await inspRes.text();
+            try {
+                const inspData = JSON.parse(inspText);
+                if (inspData.status && inspData.data) window.miInspectorsList = inspData.data;
+            } catch(e) {}
+
+            const masterText = await masterRes.text();
+            try {
+                const masterData = JSON.parse(masterText);
+                if (masterData.status && masterData.data) window.trackerMasterInspections = masterData.data;
+            } catch(e) {}
+
+            window.trackerDataLoaded = true;
+
+            renderSealTable();
+            populateInspectorDropdown();
+        } catch (err) {
+            document.getElementById("seal-table-body").innerHTML = `<tr><td colspan="7" class="p-8 text-center text-rose-500 font-bold">Network Error loading core data.</td></tr>`;
+        }
+    }
+
+    function switchSealTab(tabId) {
+        document.getElementById("tab-inventory").classList.add("hidden");
+        document.getElementById("tab-tracker").classList.add("hidden");
+        
+        document.getElementById("tab-btn-inventory").className = "px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-transparent text-slate-500 hover:bg-slate-100 flex items-center gap-2 cursor-pointer";
+        document.getElementById("tab-btn-tracker").className = "px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-transparent text-slate-500 hover:bg-slate-100 flex items-center gap-2 cursor-pointer";
+
+        document.getElementById(`tab-${tabId}`).classList.remove("hidden");
+        
+        if (tabId === 'inventory') {
+            document.getElementById("tab-btn-inventory").className = "px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center gap-2 cursor-pointer";
+            renderSealTable();
+        } else if (tabId === 'tracker') {
+            document.getElementById("tab-btn-tracker").className = "px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center gap-2 cursor-pointer";
+            if (window.trackerDataLoaded) processAndRenderTracker();
+        }
+    }
+
+    function cleanInspectorName(name) {
+        if (!name) return "";
+        return String(name).toLowerCase().replace(/^(er\.|er\s+|mr\.|mr\s+|engr\.|dr\.)\s*/i, "").replace(/[^a-z0-9]/g, '');
+    }
+
+    function getInspectorName(insp) {
+        if (typeof insp === 'string') return insp;
+        const keys = Object.keys(insp);
+        const nameKey = keys.find(k => {
+            const lk = k.toLowerCase().replace(/[^a-z]/g, '');
+            return lk.includes('name') || lk.includes('inspector') || lk.includes('engineer');
+        });
+        return (nameKey && insp[nameKey]) ? String(insp[nameKey]).trim() : (Object.values(insp)[1] || Object.values(insp)[0] || "Unknown");
+    }
+
+    function autoCalculateSeals() {
+        let fromStr = document.getElementById("seal-from").value.trim();
+        let toStr = document.getElementById("seal-to").value.trim();
+        let fromNum = fromStr.match(/\d+$/);
+        let toNum = toStr.match(/\d+$/);
+        
+        if (fromNum && toNum) {
+            let total = parseInt(toNum[0], 10) - parseInt(fromNum[0], 10) + 1;
+            if (total > 0) document.getElementById("seal-total").value = total;
+        }
+    }
+
+    function populateInspectorDropdown() {
+        if (!window.miInspectorsList || window.miInspectorsList.length === 0) return;
+        const uniqueNames = [...new Set(window.miInspectorsList.map(i => getInspectorName(i)))].filter(Boolean);
+        uniqueNames.sort();
+
+        const tpiaSelect = document.getElementById("seal-tpia");
+        if (tpiaSelect) {
+            tpiaSelect.innerHTML = `<option value="">-- Unassigned (Inventory) --</option>` + uniqueNames.map(n => `<option value="${n}">${n}</option>`).join('');
+        }
+    }
+
+    function renderSealTable() {
+        const tbody = document.getElementById("seal-table-body");
+        if (window.sealRecordsData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">No seal allocations found.</td></tr>`;
+            return;
+        }
+
+        let html = "";
+        window.sealRecordsData.forEach((row, index) => {
+            const bg = index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+            const encodedData = encodeURIComponent(JSON.stringify(row));
+            const inspectorLabel = row.tpiaInspector ? `<span class="font-bold text-blue-700">${row.tpiaInspector}</span>` : `<span class="italic text-slate-400">Inventory (Unassigned)</span>`;
+            
+            html += `<tr class="${bg} hover:bg-amber-50/40 transition">
+                <td class="p-3 border-r text-center font-mono text-slate-400">${index + 1}</td>
+                <td class="p-3 border-r font-bold text-slate-800">${row.sealType || '-'}</td>
+                <td class="p-3 border-r text-sm">${inspectorLabel}</td>
+                <td class="p-3 border-r font-mono text-slate-700 font-bold">${row.sealFrom || '-'}</td>
+                <td class="p-3 border-r font-mono text-slate-700 font-bold">${row.sealTo || '-'}</td>
+                <td class="p-3 border-r text-center font-black text-slate-900">${row.totalSeals || 0}</td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="openSealModal('${encodedData}')" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition cursor-pointer" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <button onclick="deleteSealRecord('${row.sealId}')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition cursor-pointer" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        });
+
+        tbody.innerHTML = html;
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function openSealModal(encodedData = null) {
+        const modal = document.getElementById("seal-modal");
+        const title = document.getElementById("seal-modal-title");
+        
+        document.getElementById("seal-id").value = "";
+        document.getElementById("seal-type").value = "";
+        document.getElementById("seal-tpia").value = "";
+        document.getElementById("seal-from").value = "";
+        document.getElementById("seal-to").value = "";
+        document.getElementById("seal-total").value = "";
+
+        if (encodedData) {
+            title.innerText = "Edit Seal Allocation";
+            const row = JSON.parse(decodeURIComponent(encodedData));
+            document.getElementById("seal-id").value = row.sealId;
+            
+            const typeSelect = document.getElementById("seal-type");
+            let optionExists = Array.from(typeSelect.options).some(opt => opt.value === row.sealType);
+            if (!optionExists && row.sealType) typeSelect.add(new Option(row.sealType, row.sealType));
+            typeSelect.value = row.sealType;
+
+            const tpiaSelect = document.getElementById("seal-tpia");
+            let tpiaExists = Array.from(tpiaSelect.options).some(opt => opt.value === row.tpiaInspector);
+            if (!tpiaExists && row.tpiaInspector) tpiaSelect.add(new Option(row.tpiaInspector, row.tpiaInspector));
+            tpiaSelect.value = row.tpiaInspector || "";
+
+            document.getElementById("seal-from").value = row.sealFrom;
+            document.getElementById("seal-to").value = row.sealTo;
+            document.getElementById("seal-total").value = row.totalSeals;
+        } else {
+            title.innerText = "Add New Allocation";
+            document.getElementById("seal-id").value = "SL-" + Date.now().toString().slice(-6);
+        }
+
+        modal.classList.remove("hidden");
+    }
+
+    function closeSealModal() { document.getElementById("seal-modal").classList.add("hidden"); }
+
+    async function handleSaveSeal(e) {
+        e.preventDefault();
+        const btn = document.getElementById("save-seal-btn");
+        const origText = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Saving...`;
+        btn.disabled = true;
+
+        const payload = {
+            action: "saveSealDetails",
+            sealId: document.getElementById("seal-id").value,
+            sealType: document.getElementById("seal-type").value,
+            tpiaInspector: document.getElementById("seal-tpia").value,
+            sealFrom: document.getElementById("seal-from").value,
+            sealTo: document.getElementById("seal-to").value,
+            totalSeals: document.getElementById("seal-total").value
+        };
+
+        try {
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
+            const data = await res.json();
+            if (data.status) {
+                closeSealModal();
+                const sealsRes = await fetch(`${API_URL}?action=getSealDetails`);
+                const sealData = await sealsRes.json();
+                if (sealData.status) window.sealRecordsData = sealData.data || [];
+                renderSealTable();
+                if (!document.getElementById("tab-tracker").classList.contains("hidden")) processAndRenderTracker();
+            } else alert("Error: " + data.message);
+        } catch (err) { alert("Network error while saving."); }
+
+        btn.innerHTML = origText;
+        btn.disabled = false;
+        if (window.lucide) lucide.createIcons();
+    }
+
+    async function deleteSealRecord(sealId) {
+        if (!confirm("Permanently delete this seal allocation?")) return;
+        try {
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "deleteSealDetails", sealId: sealId }) });
+            const data = await res.json();
+            if (data.status) {
+                const sealsRes = await fetch(`${API_URL}?action=getSealDetails`);
+                const sealData = await sealsRes.json();
+                if (sealData.status) window.sealRecordsData = sealData.data || [];
+                renderSealTable();
+                if (!document.getElementById("tab-tracker").classList.contains("hidden")) processAndRenderTracker();
+            } else alert("Error deleting record: " + data.message);
+        } catch (err) { alert("Network error while deleting."); }
+    }
+
+    // ==========================================
+    // TRACKER MATH & SMART CROSS-USAGE LOGIC
+    // ==========================================
+    function extractPrefixAndNum(str) {
+        let match = String(str).trim().match(/^([A-Za-z_-]+)?(\d+)$/);
+        if (match) return { prefix: match[1] || "", num: parseInt(match[2], 10), padding: match[2].length, original: String(str).trim() };
+        return null;
+    }
+
+    function expandSealRange(inputStr) {
+        if (!inputStr) return [];
+        let tokens = String(inputStr).split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+        let results = new Set();
+
+        tokens.forEach(token => {
+            let rangeMatch = token.match(/(.+?)\s+(?:to|-)\s+(.+)/i);
+            if (rangeMatch) {
+                let fromParsed = extractPrefixAndNum(rangeMatch[1]);
+                let toParsed = extractPrefixAndNum(rangeMatch[2]);
+
+                if (fromParsed && toParsed && fromParsed.prefix === toParsed.prefix) {
+                    let start = Math.min(fromParsed.num, toParsed.num);
+                    let end = Math.max(fromParsed.num, toParsed.num);
+                    for (let i = start; i <= end; i++) results.add(fromParsed.prefix + String(i).padStart(fromParsed.padding, '0'));
+                } else results.add(token);
+            } else results.add(token);
+        });
+        return Array.from(results);
+    }
+
+    function compressToRanges(sealArray) {
+        if (!sealArray || sealArray.length === 0) return `<span class="text-slate-300 italic">- None -</span>`;
+
+        let parsed = sealArray.map(s => {
+            let p = extractPrefixAndNum(s);
+            return p ? { ...p, valid: true } : { original: s, valid: false };
+        });
+
+        let valids = parsed.filter(p => p.valid);
+        let invalids = parsed.filter(p => !p.valid).map(p => p.original);
+
+        let groups = {};
+        valids.forEach(p => {
+            if (!groups[p.prefix]) groups[p.prefix] = [];
+            groups[p.prefix].push(p);
+        });
+
+        let ranges = [];
+        for (let prefix in groups) {
+            let items = groups[prefix].sort((a, b) => a.num - b.num);
+            let start = items[0];
+            let prev = items[0];
+
+            for (let i = 1; i < items.length; i++) {
+                let curr = items[i];
+                if (curr.num !== prev.num + 1 && curr.num !== prev.num) {
+                    if (start.num === prev.num) ranges.push(start.original);
+                    else ranges.push(`${start.original} to ${prev.original}`);
+                    start = curr;
+                }
+                prev = curr;
+            }
+            if (start.num === prev.num) ranges.push(start.original);
+            else ranges.push(`${start.original} to ${prev.original}`);
+        }
+
+        const finalArr = [...ranges, ...invalids];
+        return finalArr.join(", ");
+    }
+
+    function toggleAccordion(id, iconId) {
+        const el = document.getElementById(id);
+        const icon = document.getElementById(iconId);
+        if (el.classList.contains("hidden")) {
+            el.classList.remove("hidden");
+            icon.style.transform = "rotate(180deg)";
+        } else {
+            el.classList.add("hidden");
+            icon.style.transform = "rotate(0deg)";
+        }
+    }
+
+    function createInspObj(name) { return { name: name, types: {} }; }
+    function createTypeObj() {
+        return { issued: new Set(), usedFromOwn: new Set(), lentOut: {}, borrowedFrom: {}, discomUsage: {} };
+    }
+
+    function processAndRenderTracker() {
+        const filterDiscom = document.getElementById("tracker-discom-filter").value;
+        const centralBody = document.getElementById("tracker-central-body");
+        const inspBody = document.getElementById("tracker-inspectors-body");
+        const summaryBanner = document.getElementById("dynamic-summary-banner");
+
+        let centralMap = {}; 
+        let globalProcuredMap = {}; 
+        let globalUsedMap = {}; 
+        let sealOwnerMap = {}; 
+        let inspectorData = {}; 
+
+        // 1. Build Procurement
+        window.sealRecordsData.forEach(row => {
+            let type = String(row.sealType || "Unknown").trim();
+            let insp = String(getInspectorName(row.tpiaInspector || row.inspector || "")).trim();
+            let expanded = expandSealRange(`${row.sealFrom} to ${row.sealTo}`);
+
+            if (!globalProcuredMap[type]) globalProcuredMap[type] = new Set();
+            expanded.forEach(s => globalProcuredMap[type].add(s));
+
+            let ownerKey = cleanInspectorName(insp);
+            let ownerName = insp;
+
+            if (!ownerKey || ["notappointed", "notupdated", "pending", "-"].includes(ownerKey)) {
+                ownerKey = "CENTRAL";
+                ownerName = "Central Inventory";
+                if (!centralMap[type]) centralMap[type] = new Set();
+                expanded.forEach(s => centralMap[type].add(s));
+            } else {
+                if (!inspectorData[ownerKey]) inspectorData[ownerKey] = createInspObj(ownerName);
+                if (!inspectorData[ownerKey].types[type]) inspectorData[ownerKey].types[type] = createTypeObj();
+                expanded.forEach(s => inspectorData[ownerKey].types[type].issued.add(s));
+            }
+
+            expanded.forEach(s => { sealOwnerMap[s] = { name: ownerName, key: ownerKey }; });
+        });
+
+        // 2. Process Usage
+        window.trackerMasterInspections.forEach(row => {
+            let type = String(row.sealType || "").trim();
+            let serials = String(row.sealSerial || "").trim();
+            let insp = String(getInspectorName(row.conductedBy || row.tpiaInspector || row.inspector || "")).trim();
+            let discom = String(row.discom || "").trim().toUpperCase();
+
+            if (!type || !serials) return;
+
+            let expanded = expandSealRange(serials);
+            if (!globalUsedMap[type]) globalUsedMap[type] = new Set();
+            expanded.forEach(s => globalUsedMap[type].add(s));
+
+            let userKey = cleanInspectorName(insp);
+            let userName = insp;
+            if (!userKey || ["notappointed", "notupdated", "pending", "-"].includes(userKey)) {
+                userKey = "UNKNOWN_USER";
+                userName = "Unknown User";
+            }
+
+            if (userKey !== "UNKNOWN_USER") {
+                if (!inspectorData[userKey]) inspectorData[userKey] = createInspObj(userName);
+                if (!inspectorData[userKey].types[type]) inspectorData[userKey].types[type] = createTypeObj();
+            }
+
+            expanded.forEach(s => {
+                if (userKey !== "UNKNOWN_USER") {
+                    if (!discom) discom = "UNKNOWN";
+                    if (!inspectorData[userKey].types[type].discomUsage[discom]) inspectorData[userKey].types[type].discomUsage[discom] = new Set();
+                    inspectorData[userKey].types[type].discomUsage[discom].add(s);
+                }
+
+                let ownerInfo = sealOwnerMap[s];
+                if (ownerInfo) {
+                    let ownerKey = ownerInfo.key;
+                    let ownerName = ownerInfo.name;
+
+                    if (ownerKey === userKey) {
+                        inspectorData[userKey].types[type].usedFromOwn.add(s);
+                    } else {
+                        if (userKey !== "UNKNOWN_USER") {
+                            if (!inspectorData[userKey].types[type].borrowedFrom[ownerName]) inspectorData[userKey].types[type].borrowedFrom[ownerName] = new Set();
+                            inspectorData[userKey].types[type].borrowedFrom[ownerName].add(s);
+                        }
+                        if (ownerKey !== "CENTRAL") {
+                            if (!inspectorData[ownerKey].types[type].lentOut[userName]) inspectorData[ownerKey].types[type].lentOut[userName] = new Set();
+                            inspectorData[ownerKey].types[type].lentOut[userName].add(s);
+                        }
+                    }
+                }
+            });
+        });
+
+        // 3. Render Summary
+        const allTypesSet = new Set([...Object.keys(globalProcuredMap), ...Object.keys(globalUsedMap)]);
+        let allTypes = Array.from(allTypesSet).sort();
+        let summaryHtml = "";
+
+        allTypes.forEach(type => {
+            let pCount = (globalProcuredMap[type] || new Set()).size;
+            let globalUCount = (globalUsedMap[type] || new Set()).size; 
+            let trueAvailable = Math.max(0, pCount - globalUCount); 
+
+            let filteredUCount = 0;
+            if (filterDiscom === "ALL") {
+                filteredUCount = globalUCount;
+            } else {
+                Object.values(inspectorData).forEach(inspObj => {
+                    if (inspObj.types[type] && inspObj.types[type].discomUsage[filterDiscom]) {
+                        filteredUCount += inspObj.types[type].discomUsage[filterDiscom].size;
+                    }
+                });
+            }
+
+            summaryHtml += `
+                <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm transition hover:shadow-md">
+                    <h4 class="font-black text-[11px] uppercase text-slate-700 mb-3 border-b border-slate-100 pb-2">${type}</h4>
+                    <div class="flex justify-between text-center divide-x divide-slate-100">
+                        <div class="flex-1 px-1">
+                            <p class="text-[9px] font-bold uppercase text-slate-400">Procured</p>
+                            <p class="text-base font-black text-blue-600">${pCount}</p>
+                        </div>
+                        <div class="flex-1 px-1">
+                            <p class="text-[9px] font-bold uppercase text-slate-400">Used${filterDiscom !== 'ALL' ? ` (${filterDiscom})` : ''}</p>
+                            <p class="text-base font-black text-emerald-600">${filteredUCount}</p>
+                        </div>
+                        <div class="flex-1 px-1">
+                            <p class="text-[9px] font-bold uppercase text-slate-400">Available</p>
+                            <p class="text-base font-black text-amber-600">${trueAvailable}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        if (allTypes.length === 0) summaryHtml = `<div class="col-span-full p-4 text-center text-slate-400 text-xs">No summary data available.</div>`;
+        summaryBanner.innerHTML = summaryHtml;
+
+        // 4. Render Central Inventory 
+        let centralHtml = "";
+        let centralTypes = Object.keys(centralMap).sort();
+        
+        centralTypes.forEach((type, idx) => {
+            let availArr = Array.from(centralMap[type]).filter(s => !(globalUsedMap[type] && globalUsedMap[type].has(s)));
+            const bg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+            centralHtml += `
+                <tr class="${bg}">
+                    <td data-col-index="c0" data-default-width="20%" style="width: 250px; min-width: 150px;" class="p-3 border-r font-black text-slate-800 break-words">${type}</td>
+                    <td data-col-index="c1" data-default-width="10%" style="width: 120px; min-width: 80px;" class="p-3 border-r text-center font-mono font-bold text-amber-600 bg-amber-50/30">${availArr.length}</td>
+                    <td data-col-index="c2" data-default-width="70%" style="width: 600px; min-width: 300px;" class="p-3 font-mono text-[11px] leading-relaxed text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(availArr)}</td>
+                </tr>
+            `;
+        });
+        if (centralTypes.length === 0) centralHtml = `<tr><td colspan="3" class="p-6 text-center text-slate-400">No unassigned inventory available.</td></tr>`;
+        centralBody.innerHTML = centralHtml;
+
+        // 5. Render Inspector Cards
+        let inspHtml = "";
+        let sortedInsps = Object.values(inspectorData).sort((a, b) => a.name.localeCompare(b.name));
+
+        // Note: Mathematical percentages sum exactly to 100% for flawless PDF formatting
+        sortedInsps.forEach(inspObj => {
+            let typesObj = inspObj.types;
+            let typesList = Object.keys(typesObj).sort();
+            
+            let inspTotalIssued = 0;
+            let inspTotalFilteredExecuted = 0;
+            let inspTotalAvailable = 0;
+            let rowsHtml = "";
+
+            typesList.forEach(type => {
+                let issuedArr = Array.from(typesObj[type].issued);
+                let discomUsage = typesObj[type].discomUsage; 
+                let availArr = issuedArr.filter(x => !(globalUsedMap[type] && globalUsedMap[type].has(x)));
+
+                inspTotalIssued += issuedArr.length;
+                inspTotalAvailable += availArr.length;
+
+                let discomBreakdownHtml = "";
+                let typeFilteredExecutedCount = 0;
+                let activeDiscoms = Object.keys(discomUsage).sort();
+                if (filterDiscom !== "ALL") activeDiscoms = activeDiscoms.filter(d => d === filterDiscom);
+
+                if (activeDiscoms.length > 0) {
+                    let breakdownParts = [];
+                    activeDiscoms.forEach(d => {
+                        let dArr = Array.from(discomUsage[d]);
+                        typeFilteredExecutedCount += dArr.length;
+                        breakdownParts.push(`<strong class="text-slate-800">${d}:</strong> ${dArr.length} (${compressToRanges(dArr)})`);
+                    });
+                    discomBreakdownHtml = breakdownParts.join("<br/>");
+                } else {
+                    discomBreakdownHtml = `<span class="text-slate-300 italic">- None -</span>`;
+                }
+
+                inspTotalFilteredExecuted += typeFilteredExecutedCount;
+
+                let crossHtml = "";
+                for (let [lentTo, sealsSet] of Object.entries(typesObj[type].lentOut)) {
+                    let sArr = Array.from(sealsSet);
+                    crossHtml += `<div class="text-rose-600 mb-1"><strong class="uppercase text-[9px]">Lent to ${lentTo}:</strong> ${sArr.length} <br/><span class="text-[9px]">(${compressToRanges(sArr)})</span></div>`;
+                }
+                
+                for (let [borrowedFrom, sealsSet] of Object.entries(typesObj[type].borrowedFrom)) {
+                    if (borrowedFrom !== "Out of System") {
+                        let sArr = Array.from(sealsSet);
+                        crossHtml += `<div class="text-indigo-600 mb-1"><strong class="uppercase text-[9px]">Borrowed from ${borrowedFrom}:</strong> ${sArr.length} <br/><span class="text-[9px]">(${compressToRanges(sArr)})</span></div>`;
+                    }
+                }
+                
+                if (!crossHtml) crossHtml = `<span class="text-slate-300 italic">- None -</span>`;
+
+                rowsHtml += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0 align-top">
+                        <td data-col-index="i0" data-default-width="12%" style="width: 150px; min-width: 120px;" class="p-2.5 border-r font-bold text-slate-700"><strong>${type}</strong></td>
+                        <td data-col-index="i1" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r text-center font-mono font-bold text-blue-700 bg-blue-50/30">${issuedArr.length}</td>
+                        <td data-col-index="i2" data-default-width="20%" style="width: 250px; min-width: 180px;" class="p-2.5 border-r font-mono text-[9px] leading-tight text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(issuedArr)}</td>
+                        <td data-col-index="i3" data-default-width="26%" style="width: 280px; min-width: 220px;" class="p-2.5 border-r font-mono text-[10px] leading-tight text-slate-700 break-words whitespace-pre-wrap">${discomBreakdownHtml}</td>
+                        <td data-col-index="i4" data-default-width="16%" style="width: 280px; min-width: 160px;" class="p-2.5 border-r font-mono text-[10px] leading-tight text-slate-700 break-words whitespace-pre-wrap">${crossHtml}</td>
+                        <td data-col-index="i5" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${availArr.length}</td>
+                        <td data-col-index="i6" data-default-width="14%" style="width: 250px; min-width: 140px;" class="p-2.5 font-mono text-[9px] leading-tight text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(availArr)}</td>
+                    </tr>
+                `;
+            });
+
+            if (typesList.length === 0) return;
+
+            const safeKey = cleanInspectorName(inspObj.name);
+
+            inspHtml += `
+                <div class="border border-slate-200 rounded-2xl shadow-sm break-inside-avoid pdf-accordion bg-white overflow-hidden">
+                    <div class="bg-slate-50 p-4 cursor-pointer flex justify-between items-center hover:bg-blue-50/50 transition" onclick="toggleAccordion('acc-${safeKey}', 'icon-${safeKey}')">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-white rounded-lg border border-slate-200 shadow-xs"><i data-lucide="user" class="text-blue-600 w-4 h-4"></i></div>
+                            <span class="font-black text-sm text-slate-800">${inspObj.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-4 flex-wrap">
+                            <span class="text-[10px] font-bold bg-blue-100 text-blue-800 px-2.5 py-1 rounded-md border border-blue-200 shadow-xs whitespace-nowrap">Issued: ${inspTotalIssued}</span>
+                            <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-md border border-emerald-200 shadow-xs whitespace-nowrap">Executed${filterDiscom!=='ALL'?` (${filterDiscom})`:''}: ${inspTotalFilteredExecuted}</span>
+                            <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-md border border-amber-200 shadow-xs whitespace-nowrap">Available: ${inspTotalAvailable}</span>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-300 ml-1" id="icon-${safeKey}"></i>
+                        </div>
+                    </div>
+                    <div id="acc-${safeKey}" class="hidden border-t border-slate-200">
+                        <div class="overflow-x-auto w-full custom-scrollbar scroll-lockable">
+                            <table class="w-full text-left text-xs border-collapse resizable-table min-w-[900px]">
+                                <thead class="bg-slate-100 text-slate-500 uppercase text-[9px] font-black">
+                                    <tr>
+                                        <th data-col-index="i0" data-default-width="12%" style="width: 150px; min-width: 120px;" class="p-2.5 border-r border-b resizable-th relative">Type<div class="resizer hide-on-print"></div></th>
+                                        <th data-col-index="i1" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r border-b text-center resizable-th relative">Issued<div class="resizer hide-on-print"></div></th>
+                                        <th data-col-index="i2" data-default-width="20%" style="width: 250px; min-width: 180px;" class="p-2.5 border-r border-b resizable-th relative">Allocated Sequences<div class="resizer hide-on-print"></div></th>
+                                        <th data-col-index="i3" data-default-width="26%" style="width: 280px; min-width: 220px;" class="p-2.5 border-r border-b resizable-th relative">Execution (Discom Wise)<div class="resizer hide-on-print"></div></th>
+                                        <th data-col-index="i4" data-default-width="16%" style="width: 280px; min-width: 160px;" class="p-2.5 border-r border-b resizable-th relative">Cross-Usage<div class="resizer hide-on-print"></div></th>
+                                        <th data-col-index="i5" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r border-b text-center resizable-th relative">Avail<div class="resizer hide-on-print"></div></th>
+                                        <th data-col-index="i6" data-default-width="14%" style="width: 250px; min-width: 140px;" class="p-2.5 border-b resizable-th relative">In-Hand Sequences<div class="resizer hide-on-print"></div></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        if (!inspHtml) inspHtml = `<div class="p-6 text-center text-slate-400 text-xs">No inspector allocations found.</div>`;
+        inspBody.innerHTML = inspHtml;
+
+        if (window.lucide) lucide.createIcons();
+        initTrackerColumnResizer();
+    }
+
+    // ==========================================
+    // COLUMN RESIZER LOGIC
+    // ==========================================
+    function initTrackerColumnResizer() {
+        const tables = document.querySelectorAll('.resizable-table');
+        tables.forEach(table => {
+            const cols = table.querySelectorAll('th.resizable-th');
+            cols.forEach((th) => {
+                const resizer = th.querySelector('.resizer');
+                if (!resizer) return;
+                const colIndex = th.getAttribute('data-col-index');
+                const targetCells = table.querySelectorAll(`[data-col-index="${colIndex}"]`);
+                let x = 0, w = 0;
+                
+                const mouseDownHandler = function (e) {
+                    x = e.clientX;
+                    w = th.offsetWidth;
+                    resizer.classList.add('resizing');
+                    document.addEventListener('mousemove', mouseMoveHandler);
+                    document.addEventListener('mouseup', mouseUpHandler);
+                };
+                
+                const mouseMoveHandler = function (e) {
+                    const dx = e.clientX - x;
+                    const newWidth = Math.max(50, w + dx);
+                    targetCells.forEach(cell => {
+                        cell.style.width = `${newWidth}px`;
+                        cell.style.minWidth = `${newWidth}px`;
+                        cell.style.maxWidth = `${newWidth}px`;
+                    });
+                };
+                
+                const mouseUpHandler = function () {
+                    resizer.classList.remove('resizing');
+                    document.removeEventListener('mousemove', mouseMoveHandler);
+                    document.removeEventListener('mouseup', mouseUpHandler);
+                };
+                
+                resizer.addEventListener('mousedown', mouseDownHandler);
+            });
+        });
+    }
+
+    // ==========================================
+    // FLAWLESS ANTI-CROP NODE RELOCATION EXPORT
+    // ==========================================
+    function downloadTrackerPDF() {
+        const filterDiscom = document.getElementById("tracker-discom-filter").value;
+        const dStr = filterDiscom === 'ALL' ? 'ALL_DISCOMS' : filterDiscom;
+        
+        if (!confirm(`Export A4 Landscape PDF tracking report for ${dStr}?`)) return;
+
+        const btn = document.getElementById("export-tracker-pdf-btn");
+        const originalText = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Preparing PDF...`;
+        btn.disabled = true;
+
+        const executeExport = () => {
+            if (!window.html2pdf) {
+                alert("PDF Engine failed to load. Please check network connection.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                return;
+            }
+
+            const wrapper = document.getElementById('pdf-tracker-wrapper');
+            const titleEl = document.getElementById('pdf-tracker-title');
+            
+            // 1. Expand all accordions
+            const accordions = wrapper.querySelectorAll('.pdf-accordion > div.hidden');
+            accordions.forEach(el => el.classList.remove('hidden'));
+
+            titleEl.innerText = `Detailed Seal Inventory & Usage Report - ${dStr}`;
+            titleEl.classList.remove('hidden');
+
+            // 2. Clear manual resizer pixels so it uses perfect percentages
+            const allCells = wrapper.querySelectorAll('th, td');
+            allCells.forEach(cell => {
+                if (cell.hasAttribute('data-default-width')) {
+                    cell.style.width = cell.getAttribute('data-default-width');
+                    cell.style.minWidth = "";
+                    cell.style.maxWidth = "";
+                }
+            });
+
+            // 3. Remove custom scrollbars
+            const scrollContainers = wrapper.querySelectorAll('.scroll-lockable, .overflow-x-auto, .custom-scrollbar');
+            scrollContainers.forEach(el => {
+                el.classList.remove('overflow-x-auto', 'custom-scrollbar');
+                el.style.overflow = 'visible';
+            });
+
+            // 4. 🎯 NODE RELOCATION: Move the LIVE DOM wrapper absolutely to the body.
+            const originalParent = wrapper.parentNode;
+            const originalNextSibling = wrapper.nextSibling;
+            
+            const printAnchor = document.createElement('div');
+            printAnchor.style.position = 'absolute';
+            printAnchor.style.top = '0';
+            printAnchor.style.left = '0';
+            printAnchor.style.width = '1250px'; // 🎯 Exact width for A4 landscape
+            printAnchor.style.minHeight = '100vh';
+            printAnchor.style.background = 'white';
+            printAnchor.style.zIndex = '99999';
+            
+            // Apply bug-fixing class directly to the anchor
+            printAnchor.classList.add('pdf-rendering-active');
+            
+            printAnchor.appendChild(wrapper);
+            document.body.appendChild(printAnchor);
+
+            // Hide resizers during print
+            wrapper.querySelectorAll('.resizer, .hide-on-print').forEach(el => el.style.display = 'none');
+            
+            // Override table styles inside anchor
+            wrapper.querySelectorAll('table').forEach(table => {
+                table.style.width = '100%';
+                table.style.tableLayout = 'fixed';
+                table.style.minWidth = '100%';
+            });
+            wrapper.querySelectorAll('th, td').forEach(cell => {
+                cell.style.whiteSpace = "pre-wrap";
+                cell.style.wordBreak = "break-word";
+                cell.style.overflowWrap = "break-word";
+            });
+
+            // 5. Print Configuration (A4 Landscape)
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3], 
+                filename:     `Seal_Tracker_Report_${dStr}.pdf`,
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { 
+                    scale: 2,             
+                    useCORS: true,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }, 
+                pagebreak:    { mode: ['css', 'legacy'], avoid: ['.pdf-accordion', 'tr', 'thead'] } 
+            };
+
+            window.html2pdf().set(opt).from(wrapper).save().then(() => {
+                
+                // 6. Restore DOM to normal
+                if (originalNextSibling) {
+                    originalParent.insertBefore(wrapper, originalNextSibling);
+                } else {
+                    originalParent.appendChild(wrapper);
+                }
+                document.body.removeChild(printAnchor);
+                
+                // Reset styles
+                wrapper.querySelectorAll('table').forEach(table => {
+                    table.style.width = '';
+                    table.style.tableLayout = '';
+                    table.style.minWidth = '';
+                });
+                wrapper.querySelectorAll('.resizer, .hide-on-print').forEach(el => el.style.display = '');
+
+                scrollContainers.forEach(el => {
+                    el.classList.add('overflow-x-auto', 'custom-scrollbar');
+                    el.style.overflow = '';
+                });
+
+                titleEl.classList.add('hidden');
+                accordions.forEach(el => el.classList.add('hidden'));
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                processAndRenderTracker(); 
+                if (window.lucide) lucide.createIcons();
+            });
+        };
+
+        if (typeof window.html2pdf === 'undefined') {
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Loading Engine...`;
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            script.onload = executeExport;
+            script.onerror = () => {
+                alert("Failed to download PDF engine. Please disable ad-blockers or check your connection.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            };
+            document.head.appendChild(script);
+        } else {
+            executeExport();
+        }
+    }
+    
+    setTimeout(() => {
+        initSealModule();
+    }, 100);
+</script>

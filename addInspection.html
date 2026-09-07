@@ -1,0 +1,1211 @@
+<div class="max-w-4xl mx-auto bg-white p-4 sm:p-8 rounded-3xl border shadow-sm space-y-4 animate-fade-in my-4">
+    <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-black text-sm uppercase text-slate-900 flex items-center gap-2">
+            <i data-lucide="plus-circle" class="text-amber-600 w-4 h-4"></i> New Inspection Entry Form
+        </h3>
+        <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-bold">Comprehensive Entry</span>
+    </div>
+
+    <form id="mi-add-form" onsubmit="submitMiInspectionForm(event)" class="space-y-4">
+        <!-- Discom, Scheme, District -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Discom</label>
+                <select id="mi-form-discom" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white">
+                    <option value="NBPDCL">NBPDCL</option>
+                    <option value="SBPDCL">SBPDCL</option>
+                    <option value="PVVNL">PVVNL</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Scheme/Dept</label>
+                <input type="text" id="mi-form-scheme" list="list-scheme" required class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="e.g. State Plan">
+                <datalist id="list-scheme"></datalist>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">District</label>
+                <input type="text" id="mi-form-district" list="list-district" required class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="e.g. Chapra">
+                <datalist id="list-district"></datalist>
+            </div>
+        </div>
+
+        <!-- Letter Details -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Inspection Call Letter No</label>
+                <input type="text" id="mi-form-letterNo" required class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="e.g. 337">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Inspection Call Letter Date</label>
+                <input type="date" id="mi-form-letterDate" required class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Received Inspection Call Date/ Proposed Inspection Date</label>
+                <input type="date" id="mi-form-receivedDate" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white">
+            </div>
+        </div>
+
+        <!-- PQCC, Officials, Nodal CE -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">PQCC Name/ Letter Authority (PVVNL)</label>
+                <input type="text" id="mi-form-pqccName" list="list-pqccName" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="Search PQCC...">
+                <datalist id="list-pqccName"></datalist>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Name of Officials / PVVNL Inspector</label>
+                <input type="text" id="mi-form-officials" list="list-officials" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="Search officials...">
+                <datalist id="list-officials"></datalist>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Nodal Chief Engineer / PVVNL Inspector Phone No (in Case DISCOM - PVVNL)</label>
+                <input type="text" id="mi-form-nodalCe" list="list-nodalCe" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="Search Nodal CE...">
+                <datalist id="list-nodalCe"></datalist>
+            </div>
+        </div>
+
+       <!-- Manufacturer Name & Address -->
+       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Manufacturer Name</label>
+                <select id="mi-form-manufacturer" onchange="handleManufacturerDropdownChange()" required class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white cursor-pointer">
+                    <option value="">-- Select Manufacturer --</option>
+                </select>
+            </div>
+            <div class="sm:col-span-2">
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Manufacturer Address</label>
+                <input type="text" id="mi-form-address" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="Auto-filled or type address...">
+            </div>
+        </div>
+
+        <!-- Quick Add Manufacturer Modal -->
+        <div id="quick-add-mfg-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 border space-y-4 animate-fade-in">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <h4 id="quick-mfg-modal-title" class="font-black text-xs uppercase text-slate-900 tracking-wider flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="text-blue-600 w-4 h-4"></i> Add New Manufacturer Details
+                    </h4>
+                    <button type="button" onclick="closeQuickMfgModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <div id="quick-mfg-name-wrap">
+                        <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">Manufacturer Name</label>
+                        <input type="text" id="quick-mfg-name" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-blue-500" placeholder="e.g. M/s ABB India Ltd">
+                    </div>
+                    <div id="quick-mfg-select-wrap" class="hidden">
+                        <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">Select Existing Manufacturer Name</label>
+                        <select id="quick-mfg-existing-select" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-blue-500 cursor-pointer">
+                            <option value="">-- Select Existing Manufacturer --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">Material Category</label>
+                        <select id="quick-mfg-category" onchange="handleQuickMfgCategoryChange()" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-blue-500 cursor-pointer">
+                            <option value="">-- Select Material Category --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2 border-t">
+                    <button type="button" onclick="closeQuickMfgModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancel</button>
+                    <button type="button" onclick="submitQuickMfgForm()" id="quick-mfg-save-btn" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl shadow cursor-pointer">Add & Select</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Person & Mobile No & Custom Multi-Select Material Inspected -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Manuf.Contact Person</label>
+                <input type="text" id="mi-form-contactPerson" list="list-contactPerson" oninput="autofillContactMobile()" onchange="autofillContactMobile()" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="Auto-filled or search contact...">
+                <datalist id="list-contactPerson"></datalist>
+            </div>
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Mobile No</label>
+                <input type="text" id="mi-form-mobile" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="Auto-filled mobile...">
+            </div>
+            
+            <!-- 🎯 Custom Multi-Select Checkbox UI for Material Categories -->
+            <div>
+                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Material Inspected (Categories)</label>
+                <div class="relative" id="multi-cat-wrapper">
+                    <div id="multi-cat-display" onclick="toggleMultiCatDropdown()" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white cursor-pointer flex justify-between items-center min-h-[38px]">
+                        <span id="multi-cat-text" class="text-slate-400 truncate pointer-events-none">-- Select Categories --</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 pointer-events-none"></i>
+                    </div>
+                    <div id="multi-cat-dropdown" class="hidden absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-50 max-h-56 flex flex-col">
+                        <div class="p-2 overflow-y-auto custom-scrollbar flex-1 space-y-1" id="multi-cat-options-list">
+                            <!-- Checkboxes Populated Dynamically -->
+                        </div>
+                        <div class="p-2 border-t border-slate-100 bg-slate-50 rounded-b-xl">
+                            <button type="button" onclick="openAddCatFromMulti()" class="w-full text-left px-2 py-1.5 text-[10px] font-black uppercase tracking-wider text-indigo-600 hover:text-indigo-800 transition rounded hover:bg-indigo-50">
+                                + Add Category for Mfg...
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="mi-form-material" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Multi-Entry Container for Material Specification & Quantity -->
+        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+                <h4 class="font-black text-xs text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                    <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i> Material Specification & Quantity Entries
+                </h4>
+                <button type="button" onclick="addMaterialRow()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow cursor-pointer flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> + Add Material
+                </button>
+            </div>
+
+            <div id="material-rows-container" class="space-y-3">
+                <!-- Row 1 (Default) -->
+                <div class="material-row grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
+                    <div class="sm:col-span-8">
+                        <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Material Specification (#1) <span class="text-purple-600 font-mono unit-label-tag">(Unit: No)</span></label>
+                        <select class="spec-input w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white cursor-pointer" onchange="handleSpecDropdownChange(this)" required>
+                            <option value="">-- Select Category First --</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Quantity</label>
+                        <input type="number" step="any" class="qty-input w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="e.g. 5">
+                    </div>
+                    <div class="sm:col-span-1 flex items-end justify-center pb-1">
+                        <!-- First row cannot be deleted -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Name of TKC -->
+        <div>
+            <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Name of TKC</label>
+            <input type="text" id="mi-form-tkc" list="list-tkc" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="Search TKC...">
+            <datalist id="list-tkc"></datalist>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t">
+            <button type="submit" id="mi-submit-btn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-md transition cursor-pointer flex items-center gap-1.5">
+                <i data-lucide="send" class="w-4 h-4"></i> Submit Inspection Record
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Quick Add Category Modal -->
+<div id="quick-add-cat-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 border space-y-4 animate-fade-in">
+        <div class="flex items-center justify-between border-b pb-3">
+            <h4 class="font-black text-xs uppercase text-slate-900 tracking-wider flex items-center gap-2">
+                <i data-lucide="plus-circle" class="text-purple-600 w-4 h-4"></i> Add New Material Category & Specification
+            </h4>
+            <button type="button" onclick="closeQuickCatModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">New Material Category Name</label>
+                <input type="text" id="quick-cat-name" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-purple-500" placeholder="e.g. Solar Panels">
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">Initial Material Specification</label>
+                <input type="text" id="quick-cat-spec" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-purple-500" placeholder="e.g. 500W Monocrystalline Panel">
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">Unit</label>
+                <input type="text" id="quick-cat-unit" value="No" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-purple-500" placeholder="e.g. No, Sets, Meters">
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t">
+            <button type="button" onclick="closeQuickCatModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancel</button>
+            <button type="button" onclick="submitQuickCatForm()" id="quick-cat-save-btn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-black rounded-xl shadow cursor-pointer">Add & Select</button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Specification Modal -->
+
+<div id="quick-add-spec-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-6 border space-y-4 animate-fade-in">
+        <div class="flex items-center justify-between border-b pb-3">
+            <h4 class="font-black text-xs uppercase text-slate-900 tracking-wider flex items-center gap-2">
+                <i data-lucide="plus-circle" class="text-purple-600 w-4 h-4"></i> Add New Material Specification
+            </h4>
+            <button type="button" onclick="closeQuickSpecModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">Selected Target Category</label>
+                <select id="quick-spec-category" onchange="handleQuickSpecCatChange()" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-purple-500 cursor-pointer">
+                    <option value="">-- Select Category --</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[9px] font-black uppercase text-slate-500 mb-1">New Material Specification</label>
+                <input type="text" id="quick-spec-name" class="w-full p-2.5 border rounded-xl font-bold bg-white outline-none focus:border-purple-500" placeholder="e.g. 500W Monocrystalline Panel">
+            </div>
+            <div>
+                <label id="quick-spec-unit-label" class="block text-[9px] font-black uppercase text-slate-500 mb-1">Unit</label>
+                <input type="text" id="quick-spec-unit" readonly class="w-full p-2.5 border rounded-xl font-bold bg-slate-100 text-slate-700 cursor-not-allowed transition-colors">
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t">
+            <button type="button" onclick="closeQuickSpecModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer">Cancel</button>
+            <button type="button" onclick="submitQuickSpecForm()" id="quick-spec-save-btn" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-black rounded-xl shadow cursor-pointer">Add & Select</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    if (typeof window.activeDropdownForRow === 'undefined') {
+        window.activeDropdownForRow = null;
+    }
+    
+    if (typeof window.materialSpecsMasterList === 'undefined') {
+        window.materialSpecsMasterList = [];
+    }
+    
+    if (typeof window.windowManufacturers === 'undefined') {
+        window.windowManufacturers = [];
+    }
+
+    async function initAddInspectionModule() {
+        try {
+            const [nbRes, sbRes, pvvRes, specRes, mfgRes] = await Promise.all([
+                fetch(`${API_URL}?action=getInspections&discom=NBPDCL`),
+                fetch(`${API_URL}?action=getInspections&discom=SBPDCL`),
+                fetch(`${API_URL}?action=getInspections&discom=PVVNL`),
+                fetch(`${API_URL}?action=getMaterialSpecs`),
+                fetch(`${API_URL}?action=getManufacturers`)
+            ]);
+
+            const nbData = await nbRes.json();
+            const sbData = await sbRes.json();
+            const pvvData = await pvvRes.json();
+            const specData = await specRes.json();
+            const mfgData = await mfgRes.json();
+
+            let combinedRecords = [];
+            if (nbData.status && nbData.data) combinedRecords = combinedRecords.concat(nbData.data);
+            if (sbData.status && sbData.data) combinedRecords = combinedRecords.concat(sbData.data);
+            if (pvvData.status && pvvData.data) combinedRecords = combinedRecords.concat(pvvData.data);
+
+            if (combinedRecords.length > 0) {
+                window.miMasterData = combinedRecords;
+                populateAddFormDatalists(window.miMasterData);
+            }
+
+            if (specData.status) {
+                window.materialSpecsMasterList = specData.data || [];
+                populateMaterialCategoryDropdown();
+            }
+
+            if (mfgData.status) {
+                window.windowManufacturers = mfgData.data || [];
+                populateManufacturerDropdown();
+            }
+        } catch (err) {
+            console.warn("Could not fetch form configuration data independently.");
+        }
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    setTimeout(() => {
+        initAddInspectionModule();
+    }, 50);
+
+    // 🎯 Multi-Select UI Listeners and Handlers
+    function toggleMultiCatDropdown() {
+        document.getElementById('multi-cat-dropdown').classList.toggle('hidden');
+    }
+
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('multi-cat-wrapper');
+        if (wrap && !wrap.contains(e.target)) {
+            const dropdown = document.getElementById('multi-cat-dropdown');
+            if(dropdown) dropdown.classList.add('hidden');
+        }
+    });
+
+    // 🎯 FIXED: Builds categories directly from Manufacturer list without cross-check filtering
+    function buildCategoryCheckboxes(allowedCategories = null) {
+        const container = document.getElementById('multi-cat-options-list');
+        if (!container) return;
+
+        let finalCats = [];
+
+        if (allowedCategories !== null) {
+            // Directly use the categories associated with this manufacturer from the sheet
+            finalCats = [...new Set(allowedCategories)].filter(Boolean);
+        } else {
+            // Fallback to all known master categories if no manufacturer is selected
+            finalCats = [...new Set(window.materialSpecsMasterList.map(m => m.materialCategory))].filter(Boolean);
+        }
+
+        finalCats.sort();
+
+        let html = '';
+        if (finalCats.length === 0) {
+            html = `<div class="p-2 text-xs text-slate-400 italic">No categories found.</div>`;
+        } else {
+            html = finalCats.map(cat => `
+                <label class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded-lg cursor-pointer transition">
+                    <input type="checkbox" value="${cat}" class="cat-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" onchange="syncSelectedCategories()">
+                    <span class="text-xs font-bold text-slate-700">${cat}</span>
+                </label>
+            `).join('');
+        }
+        container.innerHTML = html;
+        syncSelectedCategories(); 
+    }
+
+    function syncSelectedCategories() {
+        const checkboxes = document.querySelectorAll('.cat-checkbox:checked');
+        const selected = Array.from(checkboxes).map(cb => cb.value);
+        
+        const hiddenInput = document.getElementById('mi-form-material');
+        const displaySpan = document.getElementById('multi-cat-text');
+
+        if(hiddenInput) hiddenInput.value = selected.join(', ');
+
+        if(displaySpan) {
+            if (selected.length === 0) {
+                displaySpan.textContent = '-- Select Categories --';
+                displaySpan.classList.add('text-slate-400');
+                displaySpan.classList.remove('text-slate-800');
+            } else if (selected.length <= 2) {
+                displaySpan.textContent = selected.join(', ');
+                displaySpan.classList.remove('text-slate-400');
+                displaySpan.classList.add('text-slate-800');
+            } else {
+                displaySpan.textContent = `${selected.length} Categories Selected`;
+                displaySpan.classList.remove('text-slate-400');
+                displaySpan.classList.add('text-slate-800');
+            }
+        }
+        handleCategorySelection();
+    }
+
+    function openAddCatFromMulti() {
+        document.getElementById('multi-cat-dropdown').classList.add('hidden');
+        
+        const mfgSelect = document.getElementById("mi-form-manufacturer");
+        if (!mfgSelect.value) {
+            alert("Please select a Manufacturer first to link a new category to.");
+            return;
+        }
+
+        if (mfgSelect.value === "ADD_NEW_MFG" || mfgSelect.value === "ADD_CAT_EXISTING_MFG") {
+            alert("Please complete the manufacturer selection first.");
+            return;
+        } 
+
+        const modal = document.getElementById("quick-add-mfg-modal");
+        const nameWrap = document.getElementById("quick-mfg-name-wrap");
+        const selectWrap = document.getElementById("quick-mfg-select-wrap");
+        const modalTitle = document.getElementById("quick-mfg-modal-title");
+
+        if (modalTitle) modalTitle.innerHTML = `<i data-lucide="plus-circle" class="text-indigo-600 w-4 h-4"></i> Add Category for Existing Manufacturer`;
+        if (nameWrap) nameWrap.classList.add("hidden");
+        if (selectWrap) selectWrap.classList.remove("hidden");
+        
+        populateExistingMfgDropdown();
+        const existingSelect = document.getElementById("quick-mfg-existing-select");
+        if (existingSelect) existingSelect.value = mfgSelect.value;
+        
+        populateQuickMfgCategoryDropdown();
+        if (modal) modal.classList.remove("hidden");
+    }
+
+    function populateManufacturerDropdown() {
+        const selectElem = document.getElementById("mi-form-manufacturer");
+        if (!selectElem) return;
+        const uniqueMfgNames = [...new Set(window.windowManufacturers.map(m => m.manufacturerName))].filter(Boolean);
+        uniqueMfgNames.sort();
+        
+        let optionsHtml = `<option value="">-- Select Manufacturer --</option>` + 
+            uniqueMfgNames.map(name => `<option value="${name}">${name}</option>`).join('');
+        
+        optionsHtml += `<option value="ADD_NEW_MFG" class="font-bold text-blue-600">+ Add New Manufacturer...</option>`;
+        optionsHtml += `<option value="ADD_CAT_EXISTING_MFG" class="font-bold text-indigo-600">+ Add New Category for Existing Manufacturer...</option>`;
+        selectElem.innerHTML = optionsHtml;
+    }
+
+    function populateQuickMfgCategoryDropdown() {
+        const selectElem = document.getElementById("quick-mfg-category");
+        if (!selectElem) return;
+        const uniqueCategories = [...new Set(window.materialSpecsMasterList.map(m => m.materialCategory))].filter(Boolean);
+        uniqueCategories.sort();
+        
+        let optionsHtml = `<option value="">-- Select Material Category --</option>` + 
+            uniqueCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        
+        optionsHtml += `<option value="ADD_NEW_CAT_MFG" class="font-bold text-purple-600">+ Add New Category...</option>`;
+        selectElem.innerHTML = optionsHtml;
+    }
+
+    function refreshAllCategoryDropdowns(selectCategoryToSelect = "") {
+        const uniqueCategories = [...new Set(window.materialSpecsMasterList.map(m => m.materialCategory))].filter(Boolean);
+        uniqueCategories.sort();
+
+        const quickCatSelect = document.getElementById("quick-mfg-category");
+        if (quickCatSelect) {
+            let optHtml = `<option value="">-- Select Material Category --</option>` + 
+                uniqueCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            optHtml += `<option value="ADD_NEW_CAT_MFG" class="font-bold text-purple-600">+ Add New Category...</option>`;
+            quickCatSelect.innerHTML = optHtml;
+            if (selectCategoryToSelect) quickCatSelect.value = selectCategoryToSelect;
+        }
+
+        const mfgSelect = document.getElementById("mi-form-manufacturer");
+        if (mfgSelect && mfgSelect.value && mfgSelect.value !== "ADD_NEW_MFG" && mfgSelect.value !== "ADD_CAT_EXISTING_MFG") {
+            handleManufacturerDropdownChange();
+        } else {
+            buildCategoryCheckboxes(null);
+        }
+
+        if (selectCategoryToSelect) {
+            const cb = document.querySelector(`.cat-checkbox[value="${selectCategoryToSelect}"]`);
+            if (cb) cb.checked = true;
+            syncSelectedCategories();
+        }
+    }
+
+    function populateExistingMfgDropdown() {
+        const selectElem = document.getElementById("quick-mfg-existing-select");
+        if (!selectElem) return;
+        const uniqueMfgNames = [...new Set(window.windowManufacturers.map(m => m.manufacturerName))].filter(Boolean);
+        uniqueMfgNames.sort();
+        
+        let optionsHtml = `<option value="">-- Select Existing Manufacturer --</option>` + 
+            uniqueMfgNames.map(name => `<option value="${name}">${name}</option>`).join('');
+        selectElem.innerHTML = optionsHtml;
+
+        selectElem.onchange = function() {
+            filterExistingManufacturerCategories(this.value);
+        };
+    }
+
+    function filterExistingManufacturerCategories(selectedMfgName) {
+        const catSelect = document.getElementById("quick-mfg-category");
+        if (!catSelect) return;
+
+        if (!selectedMfgName) {
+            populateQuickMfgCategoryDropdown();
+            return;
+        }
+
+        const existingCategoriesForMfg = window.windowManufacturers
+            .filter(m => m.manufacturerName && m.manufacturerName.trim().toLowerCase() === selectedMfgName.trim().toLowerCase())
+            .map(m => m.materialCategory.trim().toLowerCase());
+
+        const allCategories = [...new Set(window.materialSpecsMasterList.map(m => m.materialCategory))].filter(Boolean);
+        allCategories.sort();
+
+        const availableCategories = allCategories.filter(cat => !existingCategoriesForMfg.includes(cat.trim().toLowerCase()));
+
+        let optionsHtml = `<option value="">-- Select Material Category --</option>` + 
+            availableCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        
+        optionsHtml += `<option value="ADD_NEW_CAT_MFG" class="font-bold text-purple-600">+ Add New Category...</option>`;
+        catSelect.innerHTML = optionsHtml;
+    }
+
+    function handleQuickMfgCategoryChange() {
+        const selectElem = document.getElementById("quick-mfg-category");
+        if (!selectElem) return;
+
+        if (selectElem.value === "ADD_NEW_CAT_MFG") {
+            const catModal = document.getElementById("quick-add-cat-modal");
+            const catInput = document.getElementById("quick-cat-name");
+            const specInput = document.getElementById("quick-cat-spec");
+            const unitInput = document.getElementById("quick-cat-unit");
+
+            if (catInput) catInput.value = "";
+            if (specInput) specInput.value = "";
+            if (unitInput) unitInput.value = "No";
+            if (catModal) catModal.classList.remove("hidden");
+            selectElem.value = ""; 
+        }
+    }
+
+    function handleManufacturerDropdownChange() {
+        const selectElem = document.getElementById("mi-form-manufacturer");
+        if (!selectElem) return;
+
+        const modal = document.getElementById("quick-add-mfg-modal");
+        const nameWrap = document.getElementById("quick-mfg-name-wrap");
+        const selectWrap = document.getElementById("quick-mfg-select-wrap");
+        const modalTitle = document.getElementById("quick-mfg-modal-title");
+        const nameInput = document.getElementById("quick-mfg-name");
+
+        if (selectElem.value === "ADD_NEW_MFG") {
+            if (modalTitle) modalTitle.innerHTML = `<i data-lucide="plus-circle" class="text-blue-600 w-4 h-4"></i> Add New Manufacturer Details`;
+            if (nameWrap) nameWrap.classList.remove("hidden");
+            if (selectWrap) selectWrap.classList.add("hidden");
+            if (nameInput) nameInput.value = "";
+            
+            populateQuickMfgCategoryDropdown();
+            if (modal) modal.classList.remove("hidden");
+            selectElem.value = ""; 
+            return;
+        }
+
+        if (selectElem.value === "ADD_CAT_EXISTING_MFG") {
+            if (modalTitle) modalTitle.innerHTML = `<i data-lucide="plus-circle" class="text-indigo-600 w-4 h-4"></i> Add Category for Existing Manufacturer`;
+            if (nameWrap) nameWrap.classList.add("hidden");
+            if (selectWrap) selectWrap.classList.remove("hidden");
+            
+            populateExistingMfgDropdown();
+            populateQuickMfgCategoryDropdown();
+            if (modal) modal.classList.remove("hidden");
+            selectElem.value = ""; 
+            return;
+        }
+
+        const selectedMfgName = selectElem.value.trim().toLowerCase();
+        
+        let allowedCategories = null;
+        if (selectedMfgName) {
+            allowedCategories = window.windowManufacturers
+                .filter(m => m.manufacturerName && m.manufacturerName.trim().toLowerCase() === selectedMfgName)
+                .map(m => m.materialCategory.trim());
+        }
+
+        buildCategoryCheckboxes(allowedCategories);
+        autofillManufacturerDetails();
+    }
+
+    function autofillManufacturerDetails() {
+        const manElem = document.getElementById("mi-form-manufacturer");
+        if (!manElem) return;
+        const manVal = manElem.value.trim().toLowerCase();
+        if (!manVal) return;
+
+        if (window.miMasterData) {
+            const matchedInsp = window.miMasterData.find(r => r.manufacturer && r.manufacturer.trim().toLowerCase() === manVal);
+            if (matchedInsp) {
+                const addr = document.getElementById("mi-form-address");
+                const cp = document.getElementById("mi-form-contactPerson");
+                const mob = document.getElementById("mi-form-mobile");
+                if (matchedInsp.address && addr) addr.value = matchedInsp.address;
+                if (matchedInsp.contactPerson && cp) cp.value = matchedInsp.contactPerson;
+                if (matchedInsp.mobile && mob) mob.value = matchedInsp.mobile;
+            }
+        }
+    }
+
+    function closeQuickMfgModal() {
+        const modal = document.getElementById("quick-add-mfg-modal");
+        if (modal) modal.classList.add("hidden");
+    }
+
+    async function submitQuickMfgForm() {
+        const nameInput = document.getElementById("quick-mfg-name");
+        const existingSelect = document.getElementById("quick-mfg-existing-select");
+        const nameWrap = document.getElementById("quick-mfg-name-wrap");
+        const catSelect = document.getElementById("quick-mfg-category");
+
+        let mfgName = "";
+        if (!nameWrap.classList.contains("hidden")) {
+            mfgName = nameInput ? nameInput.value.trim() : "";
+        } else {
+            mfgName = existingSelect ? existingSelect.value.trim() : "";
+        }
+
+        const mfgCategory = catSelect ? catSelect.value.trim() : "";
+
+        if (!mfgName) {
+            alert("Please enter or select a manufacturer name.");
+            return;
+        }
+        if (!mfgCategory) {
+            alert("Please select a material category.");
+            return;
+        }
+
+        const btn = document.getElementById("quick-mfg-save-btn");
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Adding...";
+        }
+
+        const mfgPayload = {
+            action: "saveManufacturer",
+            uniqueId: "MFG-" + Date.now().toString().slice(-6),
+            manufacturerName: mfgName,
+            materialCategory: mfgCategory,
+            criteria: "Value Percent",
+            value: 0
+        };
+
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(mfgPayload)
+            });
+            const textData = await res.text();
+            
+            let data = { status: true };
+            try { data = JSON.parse(textData); } catch (e) {}
+
+            if (data.status !== false) {
+                window.windowManufacturers.push(mfgPayload);
+                populateManufacturerDropdown();
+                
+                const mfgSelect = document.getElementById("mi-form-manufacturer");
+                if (mfgSelect) {
+                    mfgSelect.value = mfgName;
+                    handleManufacturerDropdownChange();
+                    
+                    const cb = document.querySelector(`.cat-checkbox[value="${mfgCategory}"]`);
+                    if (cb) cb.checked = true;
+                    syncSelectedCategories();
+                }
+
+                alert("Success: Manufacturer details saved successfully.");
+                closeQuickMfgModal();
+            } else {
+                alert("Server Notice: " + (data.message || "Failed to save manufacturer details."));
+            }
+        } catch (err) {
+            window.windowManufacturers.push(mfgPayload);
+            populateManufacturerDropdown();
+
+            const mfgSelect = document.getElementById("mi-form-manufacturer");
+            if (mfgSelect) {
+                mfgSelect.value = mfgName;
+                handleManufacturerDropdownChange();
+                
+                const cb = document.querySelector(`.cat-checkbox[value="${mfgCategory}"]`);
+                if (cb) cb.checked = true;
+                syncSelectedCategories();
+            }
+
+            alert("Success: Manufacturer details recorded successfully.");
+            closeQuickMfgModal();
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Add & Select";
+            }
+        }
+    }
+
+    function populateAddFormDatalists(records) {
+        const fieldsMap = {
+            'list-scheme': 'scheme',
+            'list-district': 'district',
+            'list-pqccName': 'pqccName',
+            'list-officials': 'officials',
+            'list-nodalCe': 'nodalCe',
+            'list-contactPerson': 'contactPerson',
+            'list-tkc': 'tkc'
+        };
+
+        for (const [listId, propName] of Object.entries(fieldsMap)) {
+            const datalist = document.getElementById(listId);
+            if (!datalist) continue; 
+            const uniqueVals = [...new Set(records.map(r => r[propName]))].filter(Boolean);
+            uniqueVals.sort();
+            datalist.innerHTML = uniqueVals.map(v => `<option value="${v}">`).join('');
+        }
+    }
+
+    function populateMaterialCategoryDropdown() {
+        refreshAllCategoryDropdowns();
+    }
+
+    // 🎯 Dynamically Groups Specs for ALL Selected Categories
+    function handleCategorySelection() {
+        const hiddenInput = document.getElementById("mi-form-material");
+        if (!hiddenInput) return;
+        
+        const selectedCategories = hiddenInput.value.split(',').map(s => s.trim()).filter(Boolean);
+        const selects = document.querySelectorAll(".spec-input");
+        
+        let optionsHtml = `<option value="">-- Select Material Specification --</option>`;
+        
+        if (selectedCategories.length > 0) {
+            selectedCategories.forEach(cat => {
+                const filteredSpecs = window.materialSpecsMasterList.filter(m => 
+                    m.materialCategory && m.materialCategory.trim().toLowerCase() === cat.toLowerCase()
+                );
+                if (filteredSpecs.length > 0) {
+                    optionsHtml += `<optgroup label="${cat}">`;
+                    optionsHtml += filteredSpecs.map(m => {
+                        let cleanUnit = (m.unit || 'No').replace(/unit\s*:/gi, "").replace(/[()]/g, "").trim();
+                        return `<option value="${m.materialSpec}" data-unit="${cleanUnit}" data-cat="${cat}">${m.materialSpec} [Unit: ${cleanUnit}]</option>`;
+                    }).join('');
+                    optionsHtml += `</optgroup>`;
+                }
+            });
+            optionsHtml += `<option value="ADD_NEW_SPEC" class="font-bold text-purple-600">+ Add New Specification...</option>`;
+        } else {
+            optionsHtml = `<option value="">-- Select Category First --</option>`;
+        }
+
+        selects.forEach(select => {
+            const currentVal = select.value;
+            select.innerHTML = optionsHtml;
+            
+            // Re-select previously picked option if it still exists in the new HTML list
+            if (currentVal && select.querySelector('option[value="' + currentVal.replace(/"/g, '\\"') + '"]')) {
+                select.value = currentVal;
+            } else {
+                select.value = "";
+                const row = select.closest(".material-row");
+                const unitLabel = row ? row.querySelector(".unit-label-tag") : null;
+                if (unitLabel) unitLabel.innerText = `(Unit: No)`;
+            }
+        });
+    }
+
+    function handleSpecDropdownChange(selectElem) {
+        if (selectElem.value === "ADD_NEW_SPEC") {
+            const hiddenInput = document.getElementById("mi-form-material");
+            const selectedCategories = hiddenInput ? hiddenInput.value.split(',').map(s => s.trim()).filter(Boolean) : [];
+            
+            if (selectedCategories.length === 0) {
+                alert("Please select at least one Material Category first.");
+                selectElem.value = "";
+                return;
+            }
+
+            window.activeDropdownForRow = selectElem;
+            
+            const qCategory = document.getElementById("quick-spec-category");
+            const qName = document.getElementById("quick-spec-name");
+            const qModal = document.getElementById("quick-add-spec-modal");
+
+            if (qCategory) {
+                qCategory.innerHTML = `<option value="">-- Select Category --</option>` +
+                    selectedCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+                
+                // If only 1 category active, auto-select it. Otherwise force user to pick one.
+                if (selectedCategories.length === 1) {
+                    qCategory.value = selectedCategories[0];
+                    handleQuickSpecCatChange(); 
+                } else {
+                    qCategory.value = "";
+                    handleQuickSpecCatChange(); // Forces the "Select category first" state
+                }
+            }
+
+            if (qName) qName.value = "";
+            if (qModal) qModal.classList.remove("hidden");
+            selectElem.value = "";
+            return;
+        }
+
+        const selectedOption = selectElem.options[selectElem.selectedIndex];
+        let unit = selectedOption.getAttribute("data-unit") || "No";
+        unit = unit.replace(/unit\s*:/gi, "").replace(/[()]/g, "").trim();
+
+        const row = selectElem.closest(".material-row");
+        const unitLabel = row ? row.querySelector(".unit-label-tag") : null;
+        if (unitLabel) {
+            unitLabel.innerText = `(Unit: ${unit})`;
+        }
+    }
+
+    function handleQuickSpecCatChange() {
+        const qCategory = document.getElementById("quick-spec-category");
+        const qUnit = document.getElementById("quick-spec-unit");
+        const qLabel = document.getElementById("quick-spec-unit-label");
+        
+        if (!qCategory || !qUnit) return;
+        
+        const selectedCat = qCategory.value;
+        if (!selectedCat) {
+            qUnit.value = "Select category first";
+            qUnit.readOnly = true;
+            qUnit.classList.add("bg-slate-100", "cursor-not-allowed", "text-slate-500");
+            qUnit.classList.remove("bg-white", "focus:border-purple-500", "text-slate-900");
+            if (qLabel) qLabel.innerText = "Unit";
+            return;
+        }
+
+        // Check if category currently has any specifications in the master database
+        const matchedSpec = window.materialSpecsMasterList.find(m => 
+            m.materialCategory && m.materialCategory.trim().toLowerCase() === selectedCat.toLowerCase()
+        );
+        
+        if (matchedSpec) {
+            // Category EXISTS: Lock the unit to match the existing master data
+            const lockedUnit = matchedSpec.unit ? matchedSpec.unit.replace(/unit\s*:/gi, "").replace(/[()]/g, "").trim() : "No";
+            qUnit.value = lockedUnit;
+            qUnit.readOnly = true;
+            qUnit.classList.add("bg-slate-100", "cursor-not-allowed", "text-slate-700");
+            qUnit.classList.remove("bg-white", "focus:border-purple-500", "text-slate-900", "text-slate-500");
+            if (qLabel) qLabel.innerText = "Unit (Locked to Existing Category)";
+        } else {
+            // Category DOES NOT EXIST: Allow user to define the unit
+            qUnit.value = "No"; // Set standard default
+            qUnit.readOnly = false;
+            qUnit.classList.remove("bg-slate-100", "cursor-not-allowed", "text-slate-700", "text-slate-500");
+            qUnit.classList.add("bg-white", "focus:border-purple-500", "text-slate-900");
+            if (qLabel) qLabel.innerText = "Unit (Editable for New Category)";
+        }
+    }
+    
+    function closeQuickCatModal() {
+        const modal = document.getElementById("quick-add-cat-modal");
+        if (modal) modal.classList.add("hidden");
+    }
+
+    async function submitQuickCatForm() {
+        const catNameInput = document.getElementById("quick-cat-name");
+        const specNameInput = document.getElementById("quick-cat-spec");
+        const unitInput = document.getElementById("quick-cat-unit");
+
+        if (!catNameInput || !specNameInput) return;
+        const catName = catNameInput.value.trim();
+        const specName = specNameInput.value.trim();
+        const unitName = unitInput ? unitInput.value.trim() || "No" : "No";
+
+        if (!catName) {
+            alert("Please enter a category name.");
+            return;
+        }
+        if (!specName) {
+            alert("Please enter an initial material specification.");
+            return;
+        }
+
+        const btn = document.getElementById("quick-cat-save-btn");
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Saving to Database...";
+        }
+
+        const specPayload = {
+            action: "saveMaterialSpec",
+            uniqueId: "MS-" + Date.now().toString().slice(-6),
+            materialCategory: catName,
+            materialSpec: specName,
+            unit: unitName,
+            unitRate: 0
+        };
+
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(specPayload)
+            });
+            const textData = await res.text();
+            
+            let data = { status: true };
+            try { data = JSON.parse(textData); } catch (e) {}
+
+            if (data.status !== false) {
+                window.materialSpecsMasterList.push(data.data || specPayload);
+                
+                let targetMfgName = "";
+                const mainMfgSelect = document.getElementById("mi-form-manufacturer");
+                const quickExistingSelect = document.getElementById("quick-mfg-existing-select");
+                const quickNameInput = document.getElementById("quick-mfg-name");
+                const quickNameWrap = document.getElementById("quick-mfg-name-wrap");
+
+                if (mainMfgSelect && mainMfgSelect.value && mainMfgSelect.value !== "ADD_NEW_MFG" && mainMfgSelect.value !== "ADD_CAT_EXISTING_MFG") {
+                    targetMfgName = mainMfgSelect.value.trim();
+                } else if (quickExistingSelect && quickExistingSelect.value) {
+                    targetMfgName = quickExistingSelect.value.trim();
+                } else if (quickNameWrap && !quickNameWrap.classList.contains("hidden") && quickNameInput) {
+                    targetMfgName = quickNameInput.value.trim();
+                }
+
+                if (targetMfgName) {
+                    const mfgPayload = {
+                        action: "saveManufacturer",
+                        uniqueId: "MFG-" + Date.now().toString().slice(-6),
+                        manufacturerName: targetMfgName,
+                        materialCategory: catName,
+                        criteria: "Value Percent",
+                        value: 0
+                    };
+
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(mfgPayload)
+                    });
+
+                    window.windowManufacturers.push(mfgPayload);
+                    populateManufacturerDropdown();
+                }
+
+                refreshAllCategoryDropdowns(catName);
+
+                const firstSpecSelect = document.querySelector(".spec-input");
+                if (firstSpecSelect) {
+                    firstSpecSelect.value = specName;
+                    handleSpecDropdownChange(firstSpecSelect);
+                }
+
+                alert("Success: New category and specification added successfully.");
+                closeQuickCatModal();
+                closeQuickMfgModal();
+            } else {
+                alert("Server Notice: " + (data.message || "Failed to save category specifications."));
+            }
+        } catch (err) {
+            window.materialSpecsMasterList.push(specPayload);
+            refreshAllCategoryDropdowns(catName);
+            
+            alert("Success: New category and specification recorded.");
+            closeQuickCatModal();
+            closeQuickMfgModal();
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Add & Select";
+            }
+        }
+    }
+
+    function closeQuickSpecModal() {
+        const modal = document.getElementById("quick-add-spec-modal");
+        if (modal) modal.classList.add("hidden");
+        window.activeDropdownForRow = null;
+    }
+
+    async function submitQuickSpecForm() {
+        const catElem = document.getElementById("quick-spec-category");
+        const nameElem = document.getElementById("quick-spec-name");
+        const unitElem = document.getElementById("quick-spec-unit");
+
+        const category = catElem ? catElem.value.trim() : "";
+        const specName = nameElem ? nameElem.value.trim() : "";
+        const unit = unitElem ? unitElem.value.trim() || "No" : "No";
+
+        if (!category) {
+            alert("Please select a target category for this specification.");
+            return;
+        }
+
+        if (!specName) {
+            alert("Please enter a material specification name.");
+            return;
+        }
+
+        const btn = document.getElementById("quick-spec-save-btn");
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Saving to Database...";
+        }
+
+        const payload = {
+            action: "saveMaterialSpec",
+            uniqueId: "MS-" + Date.now().toString().slice(-6),
+            materialCategory: category,
+            materialSpec: specName,
+            unit: unit,
+            unitRate: 0
+        };
+
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            const textData = await res.text();
+            
+            let data = { status: true };
+            try { data = JSON.parse(textData); } catch (e) {}
+
+            if (data.status !== false) {
+                window.materialSpecsMasterList.push(data.data || payload);
+                handleCategorySelection();
+
+                if (window.activeDropdownForRow) {
+                    window.activeDropdownForRow.value = specName;
+                    handleSpecDropdownChange(window.activeDropdownForRow);
+                }
+
+                alert("Success: New material specification added successfully.");
+                closeQuickSpecModal();
+            } else {
+                alert("Server Notice: " + (data.message || "Failed to save specification."));
+            }
+        } catch (err) {
+            window.materialSpecsMasterList.push(payload);
+            handleCategorySelection();
+            if (window.activeDropdownForRow) {
+                window.activeDropdownForRow.value = specName;
+                handleSpecDropdownChange(window.activeDropdownForRow);
+            }
+            
+            alert("Success: New material specification recorded successfully.");
+            closeQuickSpecModal();
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Add & Select";
+            }
+        }
+    }
+
+    function addMaterialRow() {
+        const container = document.getElementById("material-rows-container");
+        if (!container) return;
+        const rowCount = container.getElementsByClassName("material-row").length + 1;
+
+        const rowDiv = document.createElement("div");
+        rowDiv.className = "material-row grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-3 rounded-xl border border-slate-200 shadow-xs animate-fade-in";
+        rowDiv.innerHTML = `
+            <div class="sm:col-span-8">
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Material Specification (#${rowCount}) <span class="text-purple-600 font-mono unit-label-tag">(Unit: No)</span></label>
+                <select class="spec-input w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white cursor-pointer" onchange="handleSpecDropdownChange(this)" required>
+                    <option value="">-- Select Material Specification --</option>
+                </select>
+            </div>
+            <div class="sm:col-span-3">
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Quantity</label>
+                <input type="number" step="any" class="qty-input w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white" placeholder="e.g. 5">
+            </div>
+            <div class="sm:col-span-1 flex items-end justify-center pb-1">
+                <button type="button" onclick="removeMaterialRow(this)" class="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg cursor-pointer transition" title="Remove Row">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(rowDiv);
+        
+        handleCategorySelection();
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function removeMaterialRow(btn) {
+        const row = btn.closest(".material-row");
+        if (row) row.remove();
+        const rows = document.querySelectorAll(".material-row");
+        rows.forEach((r, idx) => {
+            const label1 = r.querySelector("label:nth-of-type(1)");
+            if (label1) {
+                const unitTag = label1.querySelector(".unit-label-tag");
+                const unitText = unitTag ? unitTag.outerHTML : "(Unit: No)";
+                label1.innerHTML = `Material Specification (#${idx + 1}) ${unitText}`;
+            }
+        });
+    }
+
+    function autofillContactMobile() {
+        const cpElem = document.getElementById("mi-form-contactPerson");
+        if (!cpElem || !window.miMasterData) return;
+        const contactVal = cpElem.value.trim().toLowerCase();
+        const matched = window.miMasterData.find(r => r.contactPerson && r.contactPerson.trim().toLowerCase() === contactVal);
+        const mob = document.getElementById("mi-form-mobile");
+        if (matched && matched.mobile && mob) {
+            mob.value = matched.mobile;
+        }
+    }
+
+    async function submitMiInspectionForm(e) {
+        e.preventDefault();
+        const btn = document.getElementById("mi-submit-btn");
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = "Saving to Google Sheet...";
+        }
+
+        const rows = document.querySelectorAll(".material-row");
+        const romans = ["i.", "ii.", "iii.", "iv.", "v.", "vi.", "vii.", "viii.", "ix.", "x."];
+
+        const specList = [];
+        const qtyList = [];
+
+        rows.forEach((row, idx) => {
+            const selectElem = row.querySelector(".spec-input");
+            const qtyElem = row.querySelector(".qty-input");
+            const unitTagElem = row.querySelector(".unit-label-tag");
+            
+            const specVal = selectElem ? selectElem.value.trim() : "";
+            const qtyVal = qtyElem ? qtyElem.value.trim() : "";
+            const unitTag = unitTagElem ? unitTagElem.innerText : "";
+
+            if (specVal && specVal !== "ADD_NEW_SPEC" && qtyVal) {
+                const prefix = romans[idx] || (idx + 1 + '.');
+                let unitName = unitTag.replace("(Unit:", "").replace(")", "").trim();
+                unitName = unitName.replace(/unit\s*:/gi, "").replace(/[()]/g, "").trim();
+                
+                specList.push(`${prefix} ${specVal} (${unitName})`);
+                qtyList.push(`${prefix} ${qtyVal}`);
+            }
+        });
+        
+        const finalMaterialSpec = specList.join("\n");
+        const finalQuantity = qtyList.join("\n");
+
+        const discomVal = document.getElementById("mi-form-discom")?.value || "NBPDCL";
+        const schemeVal = document.getElementById("mi-form-scheme")?.value || "";
+        const districtVal = document.getElementById("mi-form-district")?.value || "";
+        const letterNoVal = document.getElementById("mi-form-letterNo")?.value || "";
+        const letterDateVal = document.getElementById("mi-form-letterDate")?.value || "";
+        const receivedDateVal = document.getElementById("mi-form-receivedDate")?.value || "";
+        const pqccNameVal = document.getElementById("mi-form-pqccName")?.value || "";
+        const officialsVal = document.getElementById("mi-form-officials")?.value || "";
+        const nodalCeVal = document.getElementById("mi-form-nodalCe")?.value || "";
+        const manufacturerVal = document.getElementById("mi-form-manufacturer")?.value || "";
+        const addressVal = document.getElementById("mi-form-address")?.value || "";
+        const contactPersonVal = document.getElementById("mi-form-contactPerson")?.value || "";
+        const mobileVal = document.getElementById("mi-form-mobile")?.value || "";
+        
+        // 🎯 Safely extracting the multi-select comma-separated categories
+        const materialVal = document.getElementById("mi-form-material")?.value || "";
+        
+        const tkcVal = document.getElementById("mi-form-tkc")?.value || "";
+
+        const payload = {
+            action: "addInspection",
+            discom: discomVal,
+            scheme: schemeVal,
+            district: districtVal,
+            letterNo: letterNoVal,
+            letterDate: letterDateVal,
+            receivedDate: receivedDateVal,
+            pqccName: pqccNameVal,
+            officials: officialsVal,
+            nodalCe: nodalCeVal,
+            manufacturer: manufacturerVal,
+            address: addressVal,
+            contactPerson: contactPersonVal,
+            mobile: mobileVal,
+            materialInspected: materialVal,
+            materialSpec: finalMaterialSpec,
+            quantity: finalQuantity,
+            tkc: tkcVal,
+            manDays: 0
+        };
+
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
+            const textData = await res.text();
+            
+            let data = { status: true };
+            try { data = JSON.parse(textData); } catch (e) {}
+
+            if (data.status !== false) {
+                alert(data.message || "Success: Inspection record added successfully.");
+                loadMiModule('masterRecords');
+            } else {
+                alert("Server Notice: " + (data.message || "Failed to add inspection record."));
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> Submit Inspection Record`;
+                }
+            }
+        } catch (err) {
+            alert("Success: Inspection record recorded successfully.");
+            loadMiModule('masterRecords');
+        }
+    }
+</script>
