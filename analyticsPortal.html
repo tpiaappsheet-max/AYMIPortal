@@ -1,7 +1,7 @@
 <!-- Chart.js Library for Visual Analytics -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="max-w-7xl mx-auto space-y-6 animate-fade-in pb-16">
+<div class="max-w-7xl mx-auto space-y-6 animate-fade-in pb-16" id="main-container">
     
     <!-- Top Header & Filter Controls -->
     <div class="bg-white p-5 sm:p-6 rounded-3xl border shadow-sm space-y-4">
@@ -24,12 +24,14 @@
 
         <!-- Filter Row -->
         <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+            <!-- 🎯 Search ID changed to Input + Datalist Combobox -->
             <div>
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Search ID</label>
-                <input type="text" id="an-filter-id" oninput="window.runAnalyticsPipeline()" placeholder="Inspection ID..." class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-slate-50 focus:bg-white transition shadow-xs">
+                <input type="text" id="an-filter-id" list="an-filter-id-list" oninput="window.runAnalyticsPipeline()" placeholder="Type or Select ID..." class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-slate-50 focus:bg-white transition shadow-xs cursor-pointer">
+                <datalist id="an-filter-id-list"></datalist>
             </div>
             <div>
-                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">DISCOM</label>
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Global DISCOM</label>
                 <select id="an-filter-discom" onchange="window.runAnalyticsPipeline()" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-slate-50 focus:bg-white cursor-pointer transition shadow-xs">
                     <option value="ALL">All DISCOMs</option>
                     <option value="NBPDCL">NBPDCL</option>
@@ -105,7 +107,7 @@
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
                 <span class="text-[9px] font-black uppercase text-blue-600 block tracking-wider">Avg Man-Days/Insp</span>
                 <p id="kpi-avg-per-inspector" class="text-2xl font-black text-blue-700 mt-1">0.0</p>
-                <span id="kpi-inspector-pool" class="text-[10px] text-blue-600 font-bold block mt-0.5">Across 0 registered</span>
+                <span id="kpi-inspector-pool" class="text-[10px] text-blue-600 font-bold block mt-0.5">Across 0 active inspector(s)</span>
             </div>
             <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-xs">
                 <span class="text-[9px] font-black uppercase text-slate-500 block tracking-wider">Total Man-Days</span>
@@ -196,21 +198,21 @@
         </div>
     </div>
 
-    <!-- Primary Charts Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Monthly Inspection Volume Trend -->
-        <div class="lg:col-span-2 bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i> Monthly Inspection Execution Trend
-                </h4>
-                <span class="text-[10px] font-bold text-slate-400">Click bar segment for Inspection Codes</span>
-            </div>
-            <div class="h-64 sm:h-72 w-full relative">
-                <canvas id="chart-monthly-trend"></canvas>
-            </div>
+    <!-- 🎯 NEW INTEGRATED COMBO CHART (SIDE-BY-SIDE BARS) -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
+                <i data-lucide="trending-up" class="w-4 h-4 text-blue-600"></i> Integrated Monthly Execution Volume & Man-Days Trend
+            </h4>
+            <span class="text-[10px] font-bold text-slate-400">Grouped Bars = Calls vs Completed vs Billed</span>
         </div>
+        <div class="h-72 sm:h-96 w-full relative">
+            <canvas id="chart-monthly-trend"></canvas>
+        </div>
+    </div>
 
+    <!-- Secondary Charts: Doughnut & Categories -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Outcome & DISCOM Distribution -->
         <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
             <div class="border-b border-slate-100 pb-3">
@@ -227,18 +229,18 @@
                 <div><span class="text-[9px] uppercase text-slate-400 block">PVVNL</span><span id="sub-pv-cnt" class="text-amber-700 font-black">0</span></div>
             </div>
         </div>
-    </div>
 
-    <!-- Secondary Charts: Material Category Distribution -->
-    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
-                <i data-lucide="layers" class="w-4 h-4 text-emerald-600"></i> Top Material Categories Inspected
-            </h4>
-            <span class="text-[10px] font-bold text-slate-400">Click bar for Inspection Codes</span>
-        </div>
-        <div class="h-64 sm:h-72 w-full relative">
-            <canvas id="chart-material-category"></canvas>
+        <!-- Chart: Material Category Distribution -->
+        <div class="lg:col-span-2 bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
+                    <i data-lucide="layers" class="w-4 h-4 text-emerald-600"></i> Top Material Categories Inspected
+                </h4>
+                <span class="text-[10px] font-bold text-slate-400">Click bar for Inspection Codes</span>
+            </div>
+            <div class="h-64 sm:h-72 w-full relative">
+                <canvas id="chart-material-category"></canvas>
+            </div>
         </div>
     </div>
 
@@ -341,24 +343,37 @@
             <div class="flex items-center gap-2 shrink-0 pb-2 w-full sm:w-auto justify-between">
                 <div class="flex items-center gap-2">
                     <i data-lucide="git-merge" class="w-5 h-5 text-blue-600"></i>
-                    <span class="text-xs font-black uppercase text-slate-600 tracking-wider">Comparison Mode:</span>
+                    <span class="text-xs font-black uppercase text-slate-600 tracking-wider">Matrix Settings:</span>
                 </div>
                 <button onclick="window.resetMatrixFilters()" class="sm:hidden px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold rounded-lg transition cursor-pointer flex items-center gap-1.5 shadow-sm">
                     <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset
                 </button>
             </div>
-            <div class="flex-1 min-w-[200px]">
+
+            <!-- 🎯 MATRIX-SPECIFIC DISCOM FILTER -->
+            <div class="flex-1 min-w-[150px]">
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Matrix DISCOM Filter</label>
+                <select id="matrix-filter-discom" onchange="window.renderFinancialMatrix()" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 transition cursor-pointer shadow-xs text-amber-900 bg-amber-50/30">
+                    <option value="ALL">All Data (Combined)</option>
+                    <option value="NBPDCL">NBPDCL Only</option>
+                    <option value="SBPDCL">SBPDCL Only</option>
+                    <option value="PVVNL">PVVNL Only</option>
+                </select>
+            </div>
+
+            <div class="flex-1 min-w-[180px]">
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Primary Grouping</label>
                 <select id="matrix-grp-1" onchange="document.getElementById('matrix-filter-primary').value='ALL'; window.renderFinancialMatrix()" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white focus:border-blue-500 transition cursor-pointer shadow-xs">
-                    <option value="none">Detailed Flat View (All Records & Specs)</option>
+                    <option value="none">Detailed Flat View (All Records)</option>
                     <option value="mfg">Group by Manufacturer</option>
                     <option value="cat">Group by Material Category</option>
                     <option value="insp">Group by Conducted By (Inspector)</option>
                     <option value="discom">Group by DISCOM</option>
                 </select>
             </div>
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Secondary Grouping (Optional)</label>
+
+            <div class="flex-1 min-w-[180px]">
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Secondary Grouping</label>
                 <select id="matrix-grp-2" onchange="window.renderFinancialMatrix()" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white focus:border-indigo-500 transition cursor-pointer shadow-xs">
                     <option value="none">-- No Secondary Grouping --</option>
                     <option value="mfg">Then by Manufacturer</option>
@@ -368,11 +383,13 @@
                 </select>
             </div>
             
-            <div class="flex-1 min-w-[200px] hidden" id="matrix-filter-wrap">
-                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1 text-emerald-700">Filter Primary Group</label>
-                <select id="matrix-filter-primary" onchange="window.applyMatrixFilter()" class="w-full p-2.5 border border-emerald-300 rounded-xl text-xs font-bold outline-none bg-emerald-50 focus:bg-white focus:border-emerald-500 transition cursor-pointer shadow-xs">
+            <!-- 🎯 Filter Group Data changed to Input + Datalist Combobox -->
+            <div class="flex-1 min-w-[150px] hidden" id="matrix-filter-wrap">
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1 text-emerald-700">Filter Group Data</label>
+                <input type="text" id="matrix-filter-primary" list="matrix-filter-primary-list" oninput="window.applyMatrixFilter()" onfocus="if(this.value==='ALL')this.value='';" onblur="if(this.value==='')this.value='ALL';" placeholder="Select or type..." value="ALL" class="w-full p-2.5 border border-emerald-300 rounded-xl text-xs font-bold outline-none bg-emerald-50 focus:bg-white focus:border-emerald-500 transition cursor-pointer shadow-xs">
+                <datalist id="matrix-filter-primary-list">
                     <option value="ALL">-- All --</option>
-                </select>
+                </datalist>
             </div>
 
             <button onclick="window.resetMatrixFilters()" class="hidden sm:flex ml-auto px-4 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl transition cursor-pointer items-center gap-1.5 shadow-sm">
@@ -382,7 +399,7 @@
 
         <div class="overflow-x-auto custom-scrollbar border border-slate-200 rounded-2xl shadow-inner max-h-[70vh]">
             <table class="w-full text-left text-xs border-collapse">
-                <thead id="matrix-financial-head" class="bg-slate-900 text-white uppercase text-[10px] font-mono sticky top-0 z-10">
+                <thead id="matrix-financial-head" class="bg-slate-900 text-white uppercase text-[10px] font-mono sticky top-0 z-10 shadow-sm">
                     <!-- Populated dynamically based on grouping -->
                 </thead>
                 <tbody id="matrix-financial-body" class="divide-y font-medium text-slate-700 bg-white">
@@ -394,7 +411,7 @@
 
 </div>
 
-<!-- 🎯 DRILL-DOWN MODAL FOR INSPECTION CODES & FINANCIALS -->
+<!-- 🎯 DRILL-DOWN MODAL FOR CHARTS (Retained for visual chart interactions) -->
 <div id="analytics-drilldown-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl p-6 sm:p-8 relative border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between border-b pb-3 sticky top-0 bg-white z-10">
@@ -561,6 +578,7 @@
             } catch(e) {}
 
             populateMonthFilter();
+            populateIdFilter(); // 🎯 Populate datalist
             window.runAnalyticsPipeline();
         } catch (err) {
             console.error("Failed to load analytics records", err);
@@ -591,6 +609,22 @@
         monthDropdown.innerHTML = html;
     }
 
+    // 🎯 Dynamically generate ID dropdown based on fetched data
+    function populateIdFilter() {
+        const list = document.getElementById("an-filter-id-list");
+        if (!list) return;
+        const ids = new Set();
+        window.analyticsRawData.forEach(r => {
+            const id = String(r.inspectionId || r.InspectionID || "").trim();
+            if (id) ids.add(id);
+        });
+        let html = "";
+        Array.from(ids).sort().forEach(id => {
+            html += `<option value="${id}"></option>`;
+        });
+        list.innerHTML = html;
+    }
+
     window.resetAnalyticsFilters = function() {
         document.getElementById("an-filter-id").value = "";
         document.getElementById("an-filter-discom").value = "ALL";
@@ -604,6 +638,7 @@
         document.getElementById("matrix-grp-1").value = "none";
         document.getElementById("matrix-grp-2").value = "none";
         document.getElementById("matrix-filter-primary").value = "ALL";
+        document.getElementById("matrix-filter-discom").value = "ALL";
         window.renderFinancialMatrix();
     }
 
@@ -663,13 +698,22 @@
     }
 
     // ==========================================
-    // 🎯 DYNAMIC FINANCIAL PIVOT MATRIX LOGIC
+    // 🎯 DYNAMIC FINANCIAL PIVOT MATRIX LOGIC (EXPAND/COLLAPSE)
     // ==========================================
     window.renderFinancialMatrix = function(records = window.analyticsFilteredCache) {
         const tbody = document.getElementById("matrix-financial-body");
         const thead = document.getElementById("matrix-financial-head");
         const filterWrap = document.getElementById("matrix-filter-wrap");
         if (!tbody || !thead) return;
+
+        // Apply Matrix-specific DISCOM filter 
+        const matrixDiscomSelect = document.getElementById("matrix-filter-discom");
+        let matrixDiscom = matrixDiscomSelect ? matrixDiscomSelect.value : "ALL";
+        
+        let matrixRecords = records;
+        if (matrixDiscom !== "ALL") {
+            matrixRecords = records.filter(r => String(r.discom || "").trim().toUpperCase() === matrixDiscom.toUpperCase());
+        }
 
         const grp1Select = document.getElementById("matrix-grp-1");
         const grp2Select = document.getElementById("matrix-grp-2");
@@ -681,7 +725,7 @@
 
         let dataList = [];
 
-        records.forEach(r => {
+        matrixRecords.forEach(r => {
             const stat = String(r.status || "Pending").trim();
             const subStat = String(r.subStatus || "Pending").trim();
             if (stat.toLowerCase().includes("cancel") || stat.toLowerCase().includes("revis")) return;
@@ -701,7 +745,7 @@
 
             const criteria = portalMRecord ? (String(portalMRecord.criteria || "Value Percent").trim()) : "Value Percent";
             const cVal = portalMRecord ? (Number(portalMRecord.criteriaValue) || 0) : 0;
-            const criteriaFmt = `${criteria} (${cVal})`; // 🎯 Merged Criteria and Factor
+            const criteriaFmt = `${criteria} (${cVal})`; 
             
             const tMatVal = portalMRecord ? (Number(portalMRecord.totalMaterialValue) || 0) : 0;
 
@@ -820,7 +864,7 @@
 
             thead.innerHTML = `
                 <tr>
-                    <th class="p-3 border-r border-slate-700 w-12 text-center">Sr</th>
+                    <th class="p-3 border-r border-slate-700 w-16 text-center">Sr</th>
                     <th class="p-3 border-r border-slate-700">${g1Lbl}</th>
                     ${g2Lbl ? `<th class="p-3 border-r border-slate-700">${g2Lbl}</th>` : ''}
                     <th class="p-3 border-r border-slate-700 text-center text-blue-300">Total Calls</th>
@@ -846,22 +890,26 @@
 
             let pivotArr = Object.values(window.currentPivotRecords);
 
-            const filterSelect = document.getElementById("matrix-filter-primary");
+            // 🎯 Matrix Filter changed to interact with Datalist
+            const filterInput = document.getElementById("matrix-filter-primary");
+            const filterList = document.getElementById("matrix-filter-primary-list");
             let uniqueV1s = [...new Set(pivotArr.map(p => p.v1))].sort();
-            let currentFilterVal = filterSelect.value;
+            let currentFilterVal = filterInput.value;
+            
             let filterHtml = `<option value="ALL">-- All ${g1Lbl}s --</option>`;
             uniqueV1s.forEach(v => {
                 filterHtml += `<option value="${v}">${v}</option>`;
             });
-            filterSelect.innerHTML = filterHtml;
-            if(uniqueV1s.includes(currentFilterVal)) {
-                filterSelect.value = currentFilterVal;
+            if (filterList) filterList.innerHTML = filterHtml;
+            
+            if (uniqueV1s.includes(currentFilterVal) || currentFilterVal === "ALL") {
+                filterInput.value = currentFilterVal;
             } else {
-                filterSelect.value = "ALL";
+                filterInput.value = "ALL";
             }
 
-            if(filterSelect.value !== "ALL") {
-                pivotArr = pivotArr.filter(p => p.v1 === filterSelect.value);
+            if (filterInput.value !== "ALL" && filterInput.value !== "") {
+                pivotArr = pivotArr.filter(p => p.v1 === filterInput.value);
             }
 
             pivotArr.sort((a, b) => {
@@ -878,13 +926,17 @@
                 const criteriaStr = Array.from(item.criteriaSet).join(", ");
 
                 html += `
-                    <tr class="${bg} hover:bg-emerald-50/40 transition">
-                        <td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>
+                    <tr class="${bg} hover:bg-emerald-50/40 transition cursor-pointer group" onclick="window.toggleMatrixExpand('${cacheKey}', this)">
+                        <td class="p-3 border-r text-center font-mono text-slate-400">
+                            <div class="flex items-center justify-center gap-1">
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 transition-transform expand-icon"></i>
+                                ${idx + 1}
+                            </div>
+                        </td>
                         <td class="p-3 border-r font-bold text-slate-900">${item.v1}</td>
                         ${g2Lbl ? `<td class="p-3 border-r font-bold text-indigo-700">${item.v2}</td>` : ''}
                         
-                        <td class="p-3 border-r text-center font-mono font-black text-blue-700 bg-blue-50/50 hover:bg-blue-200 cursor-pointer underline transition shadow-inner" onclick="window.openFinancialDrilldown('${cacheKey}')" title="Click to view detailed financial breakdown">${item.calls}</td>
-                        
+                        <td class="p-3 border-r text-center font-mono font-black text-blue-700">${item.calls}</td>
                         <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 text-[10px]">${criteriaStr}</td>
                         <td class="p-3 text-right font-mono font-bold text-slate-900">Rs ${item.tMatVal > 0 ? item.tMatVal.toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}</td>
                     </tr>
@@ -900,173 +952,88 @@
         window.renderFinancialMatrix(); 
     }
 
-    window.openFinancialDrilldown = function(key) {
+    window.toggleMatrixExpand = function(key, rowEl) {
+        const nextRow = rowEl.nextElementSibling;
+        const icon = rowEl.querySelector('.expand-icon');
+
+        if (nextRow && nextRow.classList.contains('matrix-expanded-row')) {
+            nextRow.remove();
+            if(icon) icon.style.transform = "rotate(0deg)";
+            rowEl.classList.remove('bg-emerald-50');
+            return;
+        }
+
+        if(icon) icon.style.transform = "rotate(90deg)";
+        rowEl.classList.add('bg-emerald-50');
+
         const groupData = window.currentPivotRecords[key];
         if(!groupData) return;
 
-        const modal = document.getElementById("analytics-drilldown-modal");
-        const titleEl = document.getElementById("drilldown-modal-title");
-        const subEl = document.getElementById("drilldown-modal-subtitle");
-        const bodyEl = document.getElementById("drilldown-modal-body");
+        const colspan = rowEl.children.length;
 
-        let g2Text = groupData.v2 ? ` > ${groupData.v2}` : "";
-        titleEl.innerHTML = `<i data-lucide="indian-rupee" class="text-emerald-600 w-4 h-4"></i> Detailed Financial Breakdown`;
-        subEl.innerText = `${groupData.v1}${g2Text} (${groupData.calls} Assigments)`;
+        let subHtml = `
+            <tr class="matrix-expanded-row bg-slate-50 border-b border-slate-200 shadow-inner">
+                <td colspan="${colspan}" class="p-4">
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-xs">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-slate-100 text-slate-600 uppercase text-[9px] font-black border-b border-slate-200">
+                                <tr>
+                                    <th class="p-2.5 border-r">ID & Status</th>
+                                    <th class="p-2.5 border-r text-center">Discom</th>
+                                    <th class="p-2.5 border-r">Entity Detail</th>
+                                    <th class="p-2.5 border-r w-56">Spec & Qty</th>
+                                    <th class="p-2.5 border-r">Execution</th>
+                                    <th class="p-2.5 border-r">Criteria</th>
+                                    <th class="p-2.5 border-r text-right">Mat Value</th>
+                                    <th class="p-2.5 text-right">Calculated Fee</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-medium">
+        `;
 
-        let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto p-1 custom-scrollbar">`;
         groupData.records.forEach(r => {
-            html += `
-                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col gap-2 shadow-2xs">
-                    <div class="flex items-start justify-between border-b border-slate-200 pb-2 gap-2">
-                        <span class="font-mono font-black text-blue-700 text-sm">${r.id}</span>
-                        <div class="text-right shrink-0">
-                            <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold block mb-1">${r.discom}</span>
-                            <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold block">${r.statusFmt} / ${r.subStatusFmt}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="text-[10px] text-slate-700 font-bold leading-tight"><strong class="text-slate-400">Mfg:</strong> ${r.mfg}</div>
-                    <div class="text-[10px] text-indigo-700 font-bold leading-tight"><strong class="text-slate-400">Cat:</strong> ${r.cat}</div>
-                    
-                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-700 bg-white p-1.5 rounded border border-slate-100">
-                        <div><strong class="text-slate-400">By:</strong> ${r.insp}</div>
-                        <div class="text-right leading-tight">${r.dates}</div>
-                    </div>
-
-                    <div class="bg-white p-2 rounded border border-slate-100 max-h-24 overflow-y-auto custom-scrollbar text-[9px] whitespace-pre-wrap leading-tight">
-                        <strong class="text-slate-800">Specifications:</strong>\n${r.spec}\n\n<strong class="text-blue-700">Quantities:</strong>\n${r.qty}
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 mt-1 bg-white p-2.5 rounded-lg border border-slate-100 shadow-inner">
-                        <div>
-                            <span class="block text-[8px] uppercase text-slate-400 font-black">Criteria & Value</span>
-                            <span class="font-bold font-mono text-emerald-700 text-[10px] bg-emerald-50 px-1 rounded">${r.criteriaFmt}</span>
-                        </div>
-                        <div class="text-right">
-                            <span class="block text-[8px] uppercase text-slate-400 font-black">Total Mat Value</span>
-                            <span class="font-black font-mono text-slate-900 text-xs">Rs ${r.tMatVal > 0 ? r.tMatVal.toLocaleString('en-IN') : '0'}</span>
-                        </div>
-                        <div class="col-span-2 pt-2 border-t border-slate-100 text-right">
-                            <span class="inline-block text-[8px] uppercase text-slate-400 font-black mr-2">Calculated Fee:</span>
-                            <span class="font-black font-mono text-purple-700 text-sm">Rs ${r.calculatedFee > 0 ? r.calculatedFee.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '0.00'}</span>
-                        </div>
-                    </div>
-                </div>
+            subHtml += `
+                <tr class="hover:bg-slate-50 transition align-top">
+                    <td class="p-2.5 border-r">
+                        <div class="font-mono font-bold text-blue-600 mb-1">${r.id}</div>
+                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold block whitespace-nowrap">${r.statusFmt} / ${r.subStatusFmt}</span>
+                    </td>
+                    <td class="p-2.5 border-r text-center">
+                        <span class="text-[9px] font-black px-2 py-0.5 rounded border bg-slate-100 border-slate-200">${r.discom}</span>
+                    </td>
+                    <td class="p-2.5 border-r text-[10px] leading-tight w-48">
+                        <strong class="text-slate-400 block mb-0.5">Mfg:</strong> <span class="text-slate-800">${r.mfg}</span>
+                        <div class="h-1"></div>
+                        <strong class="text-slate-400 block mb-0.5">Cat:</strong> <span class="text-indigo-700">${r.cat}</span>
+                    </td>
+                    <td class="p-2.5 border-r text-[10px] text-slate-600">
+                        <div class="max-h-24 overflow-y-auto custom-scrollbar pr-1 whitespace-pre-wrap leading-tight"><strong class="text-slate-800">Spec:</strong>\n${r.spec}\n\n<strong class="text-blue-700">Qty:</strong>\n${r.qty}</div>
+                    </td>
+                    <td class="p-2.5 border-r text-[10px] leading-tight w-32">
+                        <strong class="text-slate-400 block mb-0.5">By:</strong> <span class="text-slate-800">${r.insp}</span>
+                        <div class="h-1"></div>
+                        <span class="text-slate-500 font-mono">${r.dates}</span>
+                    </td>
+                    <td class="p-2.5 border-r text-[10px] text-emerald-700 font-bold font-mono bg-emerald-50/20">${r.criteriaFmt}</td>
+                    <td class="p-2.5 border-r text-right font-mono font-bold text-slate-800">Rs ${r.tMatVal > 0 ? r.tMatVal.toLocaleString('en-IN') : '0'}</td>
+                    <td class="p-2.5 text-right font-mono font-black text-purple-700 bg-purple-50/20">Rs ${r.calculatedFee > 0 ? r.calculatedFee.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '0.00'}</td>
+                </tr>
             `;
         });
-        html += `</div>`;
-        bodyEl.innerHTML = html;
 
-        modal.classList.remove("hidden");
-        if (window.lucide) lucide.createIcons();
+        subHtml += `
+                            </tbody>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        rowEl.insertAdjacentHTML('afterend', subHtml);
     }
 
-
-    // ==========================================
-    // EXECUTIVE KPIS & SCORECARD LOGIC
-    // ==========================================
-    function computeExecutiveKpis(records) {
-        const total = records.length;
-        
-        let pass = 0, mom = 0, pending = 0, totalManDays = 0, cancelledRev = 0;
-        let billedCount = 0, unbilledCount = 0, invoiceCount = 0, billedManDays = 0;
-        let lagSchedSum = 0, lagSchedCount = 0; 
-        
-        let reportReceivedCnt = 0;
-        let reportMailedCnt = 0;
-        let nablSentCnt = 0;
-
-        records.forEach(r => {
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-            const stat = String(r.status || "").trim().toLowerCase();
-            const bill = String(r.billingStatus || "").trim().toLowerCase();
-            const md = Number(r.manDays || 0);
-
-            if (stat.includes("cancel") || stat.includes("revis")) {
-                cancelledRev++;
-            } else {
-                if (sub.includes("pass")) { pass++; }
-                else if (sub.includes("mom")) { mom++; }
-                else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pending++;
-            }
-
-            totalManDays += md;
-
-            if (bill === "billed") { billedCount++; billedManDays += md; }
-            else if (bill === "pending" && (sub.includes("pass") || sub.includes("mom"))) unbilledCount++;
-            
-            if (String(r.invoiceNo || "").trim() !== "") invoiceCount++;
-
-            if (String(r.reportReceived || "").trim().toLowerCase() === "yes") reportReceivedCnt++;
-            if (String(r.reportMail || "").trim().toLowerCase() === "yes") reportMailedCnt++;
-            
-            const nablVal = String(r.nablStatusDate || "").trim();
-            if (nablVal.toLowerCase().includes("sample send for nabl test")) {
-                nablSentCnt++;
-            }
-
-            let dRec = parseAnyDateToObject(r.receivedDate);
-            let dSch = parseAnyDateToObject(r.scheduleDate);
-            if (dRec && dSch) {
-                let diff = (dSch - dRec) / 86400000;
-                if (diff >= 0) { lagSchedSum += diff; lagSchedCount++; }
-            }
-        });
-
-        const validCalls = total - cancelledRev;
-
-        const passRate = validCalls > 0 ? ((pass / validCalls) * 100).toFixed(1) : 0;
-        const momRate = validCalls > 0 ? ((mom / validCalls) * 100).toFixed(1) : 0;
-        const billedRate = validCalls > 0 ? ((billedCount / validCalls) * 100).toFixed(0) : 0;
-        const unbilledRate = validCalls > 0 ? ((unbilledCount / validCalls) * 100).toFixed(0) : 0;
-        const billedMdRate = totalManDays > 0 ? ((billedManDays / totalManDays) * 100).toFixed(0) : 0;
-
-        const avgSchedLag = lagSchedCount > 0 ? (lagSchedSum / lagSchedCount).toFixed(1) : 0;
-        const totalRegisteredInspectors = window.analyticsInspectorsMaster.length > 0 ? window.analyticsInspectorsMaster.length : 1;
-        const avgManDaysPerInsp = (totalManDays / totalRegisteredInspectors).toFixed(1);
-
-        document.getElementById("kpi-total-calls").innerText = total;
-        document.getElementById("kpi-valid-calls").innerText = `(${validCalls} Valid)`;
-        document.getElementById("kpi-cancelled-revised").innerText = `${cancelledRev} Cancelled / Revised`;
-
-        document.getElementById("kpi-pass-count").innerText = pass;
-        document.getElementById("kpi-pass-rate").innerText = `${passRate}% pass rate`;
-        document.getElementById("kpi-mom-count").innerText = mom;
-        document.getElementById("kpi-mom-rate").innerText = `${momRate}% MOM rate`;
-        document.getElementById("kpi-pending-count").innerText = pending;
-        document.getElementById("kpi-avg-per-inspector").innerText = avgManDaysPerInsp;
-        document.getElementById("kpi-inspector-pool").innerText = `Across ${totalRegisteredInspectors} registered`;
-        document.getElementById("kpi-total-mandays").innerText = totalManDays.toFixed(1);
-
-        document.getElementById("kpi-billed-count").innerText = billedCount;
-        document.getElementById("kpi-billed-rate").innerText = `${billedRate}% of total`;
-        document.getElementById("kpi-unbilled-count").innerText = unbilledCount;
-        document.getElementById("kpi-unbilled-rate").innerText = `${unbilledRate}% of total`;
-        document.getElementById("kpi-invoice-count").innerText = invoiceCount;
-        document.getElementById("kpi-billed-mandays").innerText = billedManDays.toFixed(1);
-        document.getElementById("kpi-billed-manday-rate").innerText = `${billedMdRate}% of utilized man-days`;
-
-        document.getElementById("kpi-report-received-cnt").innerText = reportReceivedCnt;
-        document.getElementById("kpi-report-mailed-cnt").innerText = reportMailedCnt;
-        document.getElementById("kpi-nabl-sent-cnt").innerText = nablSentCnt;
-        document.getElementById("kpi-lag-schedule").innerHTML = `${avgSchedLag}<span class="text-lg">d</span>`;
-
-        let nb = 0, sb = 0, pv = 0;
-        records.forEach(r => {
-            const d = String(r.discom || "").trim().toUpperCase();
-            if (d === "NBPDCL") nb++;
-            else if (d === "SBPDCL") sb++;
-            else if (d === "PVVNL") pv++;
-        });
-        document.getElementById("sub-nb-cnt").innerText = nb;
-        document.getElementById("sub-sb-cnt").innerText = sb;
-        document.getElementById("sub-pv-cnt").innerText = pv;
-    }
-
-    // ==========================================
-    // VISUAL CHARTS WITH DRILL-DOWN CAPABILITY
-    // ==========================================
-    function openDrilldownModal(title, subtitle, matchingRecords) {
+    // Modal retained only for chart slice clicks
+    window.openDrilldownModal = function(title, subtitle, matchingRecords) {
         const modal = document.getElementById("analytics-drilldown-modal");
         const titleEl = document.getElementById("drilldown-modal-title");
         const subEl = document.getElementById("drilldown-modal-subtitle");
@@ -1116,6 +1083,122 @@
         document.getElementById("analytics-drilldown-modal").classList.add("hidden");
     }
 
+    // ==========================================
+    // EXECUTIVE KPIS & SCORECARD LOGIC
+    // ==========================================
+    function computeExecutiveKpis(records) {
+        const total = records.length;
+        
+        let pass = 0, mom = 0, pending = 0, totalManDays = 0, cancelledRev = 0;
+        let billedCount = 0, unbilledCount = 0, invoiceCount = 0, billedManDays = 0;
+        let lagSchedSum = 0, lagSchedCount = 0; 
+        
+        let reportReceivedCnt = 0;
+        let reportMailedCnt = 0;
+        let nablSentCnt = 0;
+        let activeInspectors = new Set(); 
+
+        records.forEach(r => {
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            const stat = String(r.status || "").trim().toLowerCase();
+            const bill = String(r.billingStatus || "").trim().toLowerCase();
+            const md = Number(r.manDays || 0);
+
+            if (stat.includes("cancel") || stat.includes("revis")) {
+                cancelledRev++;
+            } else {
+                if (sub.includes("pass")) { pass++; }
+                else if (sub.includes("mom")) { mom++; }
+                else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pending++;
+
+                // Track active inspectors dynamically based on filtered records
+                const inspName = String(r.conductedBy || r.tpiaInspector || "").trim();
+                const key = cleanInspectorName(inspName);
+                if (key && !["notappointed", "notupdated", "pending", "-"].includes(key)) {
+                    activeInspectors.add(key);
+                }
+            }
+
+            totalManDays += md;
+
+            if (bill === "billed") { billedCount++; billedManDays += md; }
+            else if (bill === "pending" && (sub.includes("pass") || sub.includes("mom"))) unbilledCount++;
+            
+            if (String(r.invoiceNo || "").trim() !== "") invoiceCount++;
+
+            if (String(r.reportReceived || "").trim().toLowerCase() === "yes") reportReceivedCnt++;
+            if (String(r.reportMail || "").trim().toLowerCase() === "yes") reportMailedCnt++;
+            
+            const nablVal = String(r.nablStatusDate || "").trim();
+            if (nablVal.toLowerCase().includes("sample send for nabl test")) {
+                nablSentCnt++;
+            }
+
+            let dRec = parseAnyDateToObject(r.receivedDate);
+            let dSch = parseAnyDateToObject(r.scheduleDate);
+            if (dRec && dSch) {
+                let diff = (dSch - dRec) / 86400000;
+                if (diff >= 0) { lagSchedSum += diff; lagSchedCount++; }
+            }
+        });
+
+        const validCalls = total - cancelledRev;
+
+        const passRate = validCalls > 0 ? ((pass / validCalls) * 100).toFixed(1) : 0;
+        const momRate = validCalls > 0 ? ((mom / validCalls) * 100).toFixed(1) : 0;
+        const billedRate = validCalls > 0 ? ((billedCount / validCalls) * 100).toFixed(0) : 0;
+        const unbilledRate = validCalls > 0 ? ((unbilledCount / validCalls) * 100).toFixed(0) : 0;
+        const billedMdRate = totalManDays > 0 ? ((billedManDays / totalManDays) * 100).toFixed(0) : 0;
+
+        const avgSchedLag = lagSchedCount > 0 ? (lagSchedSum / lagSchedCount).toFixed(1) : 0;
+        
+        // Use dynamically calculated active inspector count
+        const activeCount = activeInspectors.size > 0 ? activeInspectors.size : 1;
+        const avgManDaysPerInsp = (totalManDays / activeCount).toFixed(1);
+
+        document.getElementById("kpi-total-calls").innerText = total;
+        document.getElementById("kpi-valid-calls").innerText = `(${validCalls} Valid)`;
+        document.getElementById("kpi-cancelled-revised").innerText = `${cancelledRev} Cancelled / Revised`;
+
+        document.getElementById("kpi-pass-count").innerText = pass;
+        document.getElementById("kpi-pass-rate").innerText = `${passRate}% pass rate`;
+        document.getElementById("kpi-mom-count").innerText = mom;
+        document.getElementById("kpi-mom-rate").innerText = `${momRate}% MOM rate`;
+        document.getElementById("kpi-pending-count").innerText = pending;
+        
+        document.getElementById("kpi-avg-per-inspector").innerText = avgManDaysPerInsp;
+        document.getElementById("kpi-inspector-pool").innerText = `Across ${activeInspectors.size} active inspector(s)`;
+        
+        document.getElementById("kpi-total-mandays").innerText = totalManDays.toFixed(1);
+
+        document.getElementById("kpi-billed-count").innerText = billedCount;
+        document.getElementById("kpi-billed-rate").innerText = `${billedRate}% of total`;
+        document.getElementById("kpi-unbilled-count").innerText = unbilledCount;
+        document.getElementById("kpi-unbilled-rate").innerText = `${unbilledRate}% of total`;
+        document.getElementById("kpi-invoice-count").innerText = invoiceCount;
+        document.getElementById("kpi-billed-mandays").innerText = billedManDays.toFixed(1);
+        document.getElementById("kpi-billed-manday-rate").innerText = `${billedMdRate}% of utilized man-days`;
+
+        document.getElementById("kpi-report-received-cnt").innerText = reportReceivedCnt;
+        document.getElementById("kpi-report-mailed-cnt").innerText = reportMailedCnt;
+        document.getElementById("kpi-nabl-sent-cnt").innerText = nablSentCnt;
+        document.getElementById("kpi-lag-schedule").innerHTML = `${avgSchedLag}<span class="text-lg">d</span>`;
+
+        let nb = 0, sb = 0, pv = 0;
+        records.forEach(r => {
+            const d = String(r.discom || "").trim().toUpperCase();
+            if (d === "NBPDCL") nb++;
+            else if (d === "SBPDCL") sb++;
+            else if (d === "PVVNL") pv++;
+        });
+        document.getElementById("sub-nb-cnt").innerText = nb;
+        document.getElementById("sub-sb-cnt").innerText = sb;
+        document.getElementById("sub-pv-cnt").innerText = pv;
+    }
+
+    // ==========================================
+    // 🎯 NEW INTEGRATED VISUAL CHARTS
+    // ==========================================
     function renderMonthlyTrendChart(records) {
         const ctx = document.getElementById("chart-monthly-trend");
         if (!ctx) return;
@@ -1123,15 +1206,33 @@
         const monthMap = {};
         records.forEach(r => {
             let m = getCompletionMonth(r);
-            if (!monthMap[m]) monthMap[m] = { pass: [], mom: [], pending: [] };
+            if (!monthMap[m]) monthMap[m] = { 
+                pass: [], mom: [], pending: [], 
+                completedMD: 0, billedMD: 0, 
+                compRecords: [], billedRecords: [] 
+            };
+            
             const sub = String(r.subStatus || "").trim().toLowerCase();
             const stat = String(r.status || "").trim().toLowerCase();
+            const bill = String(r.billingStatus || "").trim().toLowerCase();
+            const md = Number(r.manDays || 0);
             
             if (stat.includes("cancel") || stat.includes("revis")) return;
 
+            // Bar Processing (Volumes)
             if (sub.includes("pass")) monthMap[m].pass.push(r);
             else if (sub.includes("mom")) monthMap[m].mom.push(r);
             else monthMap[m].pending.push(r);
+
+            // Bar Processing (Man-Days)
+            if (sub.includes("pass") || sub.includes("mom")) {
+                monthMap[m].completedMD += md;
+                monthMap[m].compRecords.push(r);
+            }
+            if (bill === "billed") {
+                monthMap[m].billedMD += md;
+                monthMap[m].billedRecords.push(r);
+            }
         });
 
         const labels = Object.keys(monthMap).sort((a, b) => {
@@ -1145,36 +1246,111 @@
         const passData = labels.map(l => monthMap[l].pass.length);
         const momData = labels.map(l => monthMap[l].mom.length);
         const pendingData = labels.map(l => monthMap[l].pending.length);
+        
+        const compData = labels.map(l => Number(monthMap[l].completedMD.toFixed(1)));
+        const billData = labels.map(l => Number(monthMap[l].billedMD.toFixed(1)));
 
         if (window.analyticsChartInstances.monthlyTrend) window.analyticsChartInstances.monthlyTrend.destroy();
 
+        // COMBO CHART RENDERER (Side-by-Side Grouped Columns)
         window.analyticsChartInstances.monthlyTrend = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels.length > 0 ? labels : ["No Data"],
                 datasets: [
-                    { label: 'Material Pass', data: passData, backgroundColor: '#10b981', borderRadius: 4 },
-                    { label: 'MOM Notice', data: momData, backgroundColor: '#a855f7', borderRadius: 4 },
-                    { label: 'Pending/Sched', data: pendingData, backgroundColor: '#f59e0b', borderRadius: 4 }
+                    { 
+                        type: 'bar', 
+                        label: 'Material Pass (Calls)', 
+                        data: passData, 
+                        backgroundColor: '#10b981', 
+                        yAxisID: 'y', 
+                        stack: 'Calls', 
+                        borderRadius: 4 
+                    },
+                    { 
+                        type: 'bar', 
+                        label: 'MOM Notice (Calls)', 
+                        data: momData, 
+                        backgroundColor: '#a855f7', 
+                        yAxisID: 'y', 
+                        stack: 'Calls', 
+                        borderRadius: 4 
+                    },
+                    { 
+                        type: 'bar', 
+                        label: 'Pending / Sched (Calls)', 
+                        data: pendingData, 
+                        backgroundColor: '#fbbf24', 
+                        yAxisID: 'y', 
+                        stack: 'Calls', 
+                        borderRadius: 4 
+                    },
+                    { 
+                        type: 'bar', 
+                        label: 'Completed Man-Days', 
+                        data: compData, 
+                        backgroundColor: '#3b82f6', 
+                        yAxisID: 'y1', 
+                        stack: 'MD_Comp', 
+                        borderRadius: 4 
+                    },
+                    { 
+                        type: 'bar', 
+                        label: 'Billed Man-Days', 
+                        data: billData, 
+                        backgroundColor: '#06b6d4', 
+                        yAxisID: 'y1', 
+                        stack: 'MD_Bill', 
+                        borderRadius: 4 
+                    }
                 ]
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
+                responsive: true, 
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false }, 
                 onClick: (evt, elements) => {
                     if (elements.length > 0) {
+                        const clickedDatasetIndex = elements[0].datasetIndex;
                         const idx = elements[0].index;
-                        const datasetIdx = elements[0].datasetIndex;
                         const label = labels[idx];
                         let matched = [];
-                        if (datasetIdx === 0) matched = monthMap[label].pass;
-                        else if (datasetIdx === 1) matched = monthMap[label].mom;
-                        else matched = monthMap[label].pending;
+                        let dsLabel = "";
+                        
+                        if (clickedDatasetIndex === 0) { matched = monthMap[label].pass; dsLabel = "Material Pass"; }
+                        else if (clickedDatasetIndex === 1) { matched = monthMap[label].mom; dsLabel = "MOM Notice"; }
+                        else if (clickedDatasetIndex === 2) { matched = monthMap[label].pending; dsLabel = "Pending / Scheduled"; }
+                        else if (clickedDatasetIndex === 3) { matched = monthMap[label].compRecords; dsLabel = `Completed Man-Days (${compData[idx]} Total)`; }
+                        else if (clickedDatasetIndex === 4) { matched = monthMap[label].billedRecords; dsLabel = `Billed Man-Days (${billData[idx]} Total)`; }
 
-                        openDrilldownModal(`Monthly Trend: ${label}`, `Dataset Category (${elements[0].element.$context.dataset.label})`, matched);
+                        openDrilldownModal(`Integrated Trend Analysis: ${label}`, dsLabel, matched);
                     }
                 },
-                scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } } },
-                plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
+                scales: { 
+                    y: { 
+                        type: 'linear', 
+                        display: true, 
+                        position: 'left', 
+                        stacked: true, 
+                        title: { display: true, text: 'Inspection Volume (Calls)', font: { size: 10, weight: 'bold' }, color: '#64748b' },
+                        grid: { color: '#f1f5f9' }
+                    }, 
+                    y1: { 
+                        type: 'linear', 
+                        display: true, 
+                        position: 'right',
+                        stacked: true,
+                        title: { display: true, text: 'Man-Days Utilized', font: { size: 10, weight: 'bold' }, color: '#64748b' },
+                        grid: { drawOnChartArea: false } 
+                    },
+                    x: { 
+                        stacked: true, 
+                        grid: { display: false } 
+                    }
+                },
+                plugins: { 
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10, weight: 'bold' } } } 
+                }
             }
         });
     }
