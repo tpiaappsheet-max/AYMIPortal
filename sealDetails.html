@@ -243,6 +243,7 @@
     window.trackerMasterInspections = [];
     window.miInspectorsList = [];
     window.trackerDataLoaded = false;
+    window.hierarchySortModes = {}; // Stores sort preference per inspector-type
 
     async function initSealModule() {
         try {
@@ -455,7 +456,7 @@
     }
 
     // ==========================================
-    // TRACKER MATH & SMART CROSS-USAGE LOGIC
+    // TRACKER MATH & EXACT APPS SCRIPT PARITY LOGIC
     // ==========================================
     function extractPrefixAndNum(str) {
         let match = String(str).trim().match(/^([A-Za-z_-]+)?(\d+)$/);
@@ -463,36 +464,83 @@
         return null;
     }
 
+    // 🎯 EXACT APPS SCRIPT PARITY
     function expandSealRange(inputStr) {
-        if (!inputStr) return [];
+        if (!inputStr || String(inputStr).trim() === "") return [];
         
-        let normalizedStr = String(inputStr)
-            .replace(/(to|-)\s*\n\s*/gi, '$1 ')
-            .replace(/\s*\n\s*(to|-)/gi, ' $1');
-
-        let tokens = normalizedStr.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
-        let results = new Set();
-
-        tokens.forEach(token => {
-            let rangeMatch = token.match(/(.+?)\s+(?:to|-)\s+(.+)/i);
+        let textStr = String(inputStr).trim();
+        let lines = textStr.split(/[\r\n]+/);
+        let normalizedLines = [];
+        
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line) continue;
+            
+            if (i > 0) {
+                let prevLine = lines[i - 1].trim();
+                let endsWithTo = /\bto\s*$/i.test(prevLine);
+                let startsWithConnector = /^(to|and|&)\b/i.test(line);
+                
+                if (!endsWithTo && !startsWithConnector) {
+                    normalizedLines.push("And " + line);
+                } else {
+                    normalizedLines.push(" " + line);
+                }
+            } else {
+                normalizedLines.push(line);
+            }
+        }
+        
+        let processedStr = normalizedLines.join(" ");
+        let segments = processedStr.split(/\s+(?:and|AND|And|&)\s+|[,;]+/i);
+        let uniqueSeals = new Set();
+        
+        segments.forEach(segment => {
+            let segTrimmed = segment.trim();
+            if (!segTrimmed) return;
+            
+            let rangeMatch = segTrimmed.match(/(.+?)\s+(?:to|TO|To|-)\s+(.+)/i);
             if (rangeMatch) {
-                let fromParsed = extractPrefixAndNum(rangeMatch[1]);
-                let toParsed = extractPrefixAndNum(rangeMatch[2]);
-
+                let fromStr = rangeMatch[1].trim();
+                let toStr = rangeMatch[2].trim();
+                
+                let fromParsed = extractPrefixAndNum(fromStr);
+                let toParsed = extractPrefixAndNum(toStr);
+                
+                if (fromParsed && !toParsed) {
+                    let numOnly = toStr.match(/^(\d+)$/);
+                    if (numOnly) {
+                        toParsed = {
+                            prefix: fromParsed.prefix,
+                            num: parseInt(numOnly[1], 10),
+                            padding: numOnly[1].length
+                        };
+                    }
+                }
+                
                 if (fromParsed && toParsed && fromParsed.prefix === toParsed.prefix) {
                     let start = Math.min(fromParsed.num, toParsed.num);
                     let end = Math.max(fromParsed.num, toParsed.num);
                     for (let i = start; i <= end; i++) {
-                        results.add(fromParsed.prefix + String(i).padStart(fromParsed.padding, '0'));
+                        let formattedNum = String(i).padStart(fromParsed.padding, '0');
+                        uniqueSeals.add(fromParsed.prefix + formattedNum);
                     }
                 } else {
-                    results.add(token);
+                    uniqueSeals.add(fromStr);
+                    uniqueSeals.add(toStr);
                 }
             } else {
-                results.add(token);
+                let subTokens = segTrimmed.split(/\s+/);
+                subTokens.forEach(token => {
+                    let cleanToken = token.replace(/[^A-Za-z0-9_-]/g, "");
+                    if (cleanToken) {
+                        uniqueSeals.add(cleanToken);
+                    }
+                });
             }
         });
-        return Array.from(results);
+        
+        return Array.from(uniqueSeals);
     }
 
     function compressToRanges(sealArray) {
@@ -547,7 +595,6 @@
         }
     }
 
-    // 🎯 Nested Accordion Toggle Function for Manufacturer -> Category -> Inspection ID
     window.toggleNestedAccordion = function(id, iconId) {
         const el = document.getElementById(id);
         const icon = document.getElementById(iconId);
@@ -560,9 +607,15 @@
         }
     };
 
+    window.switchHierarchySort = function(safeKey, type, sortMode) {
+        window.hierarchySortModes[`${safeKey}-${cleanInspectorName(type)}`] = sortMode;
+        processAndRenderTracker();
+    };
+
+    // 🎯 ADDED discomCounts to accurately track sum vs set size
     function createInspObj(name) { return { name: name, types: {}, rawExecutions: [] }; }
     function createTypeObj() {
-        return { issued: new Set(), usedFromOwn: new Set(), lentOut: {}, borrowedFrom: {}, discomUsage: {} };
+        return { issued: new Set(), usedFromOwn: new Set(), lentOut: {}, borrowedFrom: {}, discomUsage: {}, discomCounts: {} }; 
     }
 
     function processAndRenderTracker() {
@@ -627,12 +680,21 @@
                 if (!inspectorData[userKey]) inspectorData[userKey] = createInspObj(userName);
                 if (!inspectorData[userKey].types[type]) inspectorData[userKey].types[type] = createTypeObj();
                 inspectorData[userKey].rawExecutions.push(row);
+
+                // 🎯 Track total Excel count
+                if (!discom) discom = "UNKNOWN";
+                if (!inspectorData[userKey].types[type].discomCounts[discom]) {
+                    inspectorData[userKey].types[type].discomCounts[discom] = 0;
+                }
+                inspectorData[userKey].types[type].discomCounts[discom] += expanded.length;
             }
 
             expanded.forEach(s => {
                 if (userKey !== "UNKNOWN_USER") {
                     if (!discom) discom = "UNKNOWN";
-                    if (!inspectorData[userKey].types[type].discomUsage[discom]) inspectorData[userKey].types[type].discomUsage[discom] = new Set();
+                    if (!inspectorData[userKey].types[type].discomUsage[discom]) {
+                        inspectorData[userKey].types[type].discomUsage[discom] = new Set();
+                    }
                     inspectorData[userKey].types[type].discomUsage[discom].add(s);
                 }
 
@@ -645,11 +707,15 @@
                         inspectorData[userKey].types[type].usedFromOwn.add(s);
                     } else {
                         if (userKey !== "UNKNOWN_USER") {
-                            if (!inspectorData[userKey].types[type].borrowedFrom[ownerName]) inspectorData[userKey].types[type].borrowedFrom[ownerName] = new Set();
+                            if (!inspectorData[userKey].types[type].borrowedFrom[ownerName]) {
+                                inspectorData[userKey].types[type].borrowedFrom[ownerName] = new Set();
+                            }
                             inspectorData[userKey].types[type].borrowedFrom[ownerName].add(s);
                         }
                         if (ownerKey !== "CENTRAL") {
-                            if (!inspectorData[ownerKey].types[type].lentOut[userName]) inspectorData[ownerKey].types[type].lentOut[userName] = new Set();
+                            if (!inspectorData[ownerKey].types[type].lentOut[userName]) {
+                                inspectorData[ownerKey].types[type].lentOut[userName] = new Set();
+                            }
                             inspectorData[ownerKey].types[type].lentOut[userName].add(s);
                         }
                     }
@@ -740,7 +806,7 @@
                 inspTotalIssued += issuedArr.length;
                 inspTotalAvailable += availArr.length;
 
-                // 🎯 Original Clean Summary format for Discom Usage
+                // 🎯 Fix applied here: Total matched to Excel sum
                 let discomBreakdownHtml = "";
                 let typeFilteredExecutedCount = 0;
                 let activeDiscoms = Object.keys(discomUsage).sort();
@@ -750,8 +816,9 @@
                     let breakdownParts = [];
                     activeDiscoms.forEach(d => {
                         let dArr = Array.from(discomUsage[d]);
-                        typeFilteredExecutedCount += dArr.length;
-                        breakdownParts.push(`<strong class="text-slate-800">${d}:</strong> ${dArr.length} (${compressToRanges(dArr)})`);
+                        let totalExecutedInDiscom = typesObj[type].discomCounts[d] || dArr.length;
+                        typeFilteredExecutedCount += totalExecutedInDiscom;
+                        breakdownParts.push(`<strong class="text-slate-800">${d}:</strong> ${totalExecutedInDiscom} (${compressToRanges(dArr)})`);
                     });
                     discomBreakdownHtml = breakdownParts.join("<br/>");
                 } else {
@@ -760,64 +827,104 @@
 
                 inspTotalFilteredExecuted += typeFilteredExecutedCount;
 
-                // Group by Manufacturer -> Category -> Inspection ID for the sub-row
                 let rawExecutions = inspObj.rawExecutions.filter(r => String(r.sealType || "").trim() === type);
                 if (filterDiscom !== "ALL") {
                     rawExecutions = rawExecutions.filter(r => String(r.discom || "").trim().toUpperCase() === filterDiscom);
                 }
-                
-                let mfgMap = {};
-                rawExecutions.forEach(r => {
-                    let mfg = String(r.manufacturer || "Unspecified Manufacturer").trim();
-                    let cat = String(r.materialInspected || "Unspecified Category").trim();
-                    let inspId = String(r.inspectionId || r.InspectionID || "Unknown ID").trim();
-                    let serials = String(r.sealSerial || "").trim();
-                    let discom = String(r.discom || "-").toUpperCase();
-                    
-                    if (!mfgMap[mfg]) mfgMap[mfg] = {};
-                    if (!mfgMap[mfg][cat]) mfgMap[mfg][cat] = [];
-                    if (!mfgMap[mfg][cat].some(existing => existing.id === inspId && existing.serials === serials)) {
-                        mfgMap[mfg][cat].push({ id: inspId, serials: serials, discom: discom });
-                    }
-                });
+
+                const safeKey = cleanInspectorName(inspObj.name);
+                const safeType = cleanInspectorName(type);
+                const nestedId = `nested-${safeKey}-${safeType}`;
+                const sortModeKey = `${safeKey}-${safeType}`;
+                const currentSortMode = window.hierarchySortModes[sortModeKey] || 'hierarchy';
 
                 let nestedHtml = "";
-                let mfgKeys = Object.keys(mfgMap).sort();
-                if (mfgKeys.length > 0) {
-                    mfgKeys.forEach(mfg => {
-                        nestedHtml += `<div class="mb-3 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
-                            <div class="text-[11px] font-black text-slate-900 uppercase mb-2 bg-slate-100 px-2.5 py-1 rounded-md border-l-4 border-blue-600">
-                                🏢 Manufacturer: ${mfg}
-                            </div>
-                            <div class="pl-3 space-y-2">`;
+
+                if (currentSortMode === 'hierarchy') {
+                    let mfgMap = {};
+                    rawExecutions.forEach(r => {
+                        let mfg = String(r.manufacturer || "Unspecified Manufacturer").trim();
+                        let cat = String(r.materialInspected || "Unspecified Category").trim();
+                        let inspId = String(r.inspectionId || r.InspectionID || "Unknown ID").trim();
+                        let serialsStr = String(r.sealSerial || "").trim();
+                        let discom = String(r.discom || "-").toUpperCase();
                         
-                        let catKeys = Object.keys(mfgMap[mfg]).sort();
-                        catKeys.forEach(cat => {
-                            nestedHtml += `<div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                <div class="text-[10px] font-bold text-indigo-700 mb-1.5 flex items-center gap-1.5">
-                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-600"></i> Category: ${cat}
+                        let expandedSerials = expandSealRange(serialsStr);
+                        let sealCount = expandedSerials.length;
+                        let compressedSerials = compressToRanges(expandedSerials);
+
+                        if (!mfgMap[mfg]) mfgMap[mfg] = {};
+                        if (!mfgMap[mfg][cat]) mfgMap[mfg][cat] = [];
+                        if (!mfgMap[mfg][cat].some(existing => existing.id === inspId && existing.serials === compressedSerials)) {
+                            mfgMap[mfg][cat].push({ id: inspId, serials: compressedSerials, count: sealCount, discom: discom });
+                        }
+                    });
+
+                    let mfgKeys = Object.keys(mfgMap).sort();
+                    if (mfgKeys.length > 0) {
+                        mfgKeys.forEach(mfg => {
+                            nestedHtml += `<div class="mb-3 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                                <div class="text-[11px] font-black text-slate-900 uppercase mb-2 bg-slate-100 px-2.5 py-1 rounded-md border-l-4 border-blue-600">
+                                    🏢 Manufacturer: ${mfg}
                                 </div>
-                                <div class="pl-3 space-y-1">`;
+                                <div class="pl-3 space-y-2">`;
                             
-                            mfgMap[mfg][cat].forEach(rec => {
-                                let cleanSerials = compressToRanges(expandSealRange(rec.serials));
-                                nestedHtml += `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white border border-slate-200 rounded p-1.5">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-mono font-black text-blue-700 text-xs">Inspection ID: ${rec.id}</span>
-                                        <span class="bg-slate-100 border px-1.5 py-0.5 rounded text-[8px] font-bold text-slate-600">${rec.discom}</span>
+                            let catKeys = Object.keys(mfgMap[mfg]).sort();
+                            catKeys.forEach(cat => {
+                                nestedHtml += `<div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <div class="text-[10px] font-bold text-indigo-700 mb-1.5 flex items-center gap-1.5">
+                                        <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-600"></i> Category: ${cat}
                                     </div>
-                                    <div class="text-emerald-700 font-mono font-bold text-[10px] sm:text-right max-w-md break-words">
-                                        ${cleanSerials}
-                                    </div>
-                                </div>`;
+                                    <div class="pl-3 space-y-1.5">`;
+                                
+                                mfgMap[mfg][cat].forEach(rec => {
+                                    nestedHtml += `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white border border-slate-200 rounded p-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono font-black text-blue-700 text-xs">Inspection ID: ${rec.id}</span>
+                                            <span class="bg-slate-100 border px-1.5 py-0.5 rounded text-[8px] font-bold text-slate-600">${rec.discom}</span>
+                                            <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full text-[9px] font-bold">${rec.count} seals</span>
+                                        </div>
+                                        <div class="text-emerald-700 font-mono font-bold text-[10px] sm:text-right max-w-md break-words">
+                                            ${rec.serials}
+                                        </div>
+                                    </div>`;
+                                });
+                                
+                                nestedHtml += `</div></div>`;
                             });
-                            
                             nestedHtml += `</div></div>`;
                         });
-                        nestedHtml += `</div></div>`;
-                    });
+                    } else {
+                        nestedHtml = `<div class="text-xs text-slate-400 italic py-2">No execution records found for this seal type.</div>`;
+                    }
                 } else {
-                    nestedHtml = `<div class="text-xs text-slate-400 italic py-2">No execution records found for this seal type.</div>`;
+                    if (rawExecutions.length > 0) {
+                        rawExecutions.forEach((r, idx) => {
+                            let inspId = String(r.inspectionId || r.InspectionID || "Unknown ID").trim();
+                            let mfg = String(r.manufacturer || "Unspecified Mfg").trim();
+                            let cat = String(r.materialInspected || "Unspecified Category").trim();
+                            let serialsStr = String(r.sealSerial || "").trim();
+                            let discom = String(r.discom || "-").toUpperCase();
+                            
+                            let expandedSerials = expandSealRange(serialsStr);
+                            let sealCount = expandedSerials.length;
+                            let compressedSerials = compressToRanges(expandedSerials);
+
+                            nestedHtml += `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white border border-slate-200 rounded p-2 mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-mono font-bold text-slate-400 text-xs">#${idx + 1}</span>
+                                    <span class="font-mono font-black text-blue-700 text-xs">Inspection ID: ${inspId}</span>
+                                    <span class="bg-slate-100 border px-1.5 py-0.5 rounded text-[8px] font-bold text-slate-600">${discom}</span>
+                                    <span class="bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-full text-[9px] font-bold">${sealCount} seals</span>
+                                </div>
+                                <div class="text-slate-700 text-[10px] font-medium sm:text-right">
+                                    <span class="text-slate-500">${mfg} > ${cat}</span>: <strong class="text-emerald-700 font-mono">${compressedSerials}</strong>
+                                </div>
+                            </div>`;
+                        });
+                    } else {
+                        nestedHtml = `<div class="text-xs text-slate-400 italic py-2">No execution records found for this seal type.</div>`;
+                    }
                 }
 
                 let crossHtml = "";
@@ -835,22 +942,17 @@
                 
                 if (!crossHtml) crossHtml = `<span class="text-slate-300 italic">- None -</span>`;
 
-                const safeKey = cleanInspectorName(inspObj.name);
-                const safeType = cleanInspectorName(type);
-                const nestedId = `nested-${safeKey}-${safeType}`;
-
-                // 🎯 Original Summary Column + Clean Arrow Sign for Expansion
                 rowsHtml += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-200 align-top">
                         <td data-col-index="i0" data-default-width="12%" style="width: 150px; min-width: 120px;" class="p-2.5 border-r font-bold text-slate-700 break-words"><strong>${type}</strong></td>
                         <td data-col-index="i1" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r text-center font-mono font-bold text-blue-700 bg-blue-50/30">${issuedArr.length}</td>
                         <td data-col-index="i2" data-default-width="20%" style="width: 250px; min-width: 180px;" class="p-2.5 border-r font-mono text-[9px] leading-tight text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(issuedArr)}</td>
                         
-                        <!-- 🎯 Original Summary + Clean Arrow on the right -->
+                        <!-- Original Summary + Clean Arrow on the right -->
                         <td data-col-index="i3" data-default-width="26%" style="width: 280px; min-width: 220px;" class="p-2.5 border-r font-mono text-[10px] leading-tight text-slate-700">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex-1 break-words">${discomBreakdownHtml}</div>
-                                <button onclick="window.toggleNestedAccordion('${nestedId}', 'icon-${nestedId}')" class="p-1 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-lg transition cursor-pointer shrink-0 border hide-on-print" title="View Hierarchy">
+                                <button onclick="window.toggleNestedAccordion('${nestedId}', 'icon-${nestedId}')" class="p-1.5 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-lg transition cursor-pointer shrink-0 border hide-on-print shadow-2xs" title="Expand Hierarchy">
                                     <i data-lucide="chevron-right" class="w-4 h-4 transition-transform duration-200" id="icon-${nestedId}"></i>
                                 </button>
                             </div>
@@ -861,13 +963,22 @@
                         <td data-col-index="i6" data-default-width="14%" style="width: 250px; min-width: 140px;" class="p-2.5 font-mono text-[9px] leading-tight text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(availArr)}</td>
                     </tr>
                     
-                    <!-- 🎯 Hierarchical Sub-Row Expansion -->
+                    <!-- 🎯 Hierarchical Sub-Row Expansion with Sort Selector -->
                     <tr id="${nestedId}" class="hidden bg-slate-100 border-b border-slate-300 shadow-inner">
                         <td colspan="7" class="p-4">
                             <div class="space-y-3 pl-4 border-l-4 border-blue-600 max-h-[350px] overflow-y-auto custom-scrollbar">
-                                <h5 class="font-black text-xs uppercase text-slate-900 flex items-center gap-2">
-                                    <i data-lucide="git-branch" class="w-4 h-4 text-blue-600"></i> Manufacturer > Category > Inspection ID Breakdown (${type})
-                                </h5>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2">
+                                    <h5 class="font-black text-xs uppercase text-slate-900 flex items-center gap-2">
+                                        <i data-lucide="git-branch" class="w-4 h-4 text-blue-600"></i> Execution Breakdown (${type})
+                                    </h5>
+                                    <div class="flex items-center gap-2">
+                                        <label class="text-[10px] font-bold text-slate-500 uppercase">Sort Order:</label>
+                                        <select onchange="window.switchHierarchySort('${safeKey}', '${type}', this.value)" class="p-1 border border-slate-300 rounded-lg text-[10px] font-bold bg-white text-slate-800 cursor-pointer shadow-2xs">
+                                            <option value="hierarchy" ${currentSortMode === 'hierarchy' ? 'selected' : ''}>Manufacturer > Category > ID</option>
+                                            <option value="sheet" ${currentSortMode === 'sheet' ? 'selected' : ''}>Sheet Order / Sr No</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 ${nestedHtml}
                             </div>
                         </td>
@@ -968,7 +1079,7 @@
     }
 
     // ==========================================
-    // FLAWLESS ANTI-CROP NODE RELOCATION EXPORT
+    // FLAWLESS ANTI-CROP PDF EXPORT (Summary Only)
     // ==========================================
     function downloadTrackerPDF() {
         const filterDiscom = document.getElementById("tracker-discom-filter").value;
@@ -992,12 +1103,12 @@
             const wrapper = document.getElementById('pdf-tracker-wrapper');
             const titleEl = document.getElementById('pdf-tracker-title');
             
-            // 1. Expand top level accordions (Keep nested hierarchical rows hidden in PDF as requested)
+            // 1. Expand top level accordions (Keep nested hierarchical rows hidden in PDF summary as requested)
             const accordions = wrapper.querySelectorAll('.pdf-accordion > div.hidden');
             accordions.forEach(el => el.classList.remove('hidden'));
 
             titleEl.innerText = `Detailed Seal Inventory & Usage Report - ${dStr}`;
-            titleEl.classList.add('hidden'); // Keep hidden in PDF summary
+            titleEl.classList.remove('hidden');
 
             // 2. Clear manual resizer pixels so it uses perfect percentages
             const allCells = wrapper.querySelectorAll('th, td');
