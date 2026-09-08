@@ -1,4 +1,5 @@
-<!-- html2pdf Library will be dynamically loaded via script to prevent router scope errors -->
+<!-- html2pdf Library for PDF Generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <div class="max-w-7xl mx-auto space-y-4 animate-fade-in pb-12" id="main-container">
     
@@ -179,7 +180,7 @@
             <div class="flex justify-end gap-3 pt-4 border-t mt-6">
                 <button type="button" onclick="closeSealModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer">Cancel</button>
                 <button type="submit" id="save-seal-btn" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
-                    <i data-lucide="save" class="w-4 h-4"></i> Save Record
+                    <i data-lucide="save" class="w-4 h-4"></i> <span>Save Record</span>
                 </button>
             </div>
         </form>
@@ -207,7 +208,7 @@
         padding: 0 !important;
     }
     body.pdf-mode-active #pdf-tracker-wrapper {
-        width: 1250px !important; /* Maps perfectly to WindowWidth to stop side cropping */
+        width: 1250px !important; 
         max-width: none !important;
         margin: 0 !important;
         padding: 20px !important;
@@ -231,7 +232,6 @@
         overflow-wrap: break-word !important;
         word-break: normal !important;
     }
-    /* 🎯 Prevent letter-spacing jump bug in PDF Engine */
     body.pdf-mode-active, 
     body.pdf-mode-active * {
         letter-spacing: normal !important;
@@ -463,7 +463,6 @@
         return null;
     }
 
-    // 🎯 FIX: Repair multi-line sequence breaking bug!
     function expandSealRange(inputStr) {
         if (!inputStr) return [];
         
@@ -536,19 +535,32 @@
         return finalArr.join(", ");
     }
 
-    function toggleAccordion(id, iconId) {
+    window.toggleAccordion = function(id, iconId) {
         const el = document.getElementById(id);
         const icon = document.getElementById(iconId);
         if (el.classList.contains("hidden")) {
             el.classList.remove("hidden");
-            icon.style.transform = "rotate(180deg)";
+            if(icon) icon.style.transform = "rotate(180deg)";
         } else {
             el.classList.add("hidden");
-            icon.style.transform = "rotate(0deg)";
+            if(icon) icon.style.transform = "rotate(0deg)";
         }
     }
 
-    function createInspObj(name) { return { name: name, types: {} }; }
+    // 🎯 Nested Accordion Toggle Function for Manufacturer -> Category -> Inspection ID
+    window.toggleNestedAccordion = function(id, iconId) {
+        const el = document.getElementById(id);
+        const icon = document.getElementById(iconId);
+        if (el.classList.contains("hidden")) {
+            el.classList.remove("hidden");
+            if (icon) icon.style.transform = "rotate(90deg)";
+        } else {
+            el.classList.add("hidden");
+            if (icon) icon.style.transform = "rotate(0deg)";
+        }
+    };
+
+    function createInspObj(name) { return { name: name, types: {}, rawExecutions: [] }; }
     function createTypeObj() {
         return { issued: new Set(), usedFromOwn: new Set(), lentOut: {}, borrowedFrom: {}, discomUsage: {} };
     }
@@ -614,6 +626,7 @@
             if (userKey !== "UNKNOWN_USER") {
                 if (!inspectorData[userKey]) inspectorData[userKey] = createInspObj(userName);
                 if (!inspectorData[userKey].types[type]) inspectorData[userKey].types[type] = createTypeObj();
+                inspectorData[userKey].rawExecutions.push(row);
             }
 
             expanded.forEach(s => {
@@ -697,16 +710,16 @@
             const bg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
             centralHtml += `
                 <tr class="${bg}">
-                    <td data-col-index="c0" data-default-width="20%" style="width: 250px; min-width: 150px;" class="p-3 border-r font-black text-slate-800 break-words">${type}</td>
-                    <td data-col-index="c1" data-default-width="10%" style="width: 120px; min-width: 80px;" class="p-3 border-r text-center font-mono font-bold text-amber-600 bg-amber-50/30">${availArr.length}</td>
-                    <td data-col-index="c2" data-default-width="70%" style="width: 600px; min-width: 300px;" class="p-3 font-mono text-[11px] leading-relaxed text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(availArr)}</td>
+                    <td data-col-index="c0" data-default-width="20%" style="width: 250px; min-width: 250px;" class="p-3 border-r font-black text-slate-800 break-words">${type}</td>
+                    <td data-col-index="c1" data-default-width="10%" style="width: 120px; min-width: 120px;" class="p-3 border-r text-center font-mono font-bold text-amber-600 bg-amber-50/30">${availArr.length}</td>
+                    <td data-col-index="c2" data-default-width="70%" style="width: 600px; min-width: 600px;" class="p-3 font-mono text-[11px] leading-relaxed text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(availArr)}</td>
                 </tr>
             `;
         });
         if (centralTypes.length === 0) centralHtml = `<tr><td colspan="3" class="p-6 text-center text-slate-400">No unassigned inventory available.</td></tr>`;
         centralBody.innerHTML = centralHtml;
 
-        // 5. Render Inspector Cards
+        // 5. Render Inspector Cards with Original Summary + Clean Arrow Expansion
         let inspHtml = "";
         let sortedInsps = Object.values(inspectorData).sort((a, b) => a.name.localeCompare(b.name));
 
@@ -727,6 +740,7 @@
                 inspTotalIssued += issuedArr.length;
                 inspTotalAvailable += availArr.length;
 
+                // 🎯 Original Clean Summary format for Discom Usage
                 let discomBreakdownHtml = "";
                 let typeFilteredExecutedCount = 0;
                 let activeDiscoms = Object.keys(discomUsage).sort();
@@ -746,6 +760,66 @@
 
                 inspTotalFilteredExecuted += typeFilteredExecutedCount;
 
+                // Group by Manufacturer -> Category -> Inspection ID for the sub-row
+                let rawExecutions = inspObj.rawExecutions.filter(r => String(r.sealType || "").trim() === type);
+                if (filterDiscom !== "ALL") {
+                    rawExecutions = rawExecutions.filter(r => String(r.discom || "").trim().toUpperCase() === filterDiscom);
+                }
+                
+                let mfgMap = {};
+                rawExecutions.forEach(r => {
+                    let mfg = String(r.manufacturer || "Unspecified Manufacturer").trim();
+                    let cat = String(r.materialInspected || "Unspecified Category").trim();
+                    let inspId = String(r.inspectionId || r.InspectionID || "Unknown ID").trim();
+                    let serials = String(r.sealSerial || "").trim();
+                    let discom = String(r.discom || "-").toUpperCase();
+                    
+                    if (!mfgMap[mfg]) mfgMap[mfg] = {};
+                    if (!mfgMap[mfg][cat]) mfgMap[mfg][cat] = [];
+                    if (!mfgMap[mfg][cat].some(existing => existing.id === inspId && existing.serials === serials)) {
+                        mfgMap[mfg][cat].push({ id: inspId, serials: serials, discom: discom });
+                    }
+                });
+
+                let nestedHtml = "";
+                let mfgKeys = Object.keys(mfgMap).sort();
+                if (mfgKeys.length > 0) {
+                    mfgKeys.forEach(mfg => {
+                        nestedHtml += `<div class="mb-3 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+                            <div class="text-[11px] font-black text-slate-900 uppercase mb-2 bg-slate-100 px-2.5 py-1 rounded-md border-l-4 border-blue-600">
+                                🏢 Manufacturer: ${mfg}
+                            </div>
+                            <div class="pl-3 space-y-2">`;
+                        
+                        let catKeys = Object.keys(mfgMap[mfg]).sort();
+                        catKeys.forEach(cat => {
+                            nestedHtml += `<div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                <div class="text-[10px] font-bold text-indigo-700 mb-1.5 flex items-center gap-1.5">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-600"></i> Category: ${cat}
+                                </div>
+                                <div class="pl-3 space-y-1">`;
+                            
+                            mfgMap[mfg][cat].forEach(rec => {
+                                let cleanSerials = compressToRanges(expandSealRange(rec.serials));
+                                nestedHtml += `<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white border border-slate-200 rounded p-1.5">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono font-black text-blue-700 text-xs">Inspection ID: ${rec.id}</span>
+                                        <span class="bg-slate-100 border px-1.5 py-0.5 rounded text-[8px] font-bold text-slate-600">${rec.discom}</span>
+                                    </div>
+                                    <div class="text-emerald-700 font-mono font-bold text-[10px] sm:text-right max-w-md break-words">
+                                        ${cleanSerials}
+                                    </div>
+                                </div>`;
+                            });
+                            
+                            nestedHtml += `</div></div>`;
+                        });
+                        nestedHtml += `</div></div>`;
+                    });
+                } else {
+                    nestedHtml = `<div class="text-xs text-slate-400 italic py-2">No execution records found for this seal type.</div>`;
+                }
+
                 let crossHtml = "";
                 for (let [lentTo, sealsSet] of Object.entries(typesObj[type].lentOut)) {
                     let sArr = Array.from(sealsSet);
@@ -761,15 +835,42 @@
                 
                 if (!crossHtml) crossHtml = `<span class="text-slate-300 italic">- None -</span>`;
 
+                const safeKey = cleanInspectorName(inspObj.name);
+                const safeType = cleanInspectorName(type);
+                const nestedId = `nested-${safeKey}-${safeType}`;
+
+                // 🎯 Original Summary Column + Clean Arrow Sign for Expansion
                 rowsHtml += `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0 align-top">
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-200 align-top">
                         <td data-col-index="i0" data-default-width="12%" style="width: 150px; min-width: 120px;" class="p-2.5 border-r font-bold text-slate-700 break-words"><strong>${type}</strong></td>
                         <td data-col-index="i1" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r text-center font-mono font-bold text-blue-700 bg-blue-50/30">${issuedArr.length}</td>
                         <td data-col-index="i2" data-default-width="20%" style="width: 250px; min-width: 180px;" class="p-2.5 border-r font-mono text-[9px] leading-tight text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(issuedArr)}</td>
-                        <td data-col-index="i3" data-default-width="26%" style="width: 280px; min-width: 220px;" class="p-2.5 border-r font-mono text-[10px] leading-tight text-slate-700 break-words whitespace-pre-wrap">${discomBreakdownHtml}</td>
+                        
+                        <!-- 🎯 Original Summary + Clean Arrow on the right -->
+                        <td data-col-index="i3" data-default-width="26%" style="width: 280px; min-width: 220px;" class="p-2.5 border-r font-mono text-[10px] leading-tight text-slate-700">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1 break-words">${discomBreakdownHtml}</div>
+                                <button onclick="window.toggleNestedAccordion('${nestedId}', 'icon-${nestedId}')" class="p-1 bg-slate-100 hover:bg-blue-100 text-slate-600 hover:text-blue-700 rounded-lg transition cursor-pointer shrink-0 border hide-on-print" title="View Hierarchy">
+                                    <i data-lucide="chevron-right" class="w-4 h-4 transition-transform duration-200" id="icon-${nestedId}"></i>
+                                </button>
+                            </div>
+                        </td>
+
                         <td data-col-index="i4" data-default-width="16%" style="width: 280px; min-width: 160px;" class="p-2.5 border-r font-mono text-[10px] leading-tight text-slate-700 break-words whitespace-pre-wrap">${crossHtml}</td>
                         <td data-col-index="i5" data-default-width="6%" style="width: 80px; min-width: 60px;" class="p-2.5 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${availArr.length}</td>
                         <td data-col-index="i6" data-default-width="14%" style="width: 250px; min-width: 140px;" class="p-2.5 font-mono text-[9px] leading-tight text-slate-600 whitespace-pre-wrap break-words">${compressToRanges(availArr)}</td>
+                    </tr>
+                    
+                    <!-- 🎯 Hierarchical Sub-Row Expansion -->
+                    <tr id="${nestedId}" class="hidden bg-slate-100 border-b border-slate-300 shadow-inner">
+                        <td colspan="7" class="p-4">
+                            <div class="space-y-3 pl-4 border-l-4 border-blue-600 max-h-[350px] overflow-y-auto custom-scrollbar">
+                                <h5 class="font-black text-xs uppercase text-slate-900 flex items-center gap-2">
+                                    <i data-lucide="git-branch" class="w-4 h-4 text-blue-600"></i> Manufacturer > Category > Inspection ID Breakdown (${type})
+                                </h5>
+                                ${nestedHtml}
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
@@ -780,7 +881,7 @@
 
             inspHtml += `
                 <div class="border border-slate-200 rounded-2xl shadow-sm break-inside-avoid pdf-accordion bg-white overflow-hidden">
-                    <div class="bg-slate-50 p-4 cursor-pointer flex justify-between items-center hover:bg-blue-50/50 transition" onclick="toggleAccordion('acc-${safeKey}', 'icon-${safeKey}')">
+                    <div class="bg-slate-50 p-4 cursor-pointer flex justify-between items-center hover:bg-blue-50/50 transition" onclick="window.toggleAccordion('acc-${safeKey}', 'icon-${safeKey}')">
                         <div class="flex items-center gap-3">
                             <div class="p-2 bg-white rounded-lg border border-slate-200 shadow-xs"><i data-lucide="user" class="text-blue-600 w-4 h-4"></i></div>
                             <span class="font-black text-sm text-slate-800">${inspObj.name}</span>
@@ -867,7 +968,7 @@
     }
 
     // ==========================================
-    // FLAWLESS ANTI-CROP PDF EXPORT
+    // FLAWLESS ANTI-CROP NODE RELOCATION EXPORT
     // ==========================================
     function downloadTrackerPDF() {
         const filterDiscom = document.getElementById("tracker-discom-filter").value;
@@ -891,12 +992,12 @@
             const wrapper = document.getElementById('pdf-tracker-wrapper');
             const titleEl = document.getElementById('pdf-tracker-title');
             
-            // 1. Expand all accordions
+            // 1. Expand top level accordions (Keep nested hierarchical rows hidden in PDF as requested)
             const accordions = wrapper.querySelectorAll('.pdf-accordion > div.hidden');
             accordions.forEach(el => el.classList.remove('hidden'));
 
             titleEl.innerText = `Detailed Seal Inventory & Usage Report - ${dStr}`;
-            titleEl.classList.remove('hidden');
+            titleEl.classList.add('hidden'); // Keep hidden in PDF summary
 
             // 2. Clear manual resizer pixels so it uses perfect percentages
             const allCells = wrapper.querySelectorAll('th, td');
@@ -915,46 +1016,80 @@
                 el.style.overflow = 'visible';
             });
 
-            // 4. Force Print State
-            document.body.classList.add("pdf-mode-active");
-            window.scrollTo(0, 0);
+            // 4. 🎯 NODE RELOCATION: Move the LIVE DOM wrapper absolutely to the body.
+            const originalParent = wrapper.parentNode;
+            const originalNextSibling = wrapper.nextSibling;
+            
+            const printAnchor = document.createElement('div');
+            printAnchor.style.position = 'absolute';
+            printAnchor.style.top = '0';
+            printAnchor.style.left = '0';
+            printAnchor.style.width = '1250px'; // 🎯 Exact width for A4 landscape
+            printAnchor.style.minHeight = '100vh';
+            printAnchor.style.background = 'white';
+            printAnchor.style.zIndex = '99999';
+            
+            printAnchor.classList.add('pdf-rendering-active');
+            printAnchor.appendChild(wrapper);
+            document.body.appendChild(printAnchor);
 
-            setTimeout(() => {
-                // 5. Print Configuration (A4 Landscape)
-                const opt = {
-                    margin:       [0.3, 0.3, 0.3, 0.3], 
-                    filename:     `Seal_Tracker_Report_${dStr}.pdf`,
-                    image:        { type: 'jpeg', quality: 1.0 },
-                    html2canvas:  { 
-                        scale: 2,             
-                        useCORS: true,
-                        scrollX: 0,
-                        scrollY: 0,
-                        windowWidth: 1250 
-                    },
-                    jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }, 
-                    pagebreak:    { mode: ['css', 'legacy'], avoid: ['.pdf-accordion', 'tr', 'thead'] } 
-                };
+            // Hide resizers and buttons during print
+            wrapper.querySelectorAll('.resizer, .hide-on-print, button').forEach(el => el.style.display = 'none');
+            
+            wrapper.querySelectorAll('table').forEach(table => {
+                table.style.width = '100%';
+                table.style.tableLayout = 'fixed';
+                table.style.minWidth = '100%';
+            });
+            wrapper.querySelectorAll('th, td').forEach(cell => {
+                cell.style.whiteSpace = "pre-wrap";
+                cell.style.wordBreak = "break-word";
+                cell.style.overflowWrap = "break-word";
+            });
 
-                window.html2pdf().set(opt).from(wrapper).save().then(() => {
-                    
-                    document.body.classList.remove("pdf-mode-active");
-                    
-                    scrollContainers.forEach(el => {
-                        el.classList.add('overflow-x-auto', 'custom-scrollbar');
-                        el.style.overflow = '';
-                    });
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3], 
+                filename:     `Seal_Tracker_Report_${dStr}.pdf`,
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { 
+                    scale: 2,             
+                    useCORS: true,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }, 
+                pagebreak:    { mode: ['css', 'legacy'], avoid: ['.pdf-accordion', 'tr', 'thead'] } 
+            };
 
-                    titleEl.classList.add('hidden');
-                    accordions.forEach(el => el.classList.add('hidden'));
-
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    
-                    processAndRenderTracker(); 
-                    if (window.lucide) lucide.createIcons();
+            window.html2pdf().set(opt).from(wrapper).save().then(() => {
+                if (originalNextSibling) {
+                    originalParent.insertBefore(wrapper, originalNextSibling);
+                } else {
+                    originalParent.appendChild(wrapper);
+                }
+                document.body.removeChild(printAnchor);
+                
+                wrapper.querySelectorAll('table').forEach(table => {
+                    table.style.width = '';
+                    table.style.tableLayout = '';
+                    table.style.minWidth = '';
                 });
-            }, 200);
+                wrapper.querySelectorAll('.resizer, .hide-on-print, button').forEach(el => el.style.display = '');
+
+                scrollContainers.forEach(el => {
+                    el.classList.add('overflow-x-auto', 'custom-scrollbar');
+                    el.style.overflow = '';
+                });
+
+                titleEl.classList.add('hidden');
+                accordions.forEach(el => el.classList.add('hidden'));
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                processAndRenderTracker(); 
+                if (window.lucide) lucide.createIcons();
+            });
         };
 
         if (typeof window.html2pdf === 'undefined') {
