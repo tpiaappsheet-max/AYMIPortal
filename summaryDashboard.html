@@ -4,7 +4,7 @@
 <div class="max-w-[98%] mx-auto space-y-4 animate-fade-in my-4">
     
     <!-- 🎯 Main Dashboard Tabs -->
-    <div class="flex justify-center mb-2 mt-2">
+    <div class="flex justify-center mb-2 mt-2 hide-on-print">
         <div class="bg-slate-200/60 p-1.5 rounded-2xl inline-flex space-x-1 shadow-inner border border-slate-200">
             <button onclick="switchAnalyticsTab('scheme')" id="tab-btn-scheme" class="px-6 py-2.5 text-xs font-black rounded-xl bg-white text-indigo-600 shadow-sm transition-all duration-200 flex items-center gap-2">
                 <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Scheme-wise Analytics
@@ -18,7 +18,7 @@
     <!-- ======================= VIEW 1: SCHEME-WISE (CURRENT) ======================= -->
     <div id="view-scheme" class="space-y-4 block animate-fade-in">
         <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm space-y-4">
-            <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 gap-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 gap-4 hide-on-print">
                 <div>
                     <h3 class="font-black text-lg uppercase text-slate-800 flex items-center gap-2">
                         <i data-lucide="bar-chart-3" class="text-indigo-600 w-6 h-6"></i> Executive Summary
@@ -38,49 +38,87 @@
                 </div>
             </div>
 
-            <!-- Expanded KPI Quick Cards -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pb-2">
-                <div class="bg-blue-50 border border-blue-100 p-3 rounded-2xl relative overflow-hidden">
-                    <p class="text-[9px] font-black uppercase text-blue-600 tracking-wider">Valid Calls</p>
-                    <h4 id="kpi-valid" class="text-xl font-black text-slate-800 mt-1">0</h4>
+            <div id="pdf-export-wrapper-scheme" class="space-y-8 bg-white relative">
+                <h2 id="pdf-report-title-scheme" class="hidden font-black text-2xl uppercase tracking-wider text-center text-slate-800 mb-6 border-b pb-4"></h2>
+                
+                <!-- Expanded KPI Quick Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 pb-2">
+                    <div class="bg-blue-50 border border-blue-100 p-3 rounded-2xl relative overflow-hidden">
+                        <p class="text-[9px] font-black uppercase text-blue-600 tracking-wider">Valid Calls</p>
+                        <h4 id="kpi-valid" class="text-xl font-black text-slate-800 mt-1">0</h4>
+                    </div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl relative overflow-hidden">
+                        <p class="text-[9px] font-black uppercase text-emerald-600 tracking-wider">Completed Calls</p>
+                        <h4 id="kpi-completed" class="text-xl font-black text-slate-800 mt-1">0</h4>
+                    </div>
+                    <div class="bg-violet-50 border border-violet-100 p-3 rounded-2xl relative overflow-hidden shadow-sm">
+                        <p class="text-[9px] font-black uppercase text-violet-700 tracking-wider flex items-center gap-1"><i data-lucide="check-circle-2" class="w-3 h-3"></i> Y-Day Comp.</p>
+                        <h4 id="kpi-yesterday" class="text-xl font-black text-violet-900 mt-1">0</h4>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 p-3 rounded-2xl relative overflow-hidden">
+                        <p class="text-[9px] font-black uppercase text-amber-600 tracking-wider">Pending Calls</p>
+                        <h4 id="kpi-pending" class="text-xl font-black text-slate-800 mt-1">0</h4>
+                    </div>
+                    <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-2xl relative overflow-hidden">
+                        <p class="text-[9px] font-black uppercase text-indigo-600 tracking-wider">Total Mandays</p>
+                        <h4 id="kpi-total-md" class="text-xl font-black text-slate-800 mt-1">0</h4>
+                    </div>
+                    <div class="bg-teal-50 border border-teal-100 p-3 rounded-2xl relative overflow-hidden">
+                        <p class="text-[9px] font-black uppercase text-teal-600 tracking-wider">Billed Mandays</p>
+                        <h4 id="kpi-billed-md" class="text-xl font-black text-slate-800 mt-1">0</h4>
+                    </div>
+                    <div class="bg-rose-50 border border-rose-100 p-3 rounded-2xl relative overflow-hidden">
+                        <p class="text-[9px] font-black uppercase text-rose-600 tracking-wider">Unbilled Mandays</p>
+                        <h4 id="kpi-unbilled-md" class="text-xl font-black text-slate-800 mt-1">0</h4>
+                    </div>
                 </div>
-                <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl relative overflow-hidden">
-                    <p class="text-[9px] font-black uppercase text-emerald-600 tracking-wider">Completed Calls</p>
-                    <h4 id="kpi-completed" class="text-xl font-black text-slate-800 mt-1">0</h4>
-                </div>
-                <div class="bg-amber-50 border border-amber-100 p-3 rounded-2xl relative overflow-hidden">
-                    <p class="text-[9px] font-black uppercase text-amber-600 tracking-wider">Pending Calls</p>
-                    <h4 id="kpi-pending" class="text-xl font-black text-slate-800 mt-1">0</h4>
-                </div>
-                <div class="bg-indigo-50 border border-indigo-100 p-3 rounded-2xl relative overflow-hidden">
-                    <p class="text-[9px] font-black uppercase text-indigo-600 tracking-wider">Total Mandays</p>
-                    <h4 id="kpi-total-md" class="text-xl font-black text-slate-800 mt-1">0</h4>
-                </div>
-                <div class="bg-teal-50 border border-teal-100 p-3 rounded-2xl relative overflow-hidden">
-                    <p class="text-[9px] font-black uppercase text-teal-600 tracking-wider">Billed Mandays</p>
-                    <h4 id="kpi-billed-md" class="text-xl font-black text-slate-800 mt-1">0</h4>
-                </div>
-                <div class="bg-rose-50 border border-rose-100 p-3 rounded-2xl relative overflow-hidden">
-                    <p class="text-[9px] font-black uppercase text-rose-600 tracking-wider">Unbilled Mandays</p>
-                    <h4 id="kpi-unbilled-md" class="text-xl font-black text-slate-800 mt-1">0</h4>
-                </div>
-            </div>
 
-            <!-- Cross-Tabulated Summary Data Grid -->
-            <div id="summary-table-container-scheme" class="border border-slate-300 rounded-2xl shadow-sm overflow-hidden flex flex-col bg-white relative">
-                <div id="analytics-loader-scheme" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-                    <p class="text-sm font-bold text-indigo-600 animate-pulse flex items-center gap-2">
-                        <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Calculating Metrics...
-                    </p>
+                <!-- 🎯 Cross-Tabulated Summary Data Grid (Auto-Fit) -->
+                <div id="summary-table-container-scheme" class="border border-slate-300 rounded-2xl shadow-sm overflow-hidden flex flex-col bg-white relative">
+                    <div id="analytics-loader-scheme" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+                        <p class="text-sm font-bold text-indigo-600 animate-pulse flex items-center gap-2">
+                            <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Calculating Metrics...
+                        </p>
+                    </div>
+                    <div class="p-0 overflow-auto custom-scrollbar w-full max-h-[60vh] relative scroll-target">
+                        <table class="w-full text-left text-[11px] border-collapse border border-slate-800 table-auto">
+                            <thead id="summary-thead" class="sticky top-0 bg-[#93c5fd] text-slate-900 z-20 font-bold"></thead>
+                            <tbody id="summary-tbody" class="font-medium"></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div id="pdf-scroll-wrapper-scheme" class="p-2 print-p-4 overflow-auto custom-scrollbar w-full max-h-[65vh] relative">
-                    <h2 id="pdf-report-title-scheme" class="hidden font-black text-lg mb-4 uppercase tracking-wider text-center text-slate-800"></h2>
-                    <table class="w-full text-left text-xs border-collapse whitespace-nowrap border border-slate-800">
-                        <thead id="summary-thead" class="sticky top-0 bg-[#93c5fd] text-slate-900 z-20 font-bold text-[11px]"></thead>
-                        <tbody id="summary-tbody" class="font-medium"></tbody>
-                    </table>
-                    <p id="pdf-help-text-scheme" class="text-[10px] text-slate-400 mt-2 text-center italic">* Click on any numerical value to view the detailed records.</p>
+
+                <!-- 🎯 PDF PAGE BREAK MARKER -->
+                <div class="html2pdf__page-break"></div>
+
+                <!-- 🎯 Yesterday's Completed Inspections Detail Table -->
+                <div id="yesterday-table-container" class="border border-violet-200 rounded-2xl shadow-sm overflow-hidden flex flex-col bg-white relative mt-8">
+                    <div class="p-4 bg-violet-100/50 border-b border-violet-200 flex items-center justify-between">
+                        <h4 class="font-black text-sm uppercase text-violet-900 flex items-center gap-2">
+                            <i data-lucide="calendar-check-2" class="w-5 h-5 text-violet-600"></i> Yesterday's Completed Inspections
+                        </h4>
+                        <span class="text-xs font-black bg-violet-600 text-white px-3 py-1 rounded-full shadow-sm">Count: <span id="yesterday-table-count">0</span></span>
+                    </div>
+                    <div class="p-0 overflow-auto custom-scrollbar w-full max-h-[65vh] relative scroll-target">
+                        <table class="w-full text-left text-[11px] border-collapse">
+                            <thead class="sticky top-0 bg-violet-200 text-violet-900 z-20 font-bold uppercase tracking-wider shadow-sm">
+                                <tr>
+                                    <th class="p-2 border-r border-violet-300 w-28">Inspection ID</th>
+                                    <th class="p-2 border-r border-violet-300 w-1/4">Manufacturer & Address</th>
+                                    <th class="p-2 border-r border-violet-300 w-1/4">Material Details (Cat/Spec/Qty)</th>
+                                    <th class="p-2 border-r border-violet-300 w-32">Conducted By</th>
+                                    <th class="p-2 border-r border-violet-300 w-28">Status / Sub-Status</th>
+                                    <th class="p-2 text-center w-28">Completed On</th>
+                                </tr>
+                            </thead>
+                            <tbody id="yesterday-tbody" class="font-medium divide-y divide-violet-100">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                
+                <p id="pdf-help-text-scheme" class="text-[10px] text-slate-400 mt-2 text-center italic hide-on-print">* Click on any numerical value in the summary to view detailed records.</p>
             </div>
         </div>
     </div>
@@ -88,7 +126,7 @@
     <!-- ======================= VIEW 2: INSPECTOR-WISE ======================= -->
     <div id="view-inspector" class="space-y-4 hidden animate-fade-in">
         <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm space-y-4">
-            <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 gap-4">
+            <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 gap-4 hide-on-print">
                 <div>
                     <h3 class="font-black text-lg uppercase text-slate-800 flex items-center gap-2">
                         <i data-lucide="users" class="text-emerald-600 w-6 h-6"></i> Inspector Performance
@@ -103,20 +141,22 @@
             </div>
 
             <!-- Inspector Cross-Tab Grid -->
-            <div id="summary-table-container-inspector" class="border border-slate-300 rounded-2xl shadow-sm overflow-hidden flex flex-col bg-white relative">
+            <div id="pdf-export-wrapper-inspector" class="border border-slate-300 rounded-2xl shadow-sm overflow-hidden flex flex-col bg-white relative">
                 <div id="analytics-loader-inspector" class="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
                     <p class="text-sm font-bold text-emerald-600 animate-pulse flex items-center gap-2">
                         <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Fetching All Discoms...
                     </p>
                 </div>
-                <div id="pdf-scroll-wrapper-inspector" class="p-2 print-p-4 overflow-auto custom-scrollbar w-full max-h-[65vh] relative">
-                    <h2 id="pdf-report-title-inspector" class="hidden font-black text-lg mb-4 uppercase tracking-wider text-center text-slate-800">Overall Inspector Performance</h2>
-                    <table class="w-full text-left text-xs border-collapse whitespace-nowrap border border-slate-800">
-                        <thead id="inspector-thead" class="sticky top-0 bg-emerald-200 text-slate-900 z-20 font-bold text-[11px]"></thead>
+                
+                <h2 id="pdf-report-title-inspector" class="hidden font-black text-2xl uppercase tracking-wider text-center text-slate-800 mt-6 mb-4 border-b pb-4"></h2>
+                
+                <div class="p-0 overflow-auto custom-scrollbar w-full max-h-[65vh] relative scroll-target">
+                    <table class="w-full text-left text-[11px] border-collapse border border-slate-800 table-auto">
+                        <thead id="inspector-thead" class="sticky top-0 bg-emerald-200 text-slate-900 z-20 font-bold"></thead>
                         <tbody id="inspector-tbody" class="font-medium"></tbody>
                     </table>
-                    <p id="pdf-help-text-inspector" class="text-[10px] text-slate-400 mt-2 text-center italic">* Click on any numerical value or engineer name to view details.</p>
                 </div>
+                <p id="pdf-help-text-inspector" class="text-[10px] text-slate-400 mt-2 mb-2 text-center italic hide-on-print">* Click on any numerical value or engineer name to view details.</p>
             </div>
         </div>
     </div>
@@ -159,14 +199,34 @@
 </div>
 
 <style>
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 2px solid #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
     .sticky-col-left { position: sticky; left: 0; z-index: 10; font-weight: 900; border-right: 1px solid #1e293b; border-left: 1px solid #1e293b;}
     .sticky-col-right { position: sticky; right: 0; z-index: 10; font-weight: 900; border-left: 1px solid #1e293b; border-right: 1px solid #1e293b;}
     .sticky-header-left { position: sticky; left: 0; z-index: 30; background-color: inherit; border-right: 1px solid #1e293b; border-left: 1px solid #1e293b;}
     .sticky-header-right { position: sticky; right: 0; z-index: 30; background-color: inherit; border-left: 1px solid #1e293b; border-right: 1px solid #1e293b;}
+
+    /* 🎯 FLAWLESS ANTI-CROP PDF RELOCATION SETTINGS */
+    .pdf-rendering-active { 
+        background: white !important; 
+        padding: 30px 40px !important; /* Explicitly guarantees no side clipping */
+        width: 1400px !important; 
+    }
+    .pdf-rendering-active .hide-on-print { display: none !important; }
+    .pdf-rendering-active * { box-sizing: border-box !important; }
+    
+    /* 🎯 Force html2pdf pagebreak logic */
+    body.pdf-export-mode .html2pdf__page-break { 
+        display: block !important; 
+        page-break-before: always; 
+    }
 </style>
 
 <script>
-    let activeTab = 'scheme'; // Tracks active view
+    let activeTab = 'scheme'; 
     let activeAnalyticsDiscom = "NBPDCL";
     
     // Data stores
@@ -216,6 +276,7 @@
         "scheduleDate": "Schedule Date",
         "status": "Status",
         "subStatus": "Sub-Status",
+        "inspectionCompletedOn": "Completed On",
         "reportOm": "Report / OM No",
         "conductedBy": "Conducted By",
         "dateFrom": "Date From",
@@ -342,6 +403,17 @@
 
         const today = new Date();
         today.setHours(0,0,0,0);
+        
+        // 🎯 Format Yesterday's exact string representation (DD/MM/YYYY)
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const y_dd = String(yesterday.getDate()).padStart(2, '0');
+        const y_mm = String(yesterday.getMonth() + 1).padStart(2, '0');
+        const y_yyyy = yesterday.getFullYear();
+        const yesterdayStr = `${y_dd}/${y_mm}/${y_yyyy}`;
+        
+        let completedYesterdayTotal = 0;
+        let yesterdayInspections = [];
 
         data.forEach(row => {
             const sc = String(row.scheme || 'Uncategorized').trim();
@@ -379,6 +451,15 @@
                 if (isCompleted) {
                     s.completed.val++; s.completed.rows.push(row);
                     t.completed.val++; t.completed.rows.push(row);
+                    
+                    // 🎯 Check if inspectionCompletedOn matches exactly yesterday
+                    const compOnStr = String(row.inspectionCompletedOn || "").trim();
+                    if (compOnStr === yesterdayStr) {
+                        completedYesterdayTotal++;
+                        yesterdayInspections.push(row);
+                    }
+
+
                     if (subStatus.includes('MOM')) {
                         s.completedMom.val++; s.completedMom.rows.push(row);
                         t.completedMom.val++; t.completedMom.rows.push(row);
@@ -424,19 +505,21 @@
 
         document.getElementById("kpi-valid").innerText = currentMetricsObject['TOTAL'].valid.val;
         document.getElementById("kpi-completed").innerText = currentMetricsObject['TOTAL'].completed.val;
+        document.getElementById("kpi-yesterday").innerText = completedYesterdayTotal;
         document.getElementById("kpi-pending").innerText = currentMetricsObject['TOTAL'].pending.val;
         document.getElementById("kpi-total-md").innerText = currentMetricsObject['TOTAL'].totalManDays.val;
         document.getElementById("kpi-billed-md").innerText = currentMetricsObject['TOTAL'].billedManDays.val;
         document.getElementById("kpi-unbilled-md").innerText = currentMetricsObject['TOTAL'].unbilledManDays.val;
 
+        // 🎯 Build Main Summary Grid (Auto-Fit implementation)
         const thead = document.getElementById("summary-thead");
         const tbody = document.getElementById("summary-tbody");
 
-        let headerHtml = `<tr><th class="p-3 sticky-header-left border-y border-slate-800 bg-[#93c5fd]">Description / Schemes <i data-lucide="arrow-right" class="inline w-3 h-3 text-slate-700"></i></th>`;
+        let headerHtml = `<tr><th class="p-2 sticky-header-left border-y border-slate-800 bg-[#93c5fd] ">Description / Schemes <i data-lucide="arrow-right" class="inline w-3 h-3 text-slate-700"></i></th>`;
         schemes.forEach(sc => {
-            headerHtml += `<th class="p-3 border border-slate-800 font-bold min-w-[120px] text-center">${sc}</th>`;
+            headerHtml += `<th class="p-2 border border-slate-800 font-bold text-center">${sc}</th>`;
         });
-        headerHtml += `<th class="p-3 sticky-header-right text-center border-y border-slate-800 bg-[#06b6d4]">TOTAL</th></tr>`;
+        headerHtml += `<th class="p-2 sticky-header-right text-center border-y border-slate-800 bg-[#06b6d4]">TOTAL</th></tr>`;
         thead.innerHTML = headerHtml;
 
         const deadlineLabel = (discom === 'PVVNL') ? "Pending Calls Over Deadline (7 Days or +)" : "Pending Calls Over Deadline (15 Days or +)";
@@ -447,21 +530,54 @@
             let displayLabel = rowDef.key === 'pendingOverDeadline' ? deadlineLabel : rowDef.label;
 
             bodyHtml += `<tr class="${rowClass}">
-                <td class="p-3 sticky-col-left border-y border-slate-800 bg-inherit">${displayLabel}</td>`;
+                <td class="p-2 sticky-col-left border-y border-slate-800 bg-inherit whitespace-normal min-w-[130px] leading-tight">${displayLabel}</td>`;
             
             schemes.forEach(sc => {
                 const val = currentMetricsObject[sc][rowDef.key].val;
                 const cellHover = val > 0 ? "cursor-pointer hover:bg-slate-900/10 hover:shadow-inner transition" : "";
-                bodyHtml += `<td onclick="${val > 0 ? `openDrilldown('${sc}', '${rowDef.key}', '${rowDef.label}', 'scheme')` : ''}" class="p-3 border border-slate-800 text-center font-bold ${cellHover}">${val}</td>`;
+                bodyHtml += `<td onclick="${val > 0 ? `openDrilldown('${sc}', '${rowDef.key}', '${rowDef.label}', 'scheme')` : ''}" class="p-2 border border-slate-800 text-center font-bold ${cellHover}">${val}</td>`;
             });
 
             const totalVal = currentMetricsObject['TOTAL'][rowDef.key].val;
             const totalHover = totalVal > 0 ? "cursor-pointer hover:opacity-80 transition" : "";
-            bodyHtml += `<td onclick="${totalVal > 0 ? `openDrilldown('TOTAL', '${rowDef.key}', '${rowDef.label}', 'scheme')` : ''}" class="p-3 sticky-col-right text-center border-y border-slate-800 ${rowDef.totalBg} ${totalHover}">${totalVal}</td>
+            bodyHtml += `<td onclick="${totalVal > 0 ? `openDrilldown('TOTAL', '${rowDef.key}', '${rowDef.label}', 'scheme')` : ''}" class="p-2 sticky-col-right text-center border-y border-slate-800 ${rowDef.totalBg} ${totalHover}">${totalVal}</td>
             </tr>`;
         });
 
         tbody.innerHTML = bodyHtml;
+
+        // 🎯 Build Yesterday's Inspections Table
+        let yesterdayHtml = "";
+        if (yesterdayInspections.length === 0) {
+            yesterdayHtml = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold italic">No inspections marked as completed yesterday (${yesterdayStr}).</td></tr>`;
+        } else {
+            yesterdayInspections.forEach(r => {
+                const matDetails = `
+                    <div class="font-bold text-slate-800 whitespace-normal break-words">${r.materialInspected || '-'}</div>
+                    <div class="text-[9px] text-slate-500 whitespace-normal break-words mt-0.5">${r.materialSpec || '-'}</div>
+                    <div class="text-xs font-black text-indigo-600 mt-1">Qty: ${r.quantity || '-'}</div>
+                `;
+                const mfgDetails = `
+                    <div class="font-bold text-slate-800 whitespace-normal break-words">${r.manufacturer || '-'}</div>
+                    <div class="text-[10px] text-slate-500 whitespace-normal break-words mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline relative -top-0.5"></i> ${r.address || '-'}</div>
+                `;
+                
+                yesterdayHtml += `<tr class="hover:bg-slate-50 transition border-b border-violet-100 last:border-0">
+                    <td class="p-3 font-mono font-bold text-indigo-700 align-top">${r.inspectionId || '-'}</td>
+                    <td class="p-3 align-top">${mfgDetails}</td>
+                    <td class="p-3 align-top">${matDetails}</td>
+                    <td class="p-3 font-bold align-top whitespace-normal break-words">${r.conductedBy || '-'}</td>
+                    <td class="p-3 align-top">
+                        <div class="font-bold text-emerald-700">${r.status || '-'}</div>
+                        <div class="text-[10px] font-bold text-slate-500 mt-0.5">${r.subStatus || '-'}</div>
+                    </td>
+                    <td class="p-3 text-center font-mono font-black bg-violet-50/50 align-top text-violet-900">${r.inspectionCompletedOn || '-'}</td>
+                </tr>`;
+            });
+        }
+        document.getElementById("yesterday-tbody").innerHTML = yesterdayHtml;
+        document.getElementById("yesterday-table-count").innerText = yesterdayInspections.length;
+
         if (window.lucide) lucide.createIcons();
     }
 
@@ -533,9 +649,9 @@
         const thead = document.getElementById("inspector-thead");
         const tbody = document.getElementById("inspector-tbody");
 
-        let headerHtml = `<tr><th class="p-3 sticky-header-left border-y border-slate-800 bg-emerald-200">Inspecting Engineer <i data-lucide="arrow-right" class="inline w-3 h-3 text-emerald-800"></i></th>`;
+        let headerHtml = `<tr><th class="p-2 sticky-header-left border-y border-slate-800 bg-emerald-200">Inspecting Engineer <i data-lucide="arrow-right" class="inline w-3 h-3 text-emerald-800"></i></th>`;
         discoms.forEach(d => {
-            headerHtml += `<th class="p-3 border border-slate-800 font-bold min-w-[150px] text-center">${d}</th>`;
+            headerHtml += `<th class="p-2 border border-slate-800 font-bold text-center">${d}</th>`;
         });
         headerHtml += `</tr>`;
         thead.innerHTML = headerHtml;
@@ -545,7 +661,6 @@
             let bg = idx % 2 === 0 ? 'bg-white text-slate-800' : 'bg-slate-50 text-slate-800';
             const rowSafeId = "insp-row-" + idx;
 
-            // 🎯 Pre-calculate Category Breakdown for this Inspector
             let inspCategories = new Set();
             let catCounts = { NBPDCL: {}, SBPDCL: {}, PVVNL: {} };
 
@@ -561,9 +676,8 @@
                 });
             });
 
-            // 🎯 1. Main Inspector Row (Clickable to expand)
             bodyHtml += `<tr class="${bg} hover:bg-emerald-50 transition border-b border-slate-200">
-                <td class="p-3 sticky-col-left border-y border-slate-800 bg-inherit font-bold cursor-pointer hover:text-emerald-600 flex items-center gap-1.5 group select-none" onclick="toggleInspectorDetails('${rowSafeId}')" title="Click to view material category breakdown">
+                <td class="p-2 sticky-col-left border-y border-slate-800 bg-inherit font-bold cursor-pointer hover:text-emerald-600 flex items-center gap-1.5 group select-none" onclick="toggleInspectorDetails('${rowSafeId}')" title="Click to view material category breakdown">
                     <div class="bg-emerald-100 p-0.5 rounded text-emerald-600 group-hover:bg-emerald-200 transition">
                         <i data-lucide="chevron-right" id="icon-${rowSafeId}" class="w-3 h-3 transition-transform duration-200"></i>
                     </div>
@@ -574,18 +688,17 @@
                 const rows = inspectorMetricsObject[insp][d];
                 const val = rows.length;
                 const cellHover = val > 0 ? "cursor-pointer hover:bg-slate-900/10 hover:shadow-inner transition text-emerald-700" : "text-slate-400";
-                bodyHtml += `<td onclick="${val > 0 ? `openDrilldown('${insp}', '${d}', 'Completed Calls', 'inspector')` : ''}" class="p-3 border border-slate-800 text-center font-bold ${cellHover}">${val}</td>`;
+                bodyHtml += `<td onclick="${val > 0 ? `openDrilldown('${insp}', '${d}', 'Completed Calls', 'inspector')` : ''}" class="p-2 border border-slate-800 text-center font-bold ${cellHover}">${val}</td>`;
             });
             bodyHtml += `</tr>`;
 
-            // 🎯 2. Hidden Sub-Table containing Category Breakdown
             let subTableRows = "";
             if (inspCategories.size === 0) {
-                subTableRows = `<tr><td colspan="4" class="p-3 text-center text-xs text-slate-400 italic">No category data found.</td></tr>`;
+                subTableRows = `<tr><td colspan="4" class="p-2 text-center text-xs text-slate-400 italic">No category data found.</td></tr>`;
             } else {
                 let sortedCats = Array.from(inspCategories).sort();
                 sortedCats.forEach(cat => {
-                    const safeCat = cat.replace(/'/g, "\\'"); // Escaping for JS inline click
+                    const safeCat = cat.replace(/'/g, "\\'"); 
                     subTableRows += `<tr class="border-b border-slate-200 hover:bg-white transition">
                         <td class="p-2 border-r border-slate-200 font-semibold text-slate-700">${cat}</td>`;
                     discoms.forEach(d => {
@@ -621,12 +734,11 @@
             </tr>`;
         });
 
-        // Last Row: TOTAL
         bodyHtml += `<tr class="bg-emerald-500 text-white">
-            <td class="p-3 sticky-col-left border-y border-slate-800 bg-emerald-500 font-black uppercase tracking-wider">TOTAL COMPLETED</td>`;
+            <td class="p-2 sticky-col-left border-y border-slate-800 bg-emerald-500 font-black uppercase tracking-wider">TOTAL COMPLETED</td>`;
         discoms.forEach(d => {
             const val = totals[d];
-            bodyHtml += `<td class="p-3 border border-slate-800 text-center font-black text-lg">${val}</td>`;
+            bodyHtml += `<td class="p-2 border border-slate-800 text-center font-black text-lg">${val}</td>`;
         });
         bodyHtml += `</tr>`;
 
@@ -634,7 +746,6 @@
         if (window.lucide) lucide.createIcons();
     }
 
-    // 🎯 Toggle Inspector Accordion function
     function toggleInspectorDetails(rowId) {
         const detailRow = document.getElementById(`detail-${rowId}`);
         const icon = document.getElementById(`icon-${rowId}`);
@@ -670,7 +781,6 @@
         
         } else if (contextType === 'inspector-cat') {
             const allRows = inspectorMetricsObject[primaryKey][secondaryKey] || [];
-            // Filter specific category out of comma-separated list
             dataRows = allRows.filter(r => {
                 const cats = String(r.materialInspected || 'Uncategorized').split(',').map(c=>c.trim()).filter(Boolean);
                 if (cats.length === 0) cats.push('Uncategorized');
@@ -691,7 +801,6 @@
                 const bg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
                 const rowSafeId = "drill-row-" + contextType + "-" + idx; 
                 
-                // 1. Visible Header Row
                 html += `<tr class="${bg} hover:bg-slate-100 transition border-b border-slate-200">
                     <td class="p-3 border-r border-slate-200 font-mono text-indigo-700 font-black cursor-pointer hover:text-indigo-500 flex items-center gap-1.5 group select-none" onclick="toggleInspectionDetails('${rowSafeId}')" title="Click to view full inspection details">
                         <div class="bg-indigo-100 p-0.5 rounded text-indigo-600 group-hover:bg-indigo-200 transition">
@@ -707,7 +816,6 @@
                     <td class="p-3 truncate max-w-[150px]">${row.invoiceNo || '-'}</td>
                 </tr>`;
 
-                // 2. Hidden Detailed Expansion Grid
                 let detailsHtml = `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-5">`;
                 
                 Object.keys(fullHeaderCustomNames).forEach(k => {
@@ -761,9 +869,9 @@
         document.getElementById("drilldown-modal").classList.add("hidden");
     }
 
-    // 🎯 Context-Aware PDF Exporter
+    // 🎯 Context-Aware FLAWLESS PDF Exporter
     function downloadSummaryPDF(contextType) {
-        const titleContext = contextType === 'scheme' ? activeAnalyticsDiscom + ' Executive Summary' : 'Overall Inspector Performance Summary';
+        const titleContext = contextType === 'scheme' ? activeAnalyticsDiscom + ' Executive Summary & Yesterday Log' : 'Overall Inspector Performance Summary';
 
         if (!confirm(`Are you sure you want to download the ${titleContext} as a PDF?`)) return;
 
@@ -776,46 +884,82 @@
         if (window.lucide) lucide.createIcons();
 
         const executeExport = () => {
-            const elementId = contextType === 'scheme' ? 'summary-table-container-scheme' : 'summary-table-container-inspector';
-            const scrollWrapId = contextType === 'scheme' ? 'pdf-scroll-wrapper-scheme' : 'pdf-scroll-wrapper-inspector';
+            const elementId = contextType === 'scheme' ? 'pdf-export-wrapper-scheme' : 'pdf-export-wrapper-inspector';
             const titleId = contextType === 'scheme' ? 'pdf-report-title-scheme' : 'pdf-report-title-inspector';
             const helpId = contextType === 'scheme' ? 'pdf-help-text-scheme' : 'pdf-help-text-inspector';
 
             const element = document.getElementById(elementId);
-            const scrollWrap = document.getElementById(scrollWrapId);
             const helpText = document.getElementById(helpId);
             const titleEl = document.getElementById(titleId);
 
-            scrollWrap.scrollLeft = 0;
+            // Temporarily remove constraints from ALL scrollable areas inside the target wrapper
+            const scrollWraps = element.querySelectorAll('.scroll-target');
+            const originalScrollStyles = [];
             
-            const originalMaxHeight = scrollWrap.style.maxHeight;
-            const originalWidth = element.style.width;
-            
-            scrollWrap.classList.remove('overflow-auto', 'max-h-[65vh]', 'custom-scrollbar');
-            scrollWrap.style.maxHeight = 'none';
-            scrollWrap.style.overflow = 'visible';
-            
-            element.style.width = 'max-content';
+            scrollWraps.forEach(wrap => {
+                wrap.scrollLeft = 0;
+                originalScrollStyles.push({ el: wrap, maxH: wrap.style.maxHeight });
+                wrap.classList.remove('overflow-auto', 'max-h-[60vh]', 'max-h-[65vh]', 'custom-scrollbar');
+                wrap.style.maxHeight = 'none';
+                wrap.style.overflow = 'visible';
+                wrap.style.width = '100%'; // Guarantee full width without pushing off-screen
+            });
             
             helpText.classList.add('hidden');
             titleEl.innerText = `${titleContext} - ${new Date().toLocaleDateString()}`;
             titleEl.classList.remove('hidden');
 
+            document.body.classList.add("pdf-export-mode");
+
+            // 🎯 Flawless Node Relocation: Remove 'max-content' logic completely
+            element.style.width = '100%';
+            element.style.margin = '0.2';
+            
+            const originalParent = element.parentNode;
+            const originalNextSibling = element.nextSibling;
+            
+            const printAnchor = document.createElement('div');
+            printAnchor.style.position = 'absolute';
+            printAnchor.style.top = '0';
+            printAnchor.style.left = '0';
+            printAnchor.style.width = '1330px'; // Lock to perfectly scale inside A4 landscape
+            printAnchor.style.minHeight = '100vh';
+            printAnchor.style.background = 'white';
+            printAnchor.style.zIndex = '99999';
+            printAnchor.classList.add('pdf-rendering-active');
+            
+            printAnchor.appendChild(element);
+            document.body.appendChild(printAnchor);
+
             const opt = {
-                margin:       [0.3, 0.3, 0.3, 0.3],
+                margin:       [0.4, 0.4, 0.4, 0.4], 
                 filename:     `${titleContext.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
                 image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+                html2canvas:  { scale: 1.5, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 1330 },
                 jsPDF:        { unit: 'in', format: 'legal', orientation: 'landscape' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
+            window.html2pdf().set(opt).from(element).save().then(() => {
+                if (originalNextSibling) {
+                    originalParent.insertBefore(element, originalNextSibling);
+                } else {
+                    originalParent.appendChild(element);
+                }
+                document.body.removeChild(printAnchor);
+                document.body.classList.remove("pdf-export-mode");
+
                 titleEl.classList.add('hidden');
                 helpText.classList.remove('hidden');
-                scrollWrap.classList.add('overflow-auto', 'max-h-[65vh]', 'custom-scrollbar');
-                scrollWrap.style.maxHeight = originalMaxHeight;
-                scrollWrap.style.overflow = '';
-                element.style.width = originalWidth;
+                element.style.width = '';
+                element.style.margin = '';
+                
+                // Restore all scrollable areas
+                originalScrollStyles.forEach(item => {
+                    item.el.classList.add('overflow-auto', 'custom-scrollbar');
+                    item.el.style.maxHeight = item.maxH;
+                    item.el.style.overflow = '';
+                    item.el.style.width = '';
+                });
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -823,7 +967,7 @@
             });
         };
 
-        if (typeof html2pdf === 'undefined') {
+        if (typeof window.html2pdf === 'undefined') {
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
             script.onload = executeExport;
