@@ -1,3 +1,5 @@
+
+
 <!-- html2pdf Library for PDF Generation -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -125,7 +127,6 @@
 
     <!-- ======================= VIEW 2: INSPECTOR-WISE ======================= -->
     <div id="view-inspector" class="space-y-4 hidden animate-fade-in">
-        <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm space-y-4">
             <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-4 gap-4 hide-on-print">
                 <div>
                     <h3 class="font-black text-lg uppercase text-slate-800 flex items-center gap-2">
@@ -870,6 +871,7 @@
     }
 
     // 🎯 Context-Aware FLAWLESS PDF Exporter
+   
     function downloadSummaryPDF(contextType) {
         const titleContext = contextType === 'scheme' ? activeAnalyticsDiscom + ' Executive Summary & Yesterday Log' : 'Overall Inspector Performance Summary';
 
@@ -892,7 +894,9 @@
             const helpText = document.getElementById(helpId);
             const titleEl = document.getElementById(titleId);
 
-            // Temporarily remove constraints from ALL scrollable areas inside the target wrapper
+            // Dynamically capture the user's screen width so it fits perfectly
+            const screenWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0, 1200);
+
             const scrollWraps = element.querySelectorAll('.scroll-target');
             const originalScrollStyles = [];
             
@@ -902,7 +906,7 @@
                 wrap.classList.remove('overflow-auto', 'max-h-[60vh]', 'max-h-[65vh]', 'custom-scrollbar');
                 wrap.style.maxHeight = 'none';
                 wrap.style.overflow = 'visible';
-                wrap.style.width = '100%'; // Guarantee full width without pushing off-screen
+                wrap.style.width = '100%';
             });
             
             helpText.classList.add('hidden');
@@ -911,9 +915,8 @@
 
             document.body.classList.add("pdf-export-mode");
 
-            // 🎯 Flawless Node Relocation: Remove 'max-content' logic completely
             element.style.width = '100%';
-            element.style.margin = '0.2';
+            element.style.margin = '0';
             
             const originalParent = element.parentNode;
             const originalNextSibling = element.nextSibling;
@@ -922,7 +925,7 @@
             printAnchor.style.position = 'absolute';
             printAnchor.style.top = '0';
             printAnchor.style.left = '0';
-            printAnchor.style.width = '1330px'; // Lock to perfectly scale inside A4 landscape
+            printAnchor.style.width = `${screenWidth}px`; // 🎯 Dynamically matched to screen size
             printAnchor.style.minHeight = '100vh';
             printAnchor.style.background = 'white';
             printAnchor.style.zIndex = '99999';
@@ -932,10 +935,10 @@
             document.body.appendChild(printAnchor);
 
             const opt = {
-                margin:       [0.4, 0.4, 0.4, 0.4], 
+                margin:       [0.3, 0.3, 0.3, 0.3], 
                 filename:     `${titleContext.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`,
                 image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { scale: 1.5, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 1330 },
+                html2canvas:  { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: screenWidth }, // 🎯 Matches window width cleanly
                 jsPDF:        { unit: 'in', format: 'legal', orientation: 'landscape' }
             };
 
@@ -953,7 +956,6 @@
                 element.style.width = '';
                 element.style.margin = '';
                 
-                // Restore all scrollable areas
                 originalScrollStyles.forEach(item => {
                     item.el.classList.add('overflow-auto', 'custom-scrollbar');
                     item.el.style.maxHeight = item.maxH;
@@ -976,7 +978,7 @@
             executeExport();
         }
     }
-
+    
     // Auto-boot sequence
     setTimeout(() => { loadAnalyticsForDiscom('NBPDCL'); }, 100);
 
