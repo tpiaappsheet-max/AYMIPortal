@@ -74,6 +74,9 @@
     </div>
 </div>
 
+<!-- Datalist for Inspection ID Search -->
+<datalist id="all-inspection-ids-list"></datalist>
+
 <!-- Comprehensive Inspection Details Modal (Admin Only) -->
 <div id="inspector-detail-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl p-6 sm:p-8 relative border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -97,17 +100,17 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 2px solid #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-    /* FLAWLESS ANTI-CROP PDF RELOCATION SETTINGS */
+    /* 🎯 FLAWLESS ANTI-CROP PDF RELOCATION & CONDITIONAL VISIBILITY SETTINGS */
     .pdf-rendering-active {
         background: white !important;
         padding: 20px !important;
     }
-    .pdf-rendering-active .hide-on-print { 
-        display: none !important; 
-    }
-    .pdf-rendering-active * {
-        box-sizing: border-box !important;
-    }
+    .pdf-rendering-active .hide-on-print { display: none !important; }
+    .pdf-rendering-active * { box-sizing: border-box !important; }
+
+    /* 🎯 Hide controls, show clean badges during PDF export */
+    body.pdf-export-mode .pdf-control-row { display: none !important; }
+    body.pdf-export-mode .pdf-read-only-row { display: flex !important; }
 </style>
 
 <script>
@@ -123,54 +126,31 @@
 
     function convertNumberToWords(num) {
         if (!num || num === 0) return "Zero Rupees Only";
-        
         const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
         const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-
         function getWords(n) {
             if (n === 0) return '';
             if (n < 20) return a[n] + ' ';
             if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '') + ' ';
             return a[Math.floor(n / 100)] + ' Hundred ' + (n % 100 !== 0 ? getWords(n % 100) : '');
         }
-
         let n = Math.floor(num);
         let str = '';
-
-        let crore = Math.floor(n / 10000000);
-        n %= 10000000;
-        if (crore > 0) str += getWords(crore) + 'Crore ';
-
-        let lakh = Math.floor(n / 100000);
-        n %= 100000;
-        if (lakh > 0) str += getWords(lakh) + 'Lakh ';
-
-        let thousand = Math.floor(n / 1000);
-        n %= 1000;
-        if (thousand > 0) str += getWords(thousand) + 'Thousand ';
-
-        let hundred = Math.floor(n / 100);
-        n %= 100;
-        if (hundred > 0) str += getWords(hundred) + 'Hundred ';
-
-        if (n > 0) {
-            if (str !== '') str += 'and ';
-            str += getWords(n);
-        }
-
+        let crore = Math.floor(n / 10000000); n %= 10000000; if (crore > 0) str += getWords(crore) + 'Crore ';
+        let lakh = Math.floor(n / 100000); n %= 100000; if (lakh > 0) str += getWords(lakh) + 'Lakh ';
+        let thousand = Math.floor(n / 1000); n %= 1000; if (thousand > 0) str += getWords(thousand) + 'Thousand ';
+        let hundred = Math.floor(n / 100); n %= 100; if (hundred > 0) str += getWords(hundred) + 'Hundred ';
+        if (n > 0) { if (str !== '') str += 'and '; str += getWords(n); }
         return 'Rupees ' + str.trim() + ' Only';
     }
 
     function parseDateToKey(dateStr) {
         if (!dateStr || dateStr.trim() === "" || dateStr === "-") return null;
         let clean = String(dateStr).trim().split('T')[0];
-        
         if (clean.includes('/')) {
             const p = clean.split('/');
             if (p.length === 3) {
-                let d = parseInt(p[0], 10);
-                let m = parseInt(p[1], 10);
-                let y = parseInt(p[2], 10);
+                let d = parseInt(p[0], 10), m = parseInt(p[1], 10), y = parseInt(p[2], 10);
                 if (y < 100) y += 2000;
                 return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             }
@@ -178,15 +158,8 @@
             const p = clean.split('-');
             if (p.length === 3) {
                 let y, m, d;
-                if (p[0].length === 4) {
-                    y = parseInt(p[0], 10);
-                    m = parseInt(p[1], 10);
-                    d = parseInt(p[2], 10);
-                } else {
-                    d = parseInt(p[0], 10);
-                    m = parseInt(p[1], 10);
-                    y = parseInt(p[2], 10);
-                }
+                if (p[0].length === 4) { y = parseInt(p[0], 10); m = parseInt(p[1], 10); d = parseInt(p[2], 10); } 
+                else { d = parseInt(p[0], 10); m = parseInt(p[1], 10); y = parseInt(p[2], 10); }
                 if (y < 100) y += 2000;
                 return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             }
@@ -196,23 +169,16 @@
 
     function isInspectionActiveOnDate(row, targetKey) {
         const schedKey = parseDateToKey(row.scheduleDate);
-        
         if (schedKey && schedKey === targetKey) return true;
-
         if (schedKey && schedKey < targetKey) {
             const stat = String(row.status || "").trim().toLowerCase();
-            if (stat.includes("sched")) {
-                return true;
-            }
+            if (stat.includes("sched")) return true;
         }
-
         const fromKey = parseDateToKey(row.dateFrom);
         if (fromKey && fromKey === targetKey) return true;
-
         if (fromKey && row.dateTo) {
             const fromParts = fromKey.split('-');
             const fromDate = new Date(parseInt(fromParts[0], 10), parseInt(fromParts[1], 10) - 1, parseInt(fromParts[2], 10));
-            
             const regex = /(To|And)[\s\n\r]+(\d{2}\/\d{2}\/\d{4})/gi;
             let match;
             let currentBase = new Date(fromDate);
@@ -243,16 +209,12 @@
             }
             if (activeDates.has(targetKey)) return true;
         }
-
         return false;
     }
 
     function cleanInspectorName(name) {
         if (!name) return "";
-        return String(name)
-            .toLowerCase()
-            .replace(/^(er\.|er\s+|mr\.|mr\s+|engr\.|dr\.)\s*/i, "")
-            .replace(/[^a-z0-9]/g, '');
+        return String(name).toLowerCase().replace(/^(er\.|er\s+|mr\.|mr\s+|engr\.|dr\.)\s*/i, "").replace(/[^a-z0-9]/g, '');
     }
 
     function getInspectorName(insp) {
@@ -275,16 +237,28 @@
         return (phoneKey && insp[phoneKey]) ? String(insp[phoneKey]).trim() : "N/A";
     }
 
-    function saveInspectorComment(key, el) {
-        el.setAttribute('value', el.value); 
+    // 🎯 Universal State Updater for Comments, Overrides, and Active Duty fields
+    window.updateInspectorState = function(inspectorKey, field, value, rerender = false) {
         const dateKey = document.getElementById("schedule-filter-date").value;
         if (!dateKey) return;
         
         let cache = JSON.parse(localStorage.getItem('schedule_comments_cache') || '{}');
         if (!cache[dateKey]) cache[dateKey] = {};
-        cache[dateKey][key] = el.value;
+        
+        if (typeof cache[dateKey][inspectorKey] === 'string') {
+            cache[dateKey][inspectorKey] = { overrideStatus: '', discom: '', inspectionId: '', comment: cache[dateKey][inspectorKey] };
+        }
+        if (!cache[dateKey][inspectorKey]) {
+            cache[dateKey][inspectorKey] = { overrideStatus: '', discom: '', inspectionId: '', comment: '' };
+        }
+        
+        cache[dateKey][inspectorKey][field] = value;
         localStorage.setItem('schedule_comments_cache', JSON.stringify(cache));
-    }
+
+        if (rerender) {
+            renderInspectorSchedule();
+        }
+    };
 
     async function initInspectorScheduleModule() {
         if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator')) {
@@ -325,28 +299,28 @@
             const data = JSON.parse(textData);
             if (data.status) {
                 window.miMasterData = data.data || [];
-                if (data.inspectors && data.inspectors.length > 0) {
-                    window.miInspectorsList = data.inspectors;
+                if (data.inspectors && data.inspectors.length > 0) window.miInspectorsList = data.inspectors;
+                
+                const datalist = document.getElementById("all-inspection-ids-list");
+                if (datalist && window.miMasterData) {
+                    let ids = new Set(window.miMasterData.map(r => r.inspectionId || r.InspectionID).filter(Boolean));
+                    let html = "";
+                    ids.forEach(id => html += `<option value="${id}"></option>`);
+                    datalist.innerHTML = html;
                 }
             }
 
             const inspText = await inspRes.text();
             try {
                 const inspData = JSON.parse(inspText);
-                if (inspData.status && inspData.data && inspData.data.length > 0) {
-                    window.miInspectorsList = inspData.data;
-                }
+                if (inspData.status && inspData.data && inspData.data.length > 0) window.miInspectorsList = inspData.data;
             } catch(e){}
 
             const specData = await specRes.json();
-            if (specData.status) {
-                window.materialSpecsMasterList = specData.data || [];
-            }
+            if (specData.status) window.materialSpecsMasterList = specData.data || [];
 
             const portalMDataRaw = await portalMRes.json();
-            if (portalMDataRaw.status && portalMDataRaw.data) {
-                window.portalMData = portalMDataRaw.data;
-            }
+            if (portalMDataRaw.status && portalMDataRaw.data) window.portalMData = portalMDataRaw.data;
         } catch (err) {
             console.warn("Could not synchronize schedule data.", err);
         }
@@ -382,11 +356,7 @@
         const matchingInspections = inspections.filter(row => isInspectionActiveOnDate(row, targetKey));
 
         const scheduledMap = {};
-        let discomStats = {
-            NBPDCL: { calls: 0, inspectors: new Set() },
-            SBPDCL: { calls: 0, inspectors: new Set() },
-            PVVNL:  { calls: 0, inspectors: new Set() }
-        };
+        let discomStats = { NBPDCL: { calls: 0, inspectors: new Set() }, SBPDCL: { calls: 0, inspectors: new Set() }, PVVNL:  { calls: 0, inspectors: new Set() } };
 
         matchingInspections.forEach(insp => {
             const rawName = String(insp.conductedBy || insp.tpiaInspector || "").trim();
@@ -395,11 +365,8 @@
             
             if (discomStats[discom]) {
                 discomStats[discom].calls++;
-                if (cleanKey && !["notappointed", "notupdated", "pending"].includes(cleanKey)) {
-                    discomStats[discom].inspectors.add(cleanKey);
-                }
+                if (cleanKey && !["notappointed", "notupdated", "pending"].includes(cleanKey)) discomStats[discom].inspectors.add(cleanKey);
             }
-            
             if (cleanKey && !["notappointed", "notupdated", "pending"].includes(cleanKey)) {
                 if (!scheduledMap[cleanKey]) scheduledMap[cleanKey] = [];
                 scheduledMap[cleanKey].push(insp);
@@ -418,56 +385,111 @@
             const assignedInspections = scheduledMap[matchKey] || [];
             const phone = getInspectorPhone(insp);
 
-            const savedComment = commentsCache[matchKey] || "";
-            const safeComment = savedComment.replace(/"/g, '&quot;');
+            let savedState = commentsCache[matchKey] || { overrideStatus: '', discom: '', inspectionId: '', comment: '' };
+            if (typeof savedState === 'string') savedState = { overrideStatus: '', discom: '', inspectionId: '', comment: savedState };
+            const safeComment = (savedState.comment || "").replace(/"/g, '&quot;');
+            const safeInspId = (savedState.inspectionId || "").replace(/"/g, '&quot;');
 
-            let statusBadge = "";
-            if (assignedInspections.length > 0) {
-                schedCount++;
-                statusBadge = `<span class="text-[10px] font-mono px-2 py-0.5 rounded border font-bold bg-emerald-100 text-emerald-800 border-emerald-300 flex items-center gap-1.5 whitespace-nowrap"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> On Duty (${assignedInspections.length})</span>`;
-            } else {
-                idleCount++;
-                statusBadge = `<span class="text-[10px] font-mono bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded font-bold whitespace-nowrap">Idle / Free</span>`;
+            let isNabl = savedState.overrideStatus === 'NABL Witness';
+            let isMatInsp = savedState.overrideStatus === 'Material Inspection';
+            let isLeave = savedState.overrideStatus === 'Leave';
+            let isNoWork = savedState.overrideStatus === 'No Work';
+
+            let isActiveDuty = isNabl || isMatInsp;
+            let effectiveDuty = assignedInspections.length > 0;
+            if (isActiveDuty) effectiveDuty = true;
+
+            if (isActiveDuty && savedState.discom && discomStats[savedState.discom]) {
+                discomStats[savedState.discom].inspectors.add(matchKey);
+                discomStats[savedState.discom].calls++;
             }
 
+            let statusBadge = "";
+
+            if (effectiveDuty) {
+                schedCount++;
+                let countLabel = assignedInspections.length;
+                let overrideShorthand = isNabl ? "NABL" : "Mat. Insp";
+                
+                if (isActiveDuty && assignedInspections.length === 0) countLabel = overrideShorthand;
+                else if (isActiveDuty) countLabel = `${assignedInspections.length} + ${overrideShorthand}`;
+                
+                statusBadge = `<span class="text-[10px] font-mono px-2 py-0.5 rounded border font-bold bg-emerald-100 text-emerald-800 border-emerald-300 flex items-center gap-1.5 whitespace-nowrap"><div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div> On Duty (${countLabel})</span>`;
+            } else {
+                idleCount++;
+                if (isLeave) {
+                    statusBadge = `<span class="text-[10px] font-mono bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded font-bold whitespace-nowrap">On Leave</span>`;
+                } else if (isNoWork) {
+                    statusBadge = `<span class="text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-300 px-2 py-0.5 rounded font-bold whitespace-nowrap">No Work</span>`;
+                } else {
+                    statusBadge = `<span class="text-[10px] font-mono bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded font-bold whitespace-nowrap">Idle / Free</span>`;
+                }
+            }
+
+            let activeDutyDisplay = isActiveDuty ? "flex" : "hidden";
+
+            // 🎯 NEW DEDICATED FULL-WIDTH ROW FOR CONTROLS AND PDF BADGES
+            let controlsHtml = `
+                <!-- Interactive Controls Row (Hidden in PDF Export) -->
+                <div class="flex items-center gap-3 flex-wrap w-full pt-2.5 mt-1 border-t border-slate-100 pdf-control-row">
+                    <select onchange="window.updateInspectorState('${matchKey}', 'overrideStatus', this.value, true)" class="p-1.5 text-[10px] font-bold border border-slate-300 rounded outline-none bg-slate-50 text-slate-700 cursor-pointer shadow-2xs w-36">
+                        <option value="" ${!savedState.overrideStatus ? 'selected' : ''}>- No Status Override -</option>
+                        <option value="NABL Witness" ${isNabl ? 'selected' : ''}>NABL Witness</option>
+                        <option value="Material Inspection" ${isMatInsp ? 'selected' : ''}>Material Inspection</option>
+                        <option value="Leave" ${isLeave ? 'selected' : ''}>Leave</option>
+                        <option value="No Work" ${isNoWork ? 'selected' : ''}>No Work</option>
+                    </select>
+
+                    <select onchange="window.updateInspectorState('${matchKey}', 'discom', this.value, true)" class="${activeDutyDisplay} p-1.5 text-[10px] font-bold border border-blue-300 rounded outline-none bg-blue-50 text-blue-800 cursor-pointer shadow-2xs w-28">
+                        <option value="">Discom...</option>
+                        <option value="NBPDCL" ${savedState.discom === 'NBPDCL' ? 'selected' : ''}>NBPDCL</option>
+                        <option value="SBPDCL" ${savedState.discom === 'SBPDCL' ? 'selected' : ''}>SBPDCL</option>
+                        <option value="PVVNL" ${savedState.discom === 'PVVNL' ? 'selected' : ''}>PVVNL</option>
+                    </select>
+
+                    <input type="text" list="all-inspection-ids-list" oninput="window.updateInspectorState('${matchKey}', 'inspectionId', this.value, false)" value="${safeInspId}" placeholder="Search ID..." class="${activeDutyDisplay} flex-1 min-w-[140px] max-w-[200px] p-1.5 text-[10px] border border-blue-300 rounded outline-none focus:border-blue-600 bg-blue-50 text-blue-900 font-bold placeholder-blue-400 shadow-2xs transition">
+
+                    <input type="text" oninput="window.updateInspectorState('${matchKey}', 'comment', this.value, false)" value="${safeComment}" placeholder="Type any temporary remark here..." class="flex-1 min-w-[180px] p-1.5 text-[10px] border border-slate-300 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-900 font-bold placeholder-slate-400 shadow-2xs transition">
+                </div>
+                
+                <!-- Read-Only Tag Display Row (Hidden in UI, Shown in PDF Export) -->
+                <div class="hidden pdf-read-only-row w-full flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 pt-2.5 mt-1 border-t border-slate-100">
+                    ${isLeave ? `<span class="text-[10px] font-bold bg-rose-50 text-rose-800 px-2 py-1 rounded border border-rose-200">Status Override: On Leave</span>` : ''}
+                    ${isNoWork ? `<span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-300">Status Override: No Work</span>` : ''}
+                    ${isActiveDuty ? `<span class="text-[10px] font-bold bg-blue-50 text-blue-800 px-2.5 py-1 rounded border border-blue-200 shadow-xs uppercase tracking-wide">${savedState.overrideStatus} <span class="mx-1">|</span> Discom: ${savedState.discom || 'N/A'} <span class="mx-1">|</span> ID: ${savedState.inspectionId || 'N/A'}</span>` : ''}
+                    ${savedState.comment ? `<span class="text-[11px] font-medium text-slate-700 bg-amber-50 px-3 py-1 rounded border border-amber-200 flex-1 whitespace-pre-wrap leading-tight shadow-xs"><strong class="text-amber-800">Remark:</strong> ${savedState.comment}</span>` : ''}
+                </div>
+            `;
+
             unifiedHtml += `
-                <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col gap-2 break-inside-avoid">
-                    <!-- 1st Row: Name - Mobile - Status - Temp Remark Box -->
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-                        <div class="flex items-center gap-3 shrink-0 flex-wrap">
-                            <span class="font-black text-sm text-slate-900">${fullName}</span>
-                            <span class="text-[11px] text-slate-500 font-mono flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> ${phone}</span>
-                            ${statusBadge}
-                        </div>
-                        <div class="flex-1 w-full sm:w-auto sm:max-w-xs">
-                            <input type="text" oninput="saveInspectorComment('${matchKey}', this)" value="${safeComment}" placeholder="Add temporary remark..." class="w-full p-1.5 text-xs border border-slate-300 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-900 font-bold placeholder-slate-400 transition">
-                        </div>
+                <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col gap-1 break-inside-avoid">
+                    <!-- Header Row: Name & Contact only -->
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span class="font-black text-sm text-slate-900">${fullName}</span>
+                        <span class="text-[11px] text-slate-500 font-mono flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> ${phone}</span>
+                        ${statusBadge}
                     </div>
+                    
+                    ${controlsHtml}
             `;
 
             if (assignedInspections.length > 0) {
-                unifiedHtml += `<div class="space-y-2 pt-3 border-t border-slate-100 mt-2">`;
+                unifiedHtml += `<div class="space-y-2 pt-3 mt-1 border-t border-slate-100">`;
                 
                 assignedInspections.forEach(item => {
                     const safeId = String(item.inspectionId || item.id || Date.now());
                     window.scheduleInspectionsCache[safeId] = item;
 
                     let discomBadgeColor = 'bg-blue-50 text-blue-700 border-blue-200';
-                    if (item.discom === 'SBPDCL') {
-                        discomBadgeColor = 'bg-purple-50 text-purple-700 border-purple-200';
-                    } else if (item.discom === 'PVVNL') {
-                        discomBadgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
-                    }
+                    if (item.discom === 'SBPDCL') discomBadgeColor = 'bg-purple-50 text-purple-700 border-purple-200';
+                    else if (item.discom === 'PVVNL') discomBadgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
 
                     const clickAttr = canExpand ? `onclick="showInspectionDetailById('${safeId}')"` : '';
                     const linkClass = canExpand ? 'text-blue-600 hover:text-blue-800 underline cursor-pointer' : 'text-slate-700';
                     const schedDateStr = item.scheduleDate ? String(item.scheduleDate).replace('T00:00:00.000Z', '').trim() : 'N/A';
 
-                    // 🎯 STRICT GRID LAYOUT: Hard boundaries to prevent overlap in PDF
                     unifiedHtml += `
                         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg items-start">
-                            
-                            <!-- Col 1: ID & Sched Date -->
                             <div class="sm:col-span-3 flex flex-col gap-1.5 border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0 sm:pr-3">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="text-[10px] font-black font-mono px-2 py-0.5 rounded border ${discomBadgeColor} text-center">${item.discom || 'DISCOM'}</span>
@@ -477,21 +499,15 @@
                                     <i data-lucide="calendar-clock" class="w-3 h-3 inline relative -top-0.5"></i> Sched Start: ${schedDateStr}
                                 </span>
                             </div>
-                            
-                            <!-- Col 2: Manufacturer -->
                             <div class="sm:col-span-3 sm:pr-3 border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0">
                                 <span class="text-[11px] font-bold text-slate-800 whitespace-normal break-words leading-relaxed block">${item.manufacturer || 'N/A'}</span>
                             </div>
-                            
-                            <!-- Col 3: Address -->
                             <div class="sm:col-span-4 sm:pr-3 border-b sm:border-b-0 sm:border-r border-slate-200 pb-2 sm:pb-0">
                                 <span class="text-[11px] text-slate-600 italic whitespace-normal break-words leading-relaxed flex items-start gap-1">
                                     <i data-lucide="map-pin" class="w-3 h-3 shrink-0 mt-0.5"></i> 
                                     <span>${item.address || 'Address not listed'}</span>
                                 </span>
                             </div>
-                            
-                            <!-- Col 4: Category -->
                             <div class="sm:col-span-2">
                                 <span class="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-1 rounded block whitespace-normal break-words text-center leading-tight shadow-sm">${item.materialInspected || 'N/A'}</span>
                             </div>
@@ -542,17 +558,11 @@
                 let cleanSpec = specLine.trim();
                 let sno = (idx + 1) + ".";
                 const matchPrefix = cleanSpec.match(/^([ivxLCDM]+\.|[0-9]+\.)\s*(.*)$/i);
-                if (matchPrefix) {
-                    sno = matchPrefix[1];
-                    cleanSpec = matchPrefix[2];
-                }
+                if (matchPrefix) { sno = matchPrefix[1]; cleanSpec = matchPrefix[2]; }
 
                 let unitName = "No";
                 const unitMatch = cleanSpec.match(/\(([^)]+)\)\s*$/);
-                if (unitMatch) {
-                    unitName = unitMatch[1].trim();
-                    cleanSpec = cleanSpec.replace(/\([^)]+\)\s*$/, "").trim();
-                }
+                if (unitMatch) { unitName = unitMatch[1].trim(); cleanSpec = cleanSpec.replace(/\([^)]+\)\s*$/, "").trim(); }
 
                 let qtyVal = 0;
                 if (rawQtys[idx]) {
@@ -565,12 +575,8 @@
 
                 let unitRate = 0;
                 if (window.materialSpecsMasterList && window.materialSpecsMasterList.length > 0) {
-                    const matchedMaster = window.materialSpecsMasterList.find(m =>
-                        m.materialSpec && cleanSpec.toLowerCase().includes(m.materialSpec.trim().toLowerCase())
-                    );
-                    if (matchedMaster) {
-                        unitRate = Number(matchedMaster.unitRate || 0);
-                    }
+                    const matchedMaster = window.materialSpecsMasterList.find(m => m.materialSpec && cleanSpec.toLowerCase().includes(m.materialSpec.trim().toLowerCase()));
+                    if (matchedMaster) unitRate = Number(matchedMaster.unitRate || 0);
                 }
 
                 const rowTotalValue = qtyVal * unitRate;
@@ -591,10 +597,7 @@
             materialTableRowsHtml = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No material specifications listed.</td></tr>`;
         }
 
-        let matchedCriteria = "Value Percent";
-        let matchedValueFactor = 0;
-        let matchedTotalVal = 0;
-
+        let matchedCriteria = "Value Percent", matchedValueFactor = 0, matchedTotalVal = 0;
         const portalMRecord = window.portalMData.find(m => String(m.inspectionId).trim() === String(item.inspectionId).trim());
 
         if (portalMRecord) {
@@ -609,11 +612,7 @@
         const isPvvnl = String(item.discom || "").trim().toUpperCase() === "PVVNL";
         const initialMultiplier = isPvvnl ? 20 : 100;
 
-        window.activeModalFeeContext = {
-            totalMaterialValue: matchedTotalVal,
-            totalQuantitySum: totalQuantitySum,
-            criteria: matchedCriteria
-        };
+        window.activeModalFeeContext = { totalMaterialValue: matchedTotalVal, totalQuantitySum: totalQuantitySum, criteria: matchedCriteria };
 
         modalBody.innerHTML = `
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border text-xs">
@@ -760,7 +759,6 @@
         }
 
         const reportDate = dateInputElem.value.split("-").reverse().join("/");
-        
         if (!confirm(`Generate Landscape PDF report for ${reportDate}?`)) return;
 
         const btn = document.getElementById("export-schedule-pdf-btn");
@@ -768,6 +766,9 @@
         btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Exporting...`;
         btn.disabled = true;
         if (window.lucide) lucide.createIcons();
+
+        // 🎯 FIX: Force a quick re-render to bake the latest localStorage text into the DOM *before* taking the snapshot
+        renderInspectorSchedule();
 
         const executeExport = () => {
             const wrapper = document.getElementById('pdf-schedule-wrapper');
@@ -782,40 +783,25 @@
             titleEl.classList.remove('hidden');
             if (summaryBanner) summaryBanner.classList.remove('hidden');
 
-            const remarkInputs = wrapper.querySelectorAll('input[placeholder="Add temporary remark..."]');
-            remarkInputs.forEach(input => {
-                input.setAttribute('data-orig-placeholder', input.placeholder);
-                input.placeholder = ""; 
-                
-                if (!input.value.trim()) {
-                    input.parentElement.dataset.origDisplay = input.parentElement.style.display;
-                    input.parentElement.style.display = "none";
-                } else {
-                    input.dataset.origBorder = input.style.border;
-                    input.dataset.origBg = input.style.background;
-                    input.style.border = "none";
-                    input.style.background = "transparent";
-                }
-            });
-
-            // 🎯 FLAWLESS NODE RELOCATION (Prevents all clipping and squishing)
-            const originalParent = wrapper.parentNode;
-            const originalNextSibling = wrapper.nextSibling;
+            document.body.classList.add("pdf-export-mode");
             
             const printAnchor = document.createElement('div');
             printAnchor.style.position = 'absolute';
             printAnchor.style.top = '0';
             printAnchor.style.left = '0';
-            printAnchor.style.width = '1200px'; // 🎯 Optimal Landscape width
+            printAnchor.style.width = '1200px'; 
             printAnchor.style.minHeight = '100vh';
             printAnchor.style.background = 'white';
             printAnchor.style.zIndex = '99999';
             
             printAnchor.classList.add('pdf-rendering-active');
+            
+            const originalParent = wrapper.parentNode;
+            const originalNextSibling = wrapper.nextSibling;
+            
             printAnchor.appendChild(wrapper);
             document.body.appendChild(printAnchor);
 
-            // 🎯 Switching to Landscape prevents clipping of the 4 grid columns
             const opt = {
                 margin:       [0.4, 0.4, 0.4, 0.4], 
                 filename:     `Inspector_Schedule_${dateInputElem.value}.pdf`,
@@ -831,7 +817,6 @@
             };
 
             window.html2pdf().set(opt).from(wrapper).save().then(() => {
-                // Restore node
                 if (originalNextSibling) {
                     originalParent.insertBefore(wrapper, originalNextSibling);
                 } else {
@@ -844,16 +829,8 @@
                 
                 wrapper.classList.add('max-h-[65vh]', 'overflow-y-auto', 'custom-scrollbar');
                 wrapper.style.maxHeight = originalMaxHeight;
-
-                remarkInputs.forEach(input => {
-                    input.placeholder = input.getAttribute('data-orig-placeholder') || "Add temporary remark...";
-                    if (!input.value.trim()) {
-                        input.parentElement.style.display = input.parentElement.dataset.origDisplay || "";
-                    } else {
-                        input.style.border = input.dataset.origBorder || "";
-                        input.style.background = input.dataset.origBg || "";
-                    }
-                });
+                
+                document.body.classList.remove("pdf-export-mode");
 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -866,6 +843,11 @@
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
             script.onload = executeExport;
+            script.onerror = () => {
+                alert("Failed to download PDF engine. Please disable ad-blockers or check your connection.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            };
             document.head.appendChild(script);
         } else {
             executeExport();
