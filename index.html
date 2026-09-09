@@ -185,7 +185,9 @@
             root.innerHTML = `
                 <div class="flex w-full h-screen overflow-hidden relative">
                     <aside id="mi-sidebar" class="sidebar-hidden md:flex absolute md:relative w-64 h-full bg-slate-900 text-white flex-col justify-between border-r border-slate-800 z-50 shadow-2xl">
-                        <div class="flex-1 overflow-y-auto">
+                        
+                        <!-- Middle Scrollable Menu Section -->
+                        <div class="flex-1 overflow-y-auto custom-scrollbar pb-4">
                             <div class="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between sticky top-0 z-20">
                                 <div class="flex items-center gap-2">
                                     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMBVkToRt50US-6-8ZKBQ_ZeaPmA_CfHq9ct_5TSV5SA&s" alt="Logo" class="w-7 h-7 object-contain bg-white rounded-lg p-0.5">
@@ -196,18 +198,28 @@
 
                             <nav id="mi-dynamic-nav" class="mt-3 pr-3 space-y-1 pb-4"></nav>
                         </div>
-                        <div class="p-4 bg-slate-950 border-t border-slate-800 shrink-0">
-                            <div class="text-[10px] text-slate-400 font-mono mb-2 truncate">Role: <strong class="text-blue-400">${currentMiUser.role}</strong></div>
-                            <button onclick="miLogout()" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-black text-red-400 bg-red-500/5 hover:bg-red-500/10 border border-red-500/10 transition cursor-pointer">
-                                <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+                        
+                        <!-- 🎯 Bottom Footer Section (Always visible, handles Logout and User Details) -->
+                        <div class="p-4 bg-slate-950 border-t border-slate-800 shrink-0 space-y-3">
+                            <div>
+                                <div class="text-[10px] text-slate-400 font-mono mb-0.5 truncate">Role: <strong class="text-blue-400">${currentMiUser.role}</strong></div>
+                                <div class="text-[10px] text-slate-500 font-mono truncate">User: <span class="text-slate-300 font-bold">${currentMiUser.username}</span></div>
+                            </div>
+                            <button onclick="miLogout()" title="Logout" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black text-white bg-rose-600 hover:bg-rose-700 shadow-md transition-all cursor-pointer border border-rose-500">
+                                <i data-lucide="power" class="w-4 h-4"></i>
+                                <span>Logout Session</span>
                             </button>
                         </div>
                     </aside>
-                    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+                    
+                    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
+                        <!-- Mobile Top Nav -->
                         <div class="bg-white border-b border-slate-200 flex items-center justify-between px-4 py-3 sticky top-0 z-40 shadow-sm md:hidden shrink-0">
                             <button onclick="toggleMiSidebar()" class="text-slate-800 p-1 rounded-lg hover:bg-slate-100"><i data-lucide="menu" class="w-6 h-6"></i></button>
                             <span class="font-black text-xs uppercase tracking-wider text-slate-800">Andrew Yule & Co.</span>
                         </div>
+                        
+                        <!-- Main Content Viewport -->
                         <main id="mi-viewport" class="flex-1 p-3 sm:p-6 overflow-y-auto bg-slate-50"></main>
                     </div>
                 </div>
@@ -308,8 +320,6 @@
                     <button onclick="loadMiModule('specExtractor', this)" id="nav-specExtractor" class="mi-nav-btn w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-white transition rounded-r-lg text-left">
                         <i data-lucide="list-tree" class="w-4 h-4 text-amber-400 shrink-0"></i> Spec Extractor
                     </button>
-                    
-                    
                 `;
             }
 
@@ -349,6 +359,62 @@
                             moduleName === "analyticsPortal" ? "analyticsPortal.html" : 
                             moduleName === "specExtractor" ? "specExtractor.html" : `${moduleName}.html`;
 
+            // Security Gates
+            if (moduleName === "summaryDashboard" && (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator'))) {
+                view.innerHTML = `<div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm"><i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i><h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3><p class="text-xs text-slate-500">Accessible exclusively to System Administrators.</p></div>`;
+                if (window.lucide) lucide.createIcons(); return;
+            }
+            if ((moduleName === "inspectorsRecords" || moduleName === "billingOverview" || moduleName === "analyticsPortal") && (!currentMiUser || currentMiUser.role !== 'admin')) {
+                view.innerHTML = `<div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm"><i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i><h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3><p class="text-xs text-slate-500">Accessible exclusively to System Administrators.</p></div>`;
+                if (window.lucide) lucide.createIcons(); return;
+            }
+            if ((moduleName === "materialSpecs" || moduleName === "manufacturerDetails" || moduleName === "specExtractor") && (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'manager'))) {
+                view.innerHTML = `<div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm"><i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i><h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3><p class="text-xs text-slate-500">Accessible exclusively to Administrators and Managers.</p></div>`;
+                if (window.lucide) lucide.createIcons(); return;
+            }
+            if (moduleName === "inspectorSchedule" && (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator'))) {
+                view.innerHTML = `<div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm"><i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i><h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3><p class="text-xs text-slate-500">Accessible exclusively to System Administrators and Coordinators.</p></div>`;
+                if (window.lucide) lucide.createIcons(); return;
+            }
+            if (moduleName === "sealDetails" && (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator' && currentMiUser.role !== 'manager'))) {
+                view.innerHTML = `<div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm"><i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i><h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3><p class="text-xs text-slate-500">Accessible to Administrators, Managers, and Coordinators.</p></div>`;
+                if (window.lucide) lucide.createIcons(); return;
+            }
+
+            // Inspectors directory edge case natively injected
+            if (moduleName === "inspectorsRecords") {
+                view.innerHTML = `<div class="max-w-[98%] mx-auto space-y-3 animate-fade-in"><div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm space-y-3"><div class="flex flex-col sm:flex-row items-center justify-between border-b pb-3 gap-3"><h3 class="font-black text-sm uppercase text-slate-800 flex items-center gap-2"><i data-lucide="users" class="text-blue-600 w-4 h-4"></i> Inspecting Engineers Directory (Admin Only)</h3><div class="flex items-center gap-2 w-full sm:w-auto"><span id="inspector-count-badge" class="text-[10px] font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-bold">Loading...</span></div></div><div id="inspectors-table-wrap" class="overflow-auto h-[74vh] border border-slate-200 rounded-2xl shadow-inner relative custom-scrollbar"><p class="text-xs text-slate-400 py-12 text-center animate-pulse">Synchronizing inspector records...</p></div></div></div>`;
+                if (window.lucide) lucide.createIcons();
+                try {
+                    const res = await fetch(`${API_URL}?action=getInspectors`);
+                    const textData = await res.text();
+                    const data = JSON.parse(textData);
+                    setTimeout(() => {
+                        const wrap = document.getElementById("inspectors-table-wrap");
+                        const badge = document.getElementById("inspector-count-badge");
+                        if (!wrap) return;
+                        if (data.status) {
+                            const inspectors = data.data;
+                            if (badge) badge.innerText = `${inspectors.length} Records Found`;
+                            if (inspectors.length === 0) { wrap.innerHTML = `<p class="text-xs text-slate-400 py-8 text-center">No inspector records found in sheet.</p>`; return; }
+                            const keys = Object.keys(inspectors[0]).filter(k => k !== 'srNo');
+                            let html = `<table class="w-full text-left text-xs border-collapse table-auto"><thead class="sticky top-0 bg-slate-900 text-white uppercase text-[10px] z-20 font-mono"><tr><th class="p-3 border-r border-slate-700 text-center w-12">Sr</th>`;
+                            keys.forEach(k => html += `<th class="p-3 border-r border-slate-700 truncate">${k}</th>`);
+                            html += `</tr></thead><tbody class="divide-y bg-white font-medium align-top">`;
+                            inspectors.forEach((row, idx) => {
+                                const bg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
+                                html += `<tr class="${bg} hover:bg-blue-50/40 transition"><td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>`;
+                                keys.forEach(key => { const val = row[key] !== undefined && row[key] !== "" ? row[key] : "-"; html += `<td class="p-3 border-r text-slate-700 whitespace-pre-wrap break-words">${val}</td>`; });
+                                html += `</tr>`;
+                            });
+                            html += `</tbody></table>`;
+                            wrap.innerHTML = html;
+                        } else { wrap.innerHTML = `<p class="text-xs text-rose-600 py-8 text-center font-bold">Error: ${data.message}</p>`; }
+                    }, 50);
+                } catch (e) { const wrap = document.getElementById("inspectors-table-wrap"); if (wrap) wrap.innerHTML = `<p class="text-xs text-rose-600 py-8 text-center font-bold">Failed to synchronize inspectors data.</p>`; }
+                return;
+            }
+
             view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading module view...</div>`;
             
             try {
@@ -356,7 +422,7 @@
                 const html = await res.text();
                 view.innerHTML = html;
 
-                // 🎯 Safely execute scripts without throwing global redeclaration errors
+                // 🎯 Safely execute scripts without throwing global redeclaration errors using IIFE
                 const scripts = view.getElementsByTagName("script");
                 for (let s of scripts) {
                     try {
@@ -370,14 +436,18 @@
                     }
                 }
 
+                // Call initialization functions locally if needed
+                setTimeout(() => {
+                    if (moduleName === "materialSpecs" && typeof initMaterialSpecsModule === 'function') initMaterialSpecsModule();
+                    if (moduleName === "manufacturerDetails" && typeof initManufacturerModule === 'function') initManufacturerModule();
+                }, 50);
+
                 if (window.lucide) lucide.createIcons();
             } catch (err) {
                 view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: ${fileUrl}</div>`;
             }
         }
-        
-   
-   </script>
+    </script>
 </body>
 
 </html>
