@@ -24,7 +24,6 @@
 
         <!-- Filter Row -->
         <div class="grid grid-cols-1 sm:grid-cols-5 gap-3">
-            <!-- 🎯 Search ID changed to Input + Datalist Combobox -->
             <div>
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Search ID</label>
                 <input type="text" id="an-filter-id" list="an-filter-id-list" oninput="window.runAnalyticsPipeline()" placeholder="Type or Select ID..." class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-slate-50 focus:bg-white transition shadow-xs cursor-pointer">
@@ -102,7 +101,7 @@
             <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 shadow-xs">
                 <span class="text-[9px] font-black uppercase text-amber-600 block tracking-wider">Pending / Sched</span>
                 <p id="kpi-pending-count" class="text-2xl font-black text-amber-700 mt-1">0</p>
-                <span class="text-[10px] text-amber-600 font-bold block mt-0.5">Awaiting completion</span>
+                <span id="kpi-pending-rate" class="text-[10px] text-amber-600 font-bold block mt-0.5">Awaiting completion</span>
             </div>
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
                 <span class="text-[9px] font-black uppercase text-blue-600 block tracking-wider">Avg Man-Days/Insp</span>
@@ -409,9 +408,60 @@
         </div>
     </div>
 
+    <!-- ======================= INTEGRATED COMPLETED INSPECTIONS LOG ======================= -->
+    <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 print-wrapper mt-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4 hide-on-print">
+            <div>
+                <h3 class="font-black text-lg uppercase text-slate-800 flex items-center gap-2">
+                    <i data-lucide="calendar-check" class="text-violet-600 w-6 h-6"></i> Completed Inspections Log
+                </h3>
+                <p class="text-xs font-bold text-slate-500 mt-1">Filtered by Global DISCOM selection and custom completion date.</p>
+            </div>
+            
+            <div class="flex items-center gap-3 flex-wrap">
+                <!-- Date Selector Input -->
+                <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                    <label class="text-[10px] font-black uppercase text-violet-800">Select Date:</label>
+                    <input type="date" id="completed-log-filter-date" onchange="window.renderCompletedDateLog()" class="p-1 border border-violet-300 rounded-lg text-xs font-bold outline-none bg-white cursor-pointer shadow-2xs">
+                </div>
+            </div>
+        </div>
+
+        <h2 id="pdf-report-title-log" class="print-title font-black text-2xl uppercase tracking-wider text-center text-slate-800 mb-6 border-b pb-4"></h2>
+
+        <!-- Completed Inspections Detail Table (DISCOM added alongside Inspection ID) -->
+        <div id="yesterday-table-container" class="border border-violet-200 rounded-2xl shadow-sm overflow-hidden flex flex-col bg-white relative">
+            <div class="p-4 bg-violet-100/50 border-b border-violet-200 flex items-center justify-between">
+                <h4 class="font-black text-sm uppercase text-violet-900 flex items-center gap-2">
+                    <i data-lucide="calendar-check-2" class="w-5 h-5 text-violet-600"></i> Records Log
+                </h4>
+                <span class="text-xs font-black bg-violet-600 text-white px-3 py-1 rounded-full shadow-sm">Count: <span id="yesterday-table-count">0</span></span>
+            </div>
+            <div class="p-0 overflow-auto custom-scrollbar w-full max-h-[65vh] relative scroll-target">
+                <table class="w-full text-left text-[11px] border-collapse table-auto">
+                    <thead class="sticky top-0 bg-violet-200 text-violet-900 z-20 font-bold uppercase tracking-wider shadow-sm">
+                        <tr>
+                            <th class="p-3 border-r border-violet-300">Inspection ID / DISCOM</th>
+                            <th class="p-3 border-r border-violet-300">Manufacturer & Address</th>
+                            <th class="p-3 border-r border-violet-300">Material Details</th>
+                            <th class="p-3 border-r border-violet-300">Conducted By</th>
+                            <th class="p-3 border-r border-violet-300">Status / Sub-Status</th>
+                            <th class="p-3 text-center">Completed On</th>
+                        </tr>
+                    </thead>
+                    <tbody id="yesterday-tbody" class="font-medium divide-y divide-violet-100">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <p class="text-[10px] text-slate-400 mt-2 text-center italic hide-on-print">* Automatically synchronizes with the Global DISCOM filter at the top of the dashboard.</p>
+    </div>
+
 </div>
 
-<!-- 🎯 DRILL-DOWN MODAL FOR CHARTS (Retained for visual chart interactions) -->
+<!-- 🎯 DRILL-DOWN MODAL FOR CHARTS -->
 <div id="analytics-drilldown-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl p-6 sm:p-8 relative border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between border-b pb-3 sticky top-0 bg-white z-10">
@@ -436,6 +486,43 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 2px solid #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    .print-title { display: none; }
+
+    /* 🎯 ROBUST NATIVE PRINT SETTINGS */
+    @media print {
+        @page {
+            size: landscape;
+            margin: 0.3in;
+        }
+        body * {
+            visibility: hidden !important;
+        }
+        .hide-on-print {
+            display: none !important;
+        }
+        .print-wrapper, .print-wrapper * {
+            visibility: visible !important;
+        }
+        .print-wrapper {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .print-title {
+            display: block !important;
+        }
+        .scroll-target {
+            overflow: visible !important;
+            max-height: none !important;
+        }
+        .sticky {
+            position: static !important;
+        }
+    }
 </style>
 
 <script>
@@ -549,6 +636,583 @@
             effGrid.classList.remove('hidden');
             btnEff.className = activeClass;
         }
+    };
+
+    window.switchAnalysisTab = function(tabKey) {
+        const inspPanel = document.getElementById("matrix-inspector-panel");
+        const mfgPanel = document.getElementById("matrix-manufacturer-panel");
+        const matPanel = document.getElementById("matrix-materials-panel");
+
+        const btnInsp = document.getElementById("tab-btn-inspector");
+        const btnMfg = document.getElementById("tab-btn-manufacturer");
+        const btnMat = document.getElementById("tab-btn-materials");
+
+        const activeClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer bg-blue-600 text-white shadow-xs";
+        const inactiveClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer text-slate-600 hover:text-slate-900";
+
+        if (inspPanel) inspPanel.classList.add("hidden");
+        if (mfgPanel) mfgPanel.classList.add("hidden");
+        if (matPanel) matPanel.classList.add("hidden");
+
+        if (btnInsp) btnInsp.className = inactiveClass;
+        if (btnMfg) btnMfg.className = inactiveClass;
+        if (btnMat) btnMat.className = inactiveClass;
+
+        if (tabKey === 'inspector') {
+            if (inspPanel) inspPanel.classList.remove("hidden");
+            if (btnInsp) btnInsp.className = activeClass;
+        } else if (tabKey === 'manufacturer') {
+            if (mfgPanel) mfgPanel.classList.remove("hidden");
+            if (btnMfg) btnMfg.className = activeClass;
+        } else if (tabKey === 'materials') {
+            if (matPanel) matPanel.classList.remove("hidden");
+            if (btnMat) btnMat.className = activeClass;
+        }
+    };
+
+    // 🎯 Properly hoisted functions attached to window scope
+    window.computeExecutiveKpis = function(records) {
+        const total = records.length;
+        let pass = 0, mom = 0, pending = 0, totalManDays = 0, cancelledRev = 0;
+        let billedCount = 0, unbilledCount = 0, invoiceCount = 0, billedManDays = 0;
+        let lagSchedSum = 0, lagSchedCount = 0; 
+        let reportReceivedCnt = 0, reportMailedCnt = 0, nablSentCnt = 0;
+        let activeInspectors = new Set(); 
+
+        records.forEach(r => {
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            const stat = String(r.status || "").trim().toLowerCase();
+            const bill = String(r.billingStatus || "").trim().toLowerCase();
+            const md = Number(r.manDays || 0);
+
+            if (stat.includes("cancel") || stat.includes("revis")) {
+                cancelledRev++;
+            } else {
+                if (sub.includes("pass")) { pass++; }
+                else if (sub.includes("mom")) { mom++; }
+                else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pending++;
+
+                const inspName = String(r.conductedBy || r.tpiaInspector || "").trim();
+                const key = cleanInspectorName(inspName);
+                if (key && !["notappointed", "notupdated", "pending", "-"].includes(key)) {
+                    activeInspectors.add(key);
+                }
+            }
+
+            totalManDays += md;
+            if (bill === "billed") { billedCount++; billedManDays += md; }
+            else if (bill === "pending" && (sub.includes("pass") || sub.includes("mom"))) unbilledCount++;
+            
+            if (String(r.invoiceNo || "").trim() !== "") invoiceCount++;
+            if (String(r.reportReceived || "").trim().toLowerCase() === "yes") reportReceivedCnt++;
+            if (String(r.reportMail || "").trim().toLowerCase() === "yes") reportMailedCnt++;
+            
+            const nablVal = String(r.nablStatusDate || "").trim();
+            if (nablVal.toLowerCase().includes("sample send for nabl test")) {
+                nablSentCnt++;
+            }
+
+            let dRec = parseAnyDateToObject(r.receivedDate);
+            let dSch = parseAnyDateToObject(r.scheduleDate);
+            if (dRec && dSch) {
+                let diff = (dSch - dRec) / 86400000;
+                if (diff >= 0) { lagSchedSum += diff; lagSchedCount++; }
+            }
+        });
+
+        const validCalls = total - cancelledRev;
+        const passRate = validCalls > 0 ? ((pass / validCalls) * 100).toFixed(1) : 0;
+        const momRate = validCalls > 0 ? ((mom / validCalls) * 100).toFixed(1) : 0;
+        const billedRate = validCalls > 0 ? ((billedCount / validCalls) * 100).toFixed(0) : 0;
+        const unbilledRate = validCalls > 0 ? ((unbilledCount / validCalls) * 100).toFixed(0) : 0;
+        const billedMdRate = totalManDays > 0 ? ((billedManDays / totalManDays) * 100).toFixed(0) : 0;
+        const avgSchedLag = lagSchedCount > 0 ? (lagSchedSum / lagSchedCount).toFixed(1) : 0;
+        const activeCount = activeInspectors.size > 0 ? activeInspectors.size : 1;
+        const avgManDaysPerInsp = (totalManDays / activeCount).toFixed(1);
+
+        document.getElementById("kpi-total-calls").innerText = total;
+        document.getElementById("kpi-valid-calls").innerText = `(${validCalls} Valid)`;
+        document.getElementById("kpi-cancelled-revised").innerText = `${cancelledRev} Cancelled / Revised`;
+        document.getElementById("kpi-pass-count").innerText = pass;
+        document.getElementById("kpi-pass-rate").innerText = `${passRate}% pass rate`;
+        document.getElementById("kpi-mom-count").innerText = mom;
+        document.getElementById("kpi-mom-rate").innerText = `${momRate}% MOM rate`;
+        document.getElementById("kpi-pending-count").innerText = pending;
+        document.getElementById("kpi-avg-per-inspector").innerText = avgManDaysPerInsp;
+        document.getElementById("kpi-inspector-pool").innerText = `Across ${activeInspectors.size} active inspector(s)`;
+        document.getElementById("kpi-total-mandays").innerText = totalManDays.toFixed(1);
+        document.getElementById("kpi-billed-count").innerText = billedCount;
+        document.getElementById("kpi-billed-rate").innerText = `${billedRate}% of total`;
+        document.getElementById("kpi-unbilled-count").innerText = unbilledCount;
+        document.getElementById("kpi-unbilled-rate").innerText = `${unbilledRate}% of total`;
+        document.getElementById("kpi-invoice-count").innerText = invoiceCount;
+        document.getElementById("kpi-billed-mandays").innerText = billedManDays.toFixed(1);
+        document.getElementById("kpi-billed-manday-rate").innerText = `${billedMdRate}% of utilized man-days`;
+        document.getElementById("kpi-report-received-cnt").innerText = reportReceivedCnt;
+        document.getElementById("kpi-report-mailed-cnt").innerText = reportMailedCnt;
+        document.getElementById("kpi-nabl-sent-cnt").innerText = nablSentCnt;
+        document.getElementById("kpi-lag-schedule").innerHTML = `${avgSchedLag}<span class="text-lg">d</span>`;
+
+        let nb = 0, sb = 0, pv = 0;
+        records.forEach(r => {
+            const d = String(r.discom || "").trim().toUpperCase();
+            if (d === "NBPDCL") nb++;
+            else if (d === "SBPDCL") sb++;
+            else if (d === "PVVNL") pv++;
+        });
+        document.getElementById("sub-nb-cnt").innerText = nb;
+        document.getElementById("sub-sb-cnt").innerText = sb;
+        document.getElementById("sub-pv-cnt").innerText = pv;
+    };
+
+    window.renderMonthlyTrendChart = function(records) {
+        const ctx = document.getElementById("chart-monthly-trend");
+        if (!ctx) return;
+
+        const monthMap = {};
+        records.forEach(r => {
+            let m = getCompletionMonth(r);
+            if (!monthMap[m]) monthMap[m] = { pass: [], mom: [], pending: [], completedMD: 0, billedMD: 0, compRecords: [], billedRecords: [] };
+            
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            const stat = String(r.status || "").trim().toLowerCase();
+            const bill = String(r.billingStatus || "").trim().toLowerCase();
+            const md = Number(r.manDays || 0);
+            
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            if (sub.includes("pass")) monthMap[m].pass.push(r);
+            else if (sub.includes("mom")) monthMap[m].mom.push(r);
+            else monthMap[m].pending.push(r);
+
+            if (sub.includes("pass") || sub.includes("mom")) {
+                monthMap[m].completedMD += md;
+                monthMap[m].compRecords.push(r);
+            }
+            if (bill === "billed") {
+                monthMap[m].billedMD += md;
+                monthMap[m].billedRecords.push(r);
+            }
+        });
+
+        const labels = Object.keys(monthMap).sort((a, b) => {
+            if (a === "Unspecified") return -1;
+            if (b === "Unspecified") return 1;
+            const dA = new Date("01 " + a);
+            const dB = new Date("01 " + b);
+            return (isNaN(dA) || isNaN(dB)) ? a.localeCompare(b) : dA - dB;
+        });
+
+        const passData = labels.map(l => monthMap[l].pass.length);
+        const momData = labels.map(l => monthMap[l].mom.length);
+        const pendingData = labels.map(l => monthMap[l].pending.length);
+        const compData = labels.map(l => Number(monthMap[l].completedMD.toFixed(1)));
+        const billData = labels.map(l => Number(monthMap[l].billedMD.toFixed(1)));
+
+        if (window.analyticsChartInstances.monthlyTrend) window.analyticsChartInstances.monthlyTrend.destroy();
+
+        window.analyticsChartInstances.monthlyTrend = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels.length > 0 ? labels : ["No Data"],
+                datasets: [
+                    { type: 'bar', label: 'Material Pass (Calls)', data: passData, backgroundColor: '#10b981', yAxisID: 'y', stack: 'Calls', borderRadius: 4 },
+                    { type: 'bar', label: 'MOM Notice (Calls)', data: momData, backgroundColor: '#a855f7', yAxisID: 'y', stack: 'Calls', borderRadius: 4 },
+                    { type: 'bar', label: 'Pending / Sched (Calls)', data: pendingData, backgroundColor: '#fbbf24', yAxisID: 'y', stack: 'Calls', borderRadius: 4 },
+                    { type: 'bar', label: 'Completed Man-Days', data: compData, backgroundColor: '#3b82f6', yAxisID: 'y1', stack: 'MD_Comp', borderRadius: 4 },
+                    { type: 'bar', label: 'Billed Man-Days', data: billData, backgroundColor: '#06b6d4', yAxisID: 'y1', stack: 'MD_Bill', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false }, 
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const clickedDatasetIndex = elements[0].datasetIndex;
+                        const idx = elements[0].index;
+                        const label = labels[idx];
+                        let matched = [];
+                        let dsLabel = "";
+                        
+                        if (clickedDatasetIndex === 0) { matched = monthMap[label].pass; dsLabel = "Material Pass"; }
+                        else if (clickedDatasetIndex === 1) { matched = monthMap[label].mom; dsLabel = "MOM Notice"; }
+                        else if (clickedDatasetIndex === 2) { matched = monthMap[label].pending; dsLabel = "Pending / Scheduled"; }
+                        else if (clickedDatasetIndex === 3) { matched = monthMap[label].compRecords; dsLabel = `Completed Man-Days (${compData[idx]} Total)`; }
+                        else if (clickedDatasetIndex === 4) { matched = monthMap[label].billedRecords; dsLabel = `Billed Man-Days (${billData[idx]} Total)`; }
+
+                        openDrilldownModal(`Integrated Trend Analysis: ${label}`, dsLabel, matched);
+                    }
+                },
+                scales: { 
+                    y: { type: 'linear', display: true, position: 'left', stacked: true, title: { display: true, text: 'Inspection Volume (Calls)', font: { size: 10, weight: 'bold' }, color: '#64748b' }, grid: { color: '#f1f5f9' } }, 
+                    y1: { type: 'linear', display: true, position: 'right', stacked: true, title: { display: true, text: 'Man-Days Utilized', font: { size: 10, weight: 'bold' }, color: '#64748b' }, grid: { drawOnChartArea: false } },
+                    x: { stacked: true, grid: { display: false } }
+                },
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10, weight: 'bold' } } } }
+            }
+        });
+    };
+
+    window.renderOutcomeDoughnutChart = function(records) {
+        const ctx = document.getElementById("chart-outcome-doughnut");
+        if (!ctx) return;
+
+        let passArr = [], momArr = [], pendingArr = [], othersArr = [];
+        records.forEach(r => {
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) othersArr.push(r);
+            else if (sub.includes("pass")) passArr.push(r);
+            else if (sub.includes("mom")) momArr.push(r);
+            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pendingArr.push(r);
+            else othersArr.push(r);
+        });
+
+        if (window.analyticsChartInstances.outcomeDoughnut) window.analyticsChartInstances.outcomeDoughnut.destroy();
+
+        window.analyticsChartInstances.outcomeDoughnut = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pass', 'MOM', 'Pending', 'Cancelled/Revised'],
+                datasets: [{ data: [passArr.length, momArr.length, pendingArr.length, othersArr.length], backgroundColor: ['#10b981', '#a855f7', '#f59e0b', '#cbd5e1'], borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        let matched = [];
+                        let catName = '';
+                        if (idx === 0) { matched = passArr; catName = 'Material Pass'; }
+                        else if (idx === 1) { matched = momArr; catName = 'MOM Notices'; }
+                        else if (idx === 2) { matched = pendingArr; catName = 'Pending / Scheduled'; }
+                        else { matched = othersArr; catName = 'Cancelled / Revised / Others'; }
+
+                        openDrilldownModal(`Outcome Breakdown: ${catName}`, `${matched.length} inspection records found`, matched);
+                    }
+                },
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
+            }
+        });
+    };
+
+    window.renderMaterialCategoryChart = function(records) {
+        const ctx = document.getElementById("chart-material-category");
+        if (!ctx) return;
+
+        const catMap = {};
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            const cat = String(r.materialInspected || "Unspecified").trim();
+            if (!catMap[cat]) catMap[cat] = [];
+            catMap[cat].push(r);
+        });
+
+        const sortedCats = Object.entries(catMap).sort((a, b) => b[1].length - a[1].length).slice(0, 8);
+        const labels = sortedCats.map(item => item[0]);
+        const counts = sortedCats.map(item => item[1].length);
+
+        if (window.analyticsChartInstances.materialCategory) window.analyticsChartInstances.materialCategory.destroy();
+
+        window.analyticsChartInstances.materialCategory = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels.length > 0 ? labels : ["No Data"],
+                datasets: [{ label: 'Inspections', data: counts, backgroundColor: '#3b82f6', borderRadius: 4 }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        const label = labels[idx];
+                        openDrilldownModal(`Material Category: ${label}`, `${catMap[label].length} inspection records`, catMap[label]);
+                    }
+                },
+                scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    };
+
+    window.renderAdherenceChart = function(records) {
+        const ctx = document.getElementById("chart-adherence");
+        if (!ctx) return;
+
+        let earlyArr = [], minorArr = [], majorArr = [], notStartArr = [];
+
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            const dSch = parseAnyDateToObject(r.scheduleDate);
+            const dFrm = parseAnyDateToObject(r.dateFrom);
+
+            if (dSch) {
+                if (dFrm) {
+                    let diff = (dFrm - dSch) / 86400000;
+                    if (diff <= 0) earlyArr.push(r);
+                    else if (diff <= 3) minorArr.push(r);
+                    else majorArr.push(r);
+                } else {
+                    notStartArr.push(r);
+                }
+            }
+        });
+
+        if (window.analyticsChartInstances.adherenceChart) window.analyticsChartInstances.adherenceChart.destroy();
+
+        window.analyticsChartInstances.adherenceChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['On-Time / Early', 'Minor Delay (1-3d)', 'Major Delay (>3d)', 'Not Started'],
+                datasets: [{ data: [earlyArr.length, minorArr.length, majorArr.length, notStartArr.length], backgroundColor: ['#10b981', '#facc15', '#f43f5e', '#cbd5e1'], borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        let matched = [];
+                        let catName = '';
+                        if (idx === 0) { matched = earlyArr; catName = 'On-Time / Early Executions'; }
+                        else if (idx === 1) { matched = minorArr; catName = 'Minor Delay (1-3 days)'; }
+                        else if (idx === 2) { matched = majorArr; catName = 'Major Delay (>3 days)'; }
+                        else { matched = notStartArr; catName = 'Not Started Yet'; }
+
+                        openDrilldownModal(`Schedule Adherence: ${catName}`, `${matched.length} inspection records`, matched);
+                    }
+                },
+                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
+            }
+        });
+    };
+
+    window.renderQualityChart = function(records) {
+        const ctx = document.getElementById("chart-quality");
+        if (!ctx) return;
+
+        let repRecYes = [], repRecNo = [];
+        let repMailYes = [], repMailNo = [];
+        let nablSent = [];
+
+        records.forEach(r => {
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if(sub.includes("pass") || sub.includes("mom")) {
+                if (String(r.reportReceived || "").trim().toLowerCase() === "yes") repRecYes.push(r); 
+                else repRecNo.push(r);
+                
+                if (String(r.reportMail || "").trim().toLowerCase() === "yes") repMailYes.push(r); 
+                else repMailNo.push(r);
+
+                const nablVal = String(r.nablStatusDate || "").trim().toLowerCase();
+                if (nablVal.includes("sample send for nabl test")) {
+                    nablSent.push(r);
+                }
+            }
+        });
+
+        if (window.analyticsChartInstances.qualityChart) window.analyticsChartInstances.qualityChart.destroy();
+
+        window.analyticsChartInstances.qualityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Report Received', 'Report Mailed', 'NABL Testing'],
+                datasets: [
+                    { label: 'Yes / Sent', data: [repRecYes.length, repMailYes.length, nablSent.length], backgroundColor: '#4f46e5', borderRadius: 4 },
+                    { label: 'No / Pending', data: [repRecNo.length, repMailNo.length, null], backgroundColor: '#e2e8f0', borderRadius: 4 }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const datasetIdx = elements[0].datasetIndex;
+                        const idx = elements[0].index;
+                        let matched = [];
+                        let catName = '';
+
+                        if (idx === 0) {
+                            matched = datasetIdx === 0 ? repRecYes : repRecNo;
+                            catName = datasetIdx === 0 ? 'Report Received (Yes)' : 'Report Received (Pending/No)';
+                        } else if (idx === 1) {
+                            matched = datasetIdx === 0 ? repMailYes : repMailNo;
+                            catName = datasetIdx === 0 ? 'Report Mailed (Yes)' : 'Report Mailed (Pending/No)';
+                        } else {
+                            if (datasetIdx === 0) {
+                                matched = nablSent;
+                                catName = 'NABL Samples Sent ("Sample send for NABL Test")';
+                            } else {
+                                return;
+                            }
+                        }
+
+                        if(matched) {
+                            openDrilldownModal(`Compliance Tracking: ${catName}`, `${matched.length} inspection records`, matched);
+                        }
+                    }
+                },
+                scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#f1f5f9' } } },
+                plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
+            }
+        });
+    };
+
+    function renderInspectorMatrix(records) {
+        const tbody = document.getElementById("matrix-inspector-body");
+        if (!tbody) return;
+
+        let validCallsTotal = 0;
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (!stat.includes("cancel") && !stat.includes("revis")) validCallsTotal++;
+        });
+
+        const inspMap = {};
+        window.analyticsInspectorsMaster.forEach(insp => {
+            const name = getInspectorName(insp);
+            const key = cleanInspectorName(name);
+            if (key) inspMap[key] = { name: name, total: 0, pass: 0, mom: 0, pending: 0, manDays: 0 };
+        });
+
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            const rawName = String(r.conductedBy || r.tpiaInspector || "").trim();
+            const key = cleanInspectorName(rawName);
+            if (!key || ["notappointed", "notupdated", "pending", "-"].includes(key)) return;
+
+            if (!inspMap[key]) inspMap[key] = { name: rawName, total: 0, pass: 0, mom: 0, pending: 0, manDays: 0 };
+
+            inspMap[key].total++;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+
+            if (sub.includes("pass")) inspMap[key].pass++;
+            else if (sub.includes("mom")) inspMap[key].mom++;
+            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) inspMap[key].pending++;
+
+            inspMap[key].manDays += Number(r.manDays || 0);
+        });
+
+        const sorted = Object.values(inspMap).sort((a, b) => b.total - a.total);
+
+        let html = "";
+        sorted.forEach((item, idx) => {
+            const passRate = item.total > 0 ? ((item.pass / item.total) * 100).toFixed(1) + "%" : "-";
+            const share = validCallsTotal > 0 ? ((item.total / validCallsTotal) * 100).toFixed(1) + "%" : "0%";
+            const bg = idx % 2 === 0 ? "bg-white" : "bg-slate-50/50";
+
+            html += `
+                <tr class="${bg} hover:bg-blue-50/40 transition">
+                    <td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>
+                    <td class="p-3 border-r font-bold text-slate-900">${item.name}</td>
+                    <td class="p-3 border-r text-center font-mono font-black text-slate-800">${item.total}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 bg-emerald-50/30">${item.pass}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-purple-700 bg-purple-50/30">${item.mom}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${item.pending}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-slate-800">${passRate}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-slate-600">${item.manDays.toFixed(1)}</td>
+                    <td class="p-3 text-center font-mono text-slate-500">${share}</td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html || `<tr><td colspan="9" class="p-8 text-center text-slate-400">No registered inspectors found.</td></tr>`;
+    }
+
+    function renderManufacturerMatrix(records) {
+        const tbody = document.getElementById("matrix-manufacturer-body");
+        if (!tbody) return;
+
+        const mfgMap = {};
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            const name = String(r.manufacturer || "Unspecified Manufacturer").trim();
+            if (!mfgMap[name]) mfgMap[name] = { total: 0, pass: 0, mom: 0, pending: 0, materials: new Set() };
+
+            mfgMap[name].total++;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+
+            if (sub.includes("pass")) mfgMap[name].pass++;
+            else if (sub.includes("mom")) mfgMap[name].mom++;
+            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) mfgMap[name].pending++;
+
+            if (r.materialInspected) mfgMap[name].materials.add(String(r.materialInspected).trim());
+        });
+
+        const sorted = Object.entries(mfgMap).sort((a, b) => b[1].total - a[1].total);
+
+        let html = "";
+        sorted.forEach(([mfgName, stats], idx) => {
+            const passRate = stats.total > 0 ? ((stats.pass / stats.total) * 100).toFixed(1) + "%" : "-";
+            const matList = Array.from(stats.materials).slice(0, 3).join(", ") || "-";
+            const bg = idx % 2 === 0 ? "bg-white" : "bg-slate-50/50";
+
+            html += `
+                <tr class="${bg} hover:bg-purple-50/30 transition">
+                    <td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>
+                    <td class="p-3 border-r font-bold text-slate-900">${mfgName}</td>
+                    <td class="p-3 border-r text-center font-mono font-black text-slate-800">${stats.total}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 bg-emerald-50/30">${stats.pass}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-purple-700 bg-purple-50/30">${stats.mom}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${stats.pending}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-slate-800">${passRate}</td>
+                    <td class="p-3 text-[11px] text-slate-600 truncate max-w-xs" title="${matList}">${matList}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html || `<tr><td colspan="8" class="p-8 text-center text-slate-400">No manufacturer records found.</td></tr>`;
+    }
+
+    function renderMaterialsMatrix(records) {
+        const tbody = document.getElementById("matrix-materials-body");
+        if (!tbody) return;
+
+        const catMap = {};
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            const cat = String(r.materialInspected || "Unspecified Category").trim();
+            if (!catMap[cat]) catMap[cat] = { total: 0, pass: 0, mom: 0, pending: 0, mfgs: new Set() };
+
+            catMap[cat].total++;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+
+            if (sub.includes("pass")) catMap[cat].pass++;
+            else if (sub.includes("mom")) catMap[cat].mom++;
+            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) catMap[cat].pending++;
+
+            if (r.manufacturer) catMap[cat].mfgs.add(String(r.manufacturer).trim());
+        });
+
+        const sorted = Object.entries(catMap).sort((a, b) => b[1].total - a[1].total);
+
+        let html = "";
+        sorted.forEach(([catName, stats], idx) => {
+            const passRate = stats.total > 0 ? ((stats.pass / stats.total) * 100).toFixed(1) + "%" : "-";
+            const mfgList = Array.from(stats.mfgs).slice(0, 3).join(", ") || "-";
+            const bg = idx % 2 === 0 ? "bg-white" : "bg-slate-50/50";
+
+            html += `
+                <tr class="${bg} hover:bg-emerald-50/30 transition">
+                    <td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>
+                    <td class="p-3 border-r font-bold text-slate-900">${catName}</td>
+                    <td class="p-3 border-r text-center font-mono font-black text-slate-800">${stats.total}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 bg-emerald-50/30">${stats.pass}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-purple-700 bg-purple-50/30">${stats.mom}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${stats.pending}</td>
+                    <td class="p-3 border-r text-center font-mono font-bold text-slate-800">${passRate}</td>
+                    <td class="p-3 text-[11px] text-slate-600 truncate max-w-xs" title="${mfgList}">${mfgList}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html || `<tr><td colspan="8" class="p-8 text-center text-slate-400">No material category records found.</td></tr>`;
     }
 
     async function initAnalyticsModule() {
@@ -577,8 +1241,15 @@
                 if (pMData.status && pMData.data) window.portalMData = pMData.data || [];
             } catch(e) {}
 
+            const dateInput = document.getElementById("completed-log-filter-date");
+            if (dateInput && !dateInput.value) {
+                const d = new Date();
+                d.setDate(d.getDate() - 1);
+                dateInput.value = d.toISOString().split('T')[0];
+            }
+
             populateMonthFilter();
-            populateIdFilter(); // 🎯 Populate datalist
+            populateIdFilter(); 
             window.runAnalyticsPipeline();
         } catch (err) {
             console.error("Failed to load analytics records", err);
@@ -609,7 +1280,6 @@
         monthDropdown.innerHTML = html;
     }
 
-    // 🎯 Dynamically generate ID dropdown based on fetched data
     function populateIdFilter() {
         const list = document.getElementById("an-filter-id-list");
         if (!list) return;
@@ -632,7 +1302,7 @@
         document.getElementById("an-filter-status").value = "ALL";
         document.getElementById("an-filter-substatus").value = "ALL";
         window.runAnalyticsPipeline();
-    }
+    };
 
     window.resetMatrixFilters = function() {
         document.getElementById("matrix-grp-1").value = "none";
@@ -640,7 +1310,7 @@
         document.getElementById("matrix-filter-primary").value = "ALL";
         document.getElementById("matrix-filter-discom").value = "ALL";
         window.renderFinancialMatrix();
-    }
+    };
 
     window.runAnalyticsPipeline = function() {
         const idFilter = document.getElementById("an-filter-id").value.trim().toLowerCase();
@@ -678,35 +1348,93 @@
             return true;
         });
 
-        computeExecutiveKpis(window.analyticsFilteredCache);
+        window.computeExecutiveKpis(window.analyticsFilteredCache);
 
-        renderMonthlyTrendChart(window.analyticsFilteredCache);
-        renderOutcomeDoughnutChart(window.analyticsFilteredCache);
-        renderMaterialCategoryChart(window.analyticsFilteredCache);
+        window.renderMonthlyTrendChart(window.analyticsFilteredCache);
+        window.renderOutcomeDoughnutChart(window.analyticsFilteredCache);
+        window.renderMaterialCategoryChart(window.analyticsFilteredCache);
         
-        renderAdherenceChart(window.analyticsFilteredCache);
-        renderQualityChart(window.analyticsFilteredCache);
+        window.renderAdherenceChart(window.analyticsFilteredCache);
+        window.renderQualityChart(window.analyticsFilteredCache);
 
         renderInspectorMatrix(window.analyticsFilteredCache);
         renderManufacturerMatrix(window.analyticsFilteredCache);
         renderMaterialsMatrix(window.analyticsFilteredCache);
         
         window.renderFinancialMatrix(window.analyticsFilteredCache);
+        window.renderCompletedDateLog();
 
         document.getElementById("analytics-record-count-badge").innerText = `${window.analyticsFilteredCache.length} of ${window.analyticsRawData.length} Inspections`;
         if (window.lucide) lucide.createIcons();
-    }
+    };
 
-    // ==========================================
-    // 🎯 DYNAMIC FINANCIAL PIVOT MATRIX LOGIC (EXPAND/COLLAPSE)
-    // ==========================================
+    window.renderCompletedDateLog = function() {
+        const dateInput = document.getElementById("completed-log-filter-date");
+        const discomFilter = document.getElementById("an-filter-discom").value;
+        const tbody = document.getElementById("yesterday-tbody");
+        const countSpan = document.getElementById("yesterday-table-count");
+        
+        if (!dateInput || !dateInput.value || !tbody) return;
+
+        const parts = dateInput.value.split('-'); 
+        if (parts.length !== 3) return;
+        const targetFormattedStr = `${parts[2]}/${parts[1]}/${parts[0]}`; 
+
+        const matchedRows = [];
+        window.analyticsRawData.forEach(row => {
+            const isCompleted = String(row.status || '').trim() === 'Completed';
+            const compOnStr = String(row.inspectionCompletedOn || '').trim();
+            const rowDiscom = String(row.discom || '').trim().toUpperCase();
+
+            const discomMatch = (discomFilter === "ALL" || rowDiscom === discomFilter.toUpperCase());
+
+            if (isCompleted && compOnStr === targetFormattedStr && discomMatch) {
+                matchedRows.push(row);
+            }
+        });
+
+        let html = "";
+        if (matchedRows.length === 0) {
+            html = `<tr><td colspan="6" class="p-6 text-center text-slate-400 font-bold italic">No completed inspections found for date ${targetFormattedStr} under selected DISCOM.</td></tr>`;
+        } else {
+            matchedRows.forEach(r => {
+                const matDetails = `
+                    <div class="font-bold text-slate-800 whitespace-normal break-words">${r.materialInspected || '-'}</div>
+                    <div class="text-[9px] text-slate-500 whitespace-normal break-words mt-0.5">${r.materialSpec || '-'}</div>
+                    <div class="text-xs font-black text-indigo-600 mt-1">Qty: ${r.quantity || '-'}</div>
+                `;
+                const mfgDetails = `
+                    <div class="font-bold text-slate-800 whitespace-normal break-words">${r.manufacturer || '-'}</div>
+                    <div class="text-[10px] text-slate-500 whitespace-normal break-words mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline relative -top-0.5"></i> ${r.address || '-'}</div>
+                `;
+                
+                html += `<tr class="hover:bg-slate-50 transition border-b border-violet-100 last:border-0">
+                    <td class="p-3 font-mono align-top">
+                        <div class="font-bold text-indigo-700">${r.inspectionId || '-'}</div>
+                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 border-slate-200 text-slate-700 inline-block mt-1">${r.discom || '-'}</span>
+                    </td>
+                    <td class="p-3 align-top">${mfgDetails}</td>
+                    <td class="p-3 align-top">${matDetails}</td>
+                    <td class="p-3 font-bold align-top whitespace-normal break-words">${r.conductedBy || '-'}</td>
+                    <td class="p-3 align-top">
+                        <div class="font-bold text-emerald-700">${r.status || '-'}</div>
+                        <div class="text-[10px] font-bold text-slate-500 mt-0.5">${r.subStatus || '-'}</div>
+                    </td>
+                    <td class="p-3 text-center font-mono font-black bg-violet-50/50 align-top text-violet-900 whitespace-nowrap">${r.inspectionCompletedOn || '-'}</td>
+                </tr>`;
+            });
+        }
+        tbody.innerHTML = html;
+        if (countSpan) countSpan.innerText = matchedRows.length;
+        if (window.lucide) lucide.createIcons();
+    };
+
     window.renderFinancialMatrix = function(records = window.analyticsFilteredCache) {
         const tbody = document.getElementById("matrix-financial-body");
         const thead = document.getElementById("matrix-financial-head");
         const filterWrap = document.getElementById("matrix-filter-wrap");
         if (!tbody || !thead) return;
 
-        // Apply Matrix-specific DISCOM filter 
         const matrixDiscomSelect = document.getElementById("matrix-filter-discom");
         let matrixDiscom = matrixDiscomSelect ? matrixDiscomSelect.value : "ALL";
         
@@ -890,7 +1618,6 @@
 
             let pivotArr = Object.values(window.currentPivotRecords);
 
-            // 🎯 Matrix Filter changed to interact with Datalist
             const filterInput = document.getElementById("matrix-filter-primary");
             const filterList = document.getElementById("matrix-filter-primary-list");
             let uniqueV1s = [...new Set(pivotArr.map(p => p.v1))].sort();
@@ -946,11 +1673,11 @@
         }
         
         if (window.lucide) lucide.createIcons();
-    }
+    };
 
     window.applyMatrixFilter = function() {
         window.renderFinancialMatrix(); 
-    }
+    };
 
     window.toggleMatrixExpand = function(key, rowEl) {
         const nextRow = rowEl.nextElementSibling;
@@ -1030,9 +1757,8 @@
         `;
 
         rowEl.insertAdjacentHTML('afterend', subHtml);
-    }
+    };
 
-    // Modal retained only for chart slice clicks
     window.openDrilldownModal = function(title, subtitle, matchingRecords) {
         const modal = document.getElementById("analytics-drilldown-modal");
         const titleEl = document.getElementById("drilldown-modal-title");
@@ -1077,681 +1803,11 @@
 
         modal.classList.remove("hidden");
         if (window.lucide) lucide.createIcons();
-    }
+    };
 
     window.closeDrilldownModal = function() {
         document.getElementById("analytics-drilldown-modal").classList.add("hidden");
-    }
-
-    // ==========================================
-    // EXECUTIVE KPIS & SCORECARD LOGIC
-    // ==========================================
-    function computeExecutiveKpis(records) {
-        const total = records.length;
-        
-        let pass = 0, mom = 0, pending = 0, totalManDays = 0, cancelledRev = 0;
-        let billedCount = 0, unbilledCount = 0, invoiceCount = 0, billedManDays = 0;
-        let lagSchedSum = 0, lagSchedCount = 0; 
-        
-        let reportReceivedCnt = 0;
-        let reportMailedCnt = 0;
-        let nablSentCnt = 0;
-        let activeInspectors = new Set(); 
-
-        records.forEach(r => {
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-            const stat = String(r.status || "").trim().toLowerCase();
-            const bill = String(r.billingStatus || "").trim().toLowerCase();
-            const md = Number(r.manDays || 0);
-
-            if (stat.includes("cancel") || stat.includes("revis")) {
-                cancelledRev++;
-            } else {
-                if (sub.includes("pass")) { pass++; }
-                else if (sub.includes("mom")) { mom++; }
-                else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pending++;
-
-                // Track active inspectors dynamically based on filtered records
-                const inspName = String(r.conductedBy || r.tpiaInspector || "").trim();
-                const key = cleanInspectorName(inspName);
-                if (key && !["notappointed", "notupdated", "pending", "-"].includes(key)) {
-                    activeInspectors.add(key);
-                }
-            }
-
-            totalManDays += md;
-
-            if (bill === "billed") { billedCount++; billedManDays += md; }
-            else if (bill === "pending" && (sub.includes("pass") || sub.includes("mom"))) unbilledCount++;
-            
-            if (String(r.invoiceNo || "").trim() !== "") invoiceCount++;
-
-            if (String(r.reportReceived || "").trim().toLowerCase() === "yes") reportReceivedCnt++;
-            if (String(r.reportMail || "").trim().toLowerCase() === "yes") reportMailedCnt++;
-            
-            const nablVal = String(r.nablStatusDate || "").trim();
-            if (nablVal.toLowerCase().includes("sample send for nabl test")) {
-                nablSentCnt++;
-            }
-
-            let dRec = parseAnyDateToObject(r.receivedDate);
-            let dSch = parseAnyDateToObject(r.scheduleDate);
-            if (dRec && dSch) {
-                let diff = (dSch - dRec) / 86400000;
-                if (diff >= 0) { lagSchedSum += diff; lagSchedCount++; }
-            }
-        });
-
-        const validCalls = total - cancelledRev;
-
-        const passRate = validCalls > 0 ? ((pass / validCalls) * 100).toFixed(1) : 0;
-        const momRate = validCalls > 0 ? ((mom / validCalls) * 100).toFixed(1) : 0;
-        const billedRate = validCalls > 0 ? ((billedCount / validCalls) * 100).toFixed(0) : 0;
-        const unbilledRate = validCalls > 0 ? ((unbilledCount / validCalls) * 100).toFixed(0) : 0;
-        const billedMdRate = totalManDays > 0 ? ((billedManDays / totalManDays) * 100).toFixed(0) : 0;
-
-        const avgSchedLag = lagSchedCount > 0 ? (lagSchedSum / lagSchedCount).toFixed(1) : 0;
-        
-        // Use dynamically calculated active inspector count
-        const activeCount = activeInspectors.size > 0 ? activeInspectors.size : 1;
-        const avgManDaysPerInsp = (totalManDays / activeCount).toFixed(1);
-
-        document.getElementById("kpi-total-calls").innerText = total;
-        document.getElementById("kpi-valid-calls").innerText = `(${validCalls} Valid)`;
-        document.getElementById("kpi-cancelled-revised").innerText = `${cancelledRev} Cancelled / Revised`;
-
-        document.getElementById("kpi-pass-count").innerText = pass;
-        document.getElementById("kpi-pass-rate").innerText = `${passRate}% pass rate`;
-        document.getElementById("kpi-mom-count").innerText = mom;
-        document.getElementById("kpi-mom-rate").innerText = `${momRate}% MOM rate`;
-        document.getElementById("kpi-pending-count").innerText = pending;
-        
-        document.getElementById("kpi-avg-per-inspector").innerText = avgManDaysPerInsp;
-        document.getElementById("kpi-inspector-pool").innerText = `Across ${activeInspectors.size} active inspector(s)`;
-        
-        document.getElementById("kpi-total-mandays").innerText = totalManDays.toFixed(1);
-
-        document.getElementById("kpi-billed-count").innerText = billedCount;
-        document.getElementById("kpi-billed-rate").innerText = `${billedRate}% of total`;
-        document.getElementById("kpi-unbilled-count").innerText = unbilledCount;
-        document.getElementById("kpi-unbilled-rate").innerText = `${unbilledRate}% of total`;
-        document.getElementById("kpi-invoice-count").innerText = invoiceCount;
-        document.getElementById("kpi-billed-mandays").innerText = billedManDays.toFixed(1);
-        document.getElementById("kpi-billed-manday-rate").innerText = `${billedMdRate}% of utilized man-days`;
-
-        document.getElementById("kpi-report-received-cnt").innerText = reportReceivedCnt;
-        document.getElementById("kpi-report-mailed-cnt").innerText = reportMailedCnt;
-        document.getElementById("kpi-nabl-sent-cnt").innerText = nablSentCnt;
-        document.getElementById("kpi-lag-schedule").innerHTML = `${avgSchedLag}<span class="text-lg">d</span>`;
-
-        let nb = 0, sb = 0, pv = 0;
-        records.forEach(r => {
-            const d = String(r.discom || "").trim().toUpperCase();
-            if (d === "NBPDCL") nb++;
-            else if (d === "SBPDCL") sb++;
-            else if (d === "PVVNL") pv++;
-        });
-        document.getElementById("sub-nb-cnt").innerText = nb;
-        document.getElementById("sub-sb-cnt").innerText = sb;
-        document.getElementById("sub-pv-cnt").innerText = pv;
-    }
-
-    // ==========================================
-    // 🎯 NEW INTEGRATED VISUAL CHARTS
-    // ==========================================
-    function renderMonthlyTrendChart(records) {
-        const ctx = document.getElementById("chart-monthly-trend");
-        if (!ctx) return;
-
-        const monthMap = {};
-        records.forEach(r => {
-            let m = getCompletionMonth(r);
-            if (!monthMap[m]) monthMap[m] = { 
-                pass: [], mom: [], pending: [], 
-                completedMD: 0, billedMD: 0, 
-                compRecords: [], billedRecords: [] 
-            };
-            
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-            const stat = String(r.status || "").trim().toLowerCase();
-            const bill = String(r.billingStatus || "").trim().toLowerCase();
-            const md = Number(r.manDays || 0);
-            
-            if (stat.includes("cancel") || stat.includes("revis")) return;
-
-            // Bar Processing (Volumes)
-            if (sub.includes("pass")) monthMap[m].pass.push(r);
-            else if (sub.includes("mom")) monthMap[m].mom.push(r);
-            else monthMap[m].pending.push(r);
-
-            // Bar Processing (Man-Days)
-            if (sub.includes("pass") || sub.includes("mom")) {
-                monthMap[m].completedMD += md;
-                monthMap[m].compRecords.push(r);
-            }
-            if (bill === "billed") {
-                monthMap[m].billedMD += md;
-                monthMap[m].billedRecords.push(r);
-            }
-        });
-
-        const labels = Object.keys(monthMap).sort((a, b) => {
-            if (a === "Unspecified") return -1;
-            if (b === "Unspecified") return 1;
-            const dA = new Date("01 " + a);
-            const dB = new Date("01 " + b);
-            return (isNaN(dA) || isNaN(dB)) ? a.localeCompare(b) : dA - dB;
-        });
-
-        const passData = labels.map(l => monthMap[l].pass.length);
-        const momData = labels.map(l => monthMap[l].mom.length);
-        const pendingData = labels.map(l => monthMap[l].pending.length);
-        
-        const compData = labels.map(l => Number(monthMap[l].completedMD.toFixed(1)));
-        const billData = labels.map(l => Number(monthMap[l].billedMD.toFixed(1)));
-
-        if (window.analyticsChartInstances.monthlyTrend) window.analyticsChartInstances.monthlyTrend.destroy();
-
-        // COMBO CHART RENDERER (Side-by-Side Grouped Columns)
-        window.analyticsChartInstances.monthlyTrend = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels.length > 0 ? labels : ["No Data"],
-                datasets: [
-                    { 
-                        type: 'bar', 
-                        label: 'Material Pass (Calls)', 
-                        data: passData, 
-                        backgroundColor: '#10b981', 
-                        yAxisID: 'y', 
-                        stack: 'Calls', 
-                        borderRadius: 4 
-                    },
-                    { 
-                        type: 'bar', 
-                        label: 'MOM Notice (Calls)', 
-                        data: momData, 
-                        backgroundColor: '#a855f7', 
-                        yAxisID: 'y', 
-                        stack: 'Calls', 
-                        borderRadius: 4 
-                    },
-                    { 
-                        type: 'bar', 
-                        label: 'Pending / Sched (Calls)', 
-                        data: pendingData, 
-                        backgroundColor: '#fbbf24', 
-                        yAxisID: 'y', 
-                        stack: 'Calls', 
-                        borderRadius: 4 
-                    },
-                    { 
-                        type: 'bar', 
-                        label: 'Completed Man-Days', 
-                        data: compData, 
-                        backgroundColor: '#3b82f6', 
-                        yAxisID: 'y1', 
-                        stack: 'MD_Comp', 
-                        borderRadius: 4 
-                    },
-                    { 
-                        type: 'bar', 
-                        label: 'Billed Man-Days', 
-                        data: billData, 
-                        backgroundColor: '#06b6d4', 
-                        yAxisID: 'y1', 
-                        stack: 'MD_Bill', 
-                        borderRadius: 4 
-                    }
-                ]
-            },
-            options: {
-                responsive: true, 
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false }, 
-                onClick: (evt, elements) => {
-                    if (elements.length > 0) {
-                        const clickedDatasetIndex = elements[0].datasetIndex;
-                        const idx = elements[0].index;
-                        const label = labels[idx];
-                        let matched = [];
-                        let dsLabel = "";
-                        
-                        if (clickedDatasetIndex === 0) { matched = monthMap[label].pass; dsLabel = "Material Pass"; }
-                        else if (clickedDatasetIndex === 1) { matched = monthMap[label].mom; dsLabel = "MOM Notice"; }
-                        else if (clickedDatasetIndex === 2) { matched = monthMap[label].pending; dsLabel = "Pending / Scheduled"; }
-                        else if (clickedDatasetIndex === 3) { matched = monthMap[label].compRecords; dsLabel = `Completed Man-Days (${compData[idx]} Total)`; }
-                        else if (clickedDatasetIndex === 4) { matched = monthMap[label].billedRecords; dsLabel = `Billed Man-Days (${billData[idx]} Total)`; }
-
-                        openDrilldownModal(`Integrated Trend Analysis: ${label}`, dsLabel, matched);
-                    }
-                },
-                scales: { 
-                    y: { 
-                        type: 'linear', 
-                        display: true, 
-                        position: 'left', 
-                        stacked: true, 
-                        title: { display: true, text: 'Inspection Volume (Calls)', font: { size: 10, weight: 'bold' }, color: '#64748b' },
-                        grid: { color: '#f1f5f9' }
-                    }, 
-                    y1: { 
-                        type: 'linear', 
-                        display: true, 
-                        position: 'right',
-                        stacked: true,
-                        title: { display: true, text: 'Man-Days Utilized', font: { size: 10, weight: 'bold' }, color: '#64748b' },
-                        grid: { drawOnChartArea: false } 
-                    },
-                    x: { 
-                        stacked: true, 
-                        grid: { display: false } 
-                    }
-                },
-                plugins: { 
-                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: { size: 10, weight: 'bold' } } } 
-                }
-            }
-        });
-    }
-
-    function renderOutcomeDoughnutChart(records) {
-        const ctx = document.getElementById("chart-outcome-doughnut");
-        if (!ctx) return;
-
-        let passArr = [], momArr = [], pendingArr = [], othersArr = [];
-        records.forEach(r => {
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) othersArr.push(r);
-            else if (sub.includes("pass")) passArr.push(r);
-            else if (sub.includes("mom")) momArr.push(r);
-            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pendingArr.push(r);
-            else othersArr.push(r);
-        });
-
-        if (window.analyticsChartInstances.outcomeDoughnut) window.analyticsChartInstances.outcomeDoughnut.destroy();
-
-        window.analyticsChartInstances.outcomeDoughnut = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pass', 'MOM', 'Pending', 'Cancelled/Revised'],
-                datasets: [{ data: [passArr.length, momArr.length, pendingArr.length, othersArr.length], backgroundColor: ['#10b981', '#a855f7', '#f59e0b', '#cbd5e1'], borderWidth: 2, borderColor: '#ffffff' }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, cutout: '65%',
-                onClick: (evt, elements) => {
-                    if (elements.length > 0) {
-                        const idx = elements[0].index;
-                        let matched = [];
-                        let catName = '';
-                        if (idx === 0) { matched = passArr; catName = 'Material Pass'; }
-                        else if (idx === 1) { matched = momArr; catName = 'MOM Notices'; }
-                        else if (idx === 2) { matched = pendingArr; catName = 'Pending / Scheduled'; }
-                        else { matched = othersArr; catName = 'Cancelled / Revised / Others'; }
-
-                        openDrilldownModal(`Outcome Breakdown: ${catName}`, `${matched.length} inspection records found`, matched);
-                    }
-                },
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
-            }
-        });
-    }
-
-    function renderMaterialCategoryChart(records) {
-        const ctx = document.getElementById("chart-material-category");
-        if (!ctx) return;
-
-        const catMap = {};
-        records.forEach(r => {
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
-
-            const cat = String(r.materialInspected || "Unspecified").trim();
-            if (!catMap[cat]) catMap[cat] = [];
-            catMap[cat].push(r);
-        });
-
-        const sortedCats = Object.entries(catMap).sort((a, b) => b[1].length - a[1].length).slice(0, 8);
-        const labels = sortedCats.map(item => item[0]);
-        const counts = sortedCats.map(item => item[1].length);
-
-        if (window.analyticsChartInstances.materialCategory) window.analyticsChartInstances.materialCategory.destroy();
-
-        window.analyticsChartInstances.materialCategory = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels.length > 0 ? labels : ["No Data"],
-                datasets: [{ label: 'Inspections', data: counts, backgroundColor: '#3b82f6', borderRadius: 4 }]
-            },
-            options: {
-                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-                onClick: (evt, elements) => {
-                    if (elements.length > 0) {
-                        const idx = elements[0].index;
-                        const label = labels[idx];
-                        openDrilldownModal(`Material Category: ${label}`, `${catMap[label].length} inspection records`, catMap[label]);
-                    }
-                },
-                scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } },
-                plugins: { legend: { display: false } }
-            }
-        });
-    }
-
-    function renderAdherenceChart(records) {
-        const ctx = document.getElementById("chart-adherence");
-        if (!ctx) return;
-
-        let earlyArr = [], minorArr = [], majorArr = [], notStartArr = [];
-
-        records.forEach(r => {
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
-
-            const dSch = parseAnyDateToObject(r.scheduleDate);
-            const dFrm = parseAnyDateToObject(r.dateFrom);
-
-            if (dSch) {
-                if (dFrm) {
-                    let diff = (dFrm - dSch) / 86400000;
-                    if (diff <= 0) earlyArr.push(r);
-                    else if (diff <= 3) minorArr.push(r);
-                    else majorArr.push(r);
-                } else {
-                    notStartArr.push(r);
-                }
-            }
-        });
-
-        if (window.analyticsChartInstances.adherenceChart) window.analyticsChartInstances.adherenceChart.destroy();
-
-        window.analyticsChartInstances.adherenceChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['On-Time / Early', 'Minor Delay (1-3d)', 'Major Delay (>3d)', 'Not Started'],
-                datasets: [{ data: [earlyArr.length, minorArr.length, majorArr.length, notStartArr.length], backgroundColor: ['#10b981', '#facc15', '#f43f5e', '#cbd5e1'], borderWidth: 2, borderColor: '#ffffff' }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, cutout: '65%',
-                onClick: (evt, elements) => {
-                    if (elements.length > 0) {
-                        const idx = elements[0].index;
-                        let matched = [];
-                        let catName = '';
-                        if (idx === 0) { matched = earlyArr; catName = 'On-Time / Early Executions'; }
-                        else if (idx === 1) { matched = minorArr; catName = 'Minor Delay (1-3 days)'; }
-                        else if (idx === 2) { matched = majorArr; catName = 'Major Delay (>3 days)'; }
-                        else { matched = notStartArr; catName = 'Not Started Yet'; }
-
-                        openDrilldownModal(`Schedule Adherence: ${catName}`, `${matched.length} inspection records`, matched);
-                    }
-                },
-                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
-            }
-        });
-    }
-
-    function renderQualityChart(records) {
-        const ctx = document.getElementById("chart-quality");
-        if (!ctx) return;
-
-        let repRecYes = [], repRecNo = [];
-        let repMailYes = [], repMailNo = [];
-        let nablSent = [];
-
-        records.forEach(r => {
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-            if(sub.includes("pass") || sub.includes("mom")) {
-                
-                if (String(r.reportReceived || "").trim().toLowerCase() === "yes") repRecYes.push(r); 
-                else repRecNo.push(r);
-                
-                if (String(r.reportMail || "").trim().toLowerCase() === "yes") repMailYes.push(r); 
-                else repMailNo.push(r);
-
-                const nablVal = String(r.nablStatusDate || "").trim().toLowerCase();
-                if (nablVal.includes("sample send for nabl test")) {
-                    nablSent.push(r);
-                }
-            }
-        });
-
-        if (window.analyticsChartInstances.qualityChart) window.analyticsChartInstances.qualityChart.destroy();
-
-        window.analyticsChartInstances.qualityChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Report Received', 'Report Mailed', 'NABL Testing'],
-                datasets: [
-                    { label: 'Yes / Sent', data: [repRecYes.length, repMailYes.length, nablSent.length], backgroundColor: '#4f46e5', borderRadius: 4 },
-                    { label: 'No / Pending', data: [repRecNo.length, repMailNo.length, null], backgroundColor: '#e2e8f0', borderRadius: 4 }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                onClick: (evt, elements) => {
-                    if (elements.length > 0) {
-                        const datasetIdx = elements[0].datasetIndex;
-                        const idx = elements[0].index;
-                        let matched = [];
-                        let catName = '';
-
-                        if (idx === 0) {
-                            matched = datasetIdx === 0 ? repRecYes : repRecNo;
-                            catName = datasetIdx === 0 ? 'Report Received (Yes)' : 'Report Received (Pending/No)';
-                        } else if (idx === 1) {
-                            matched = datasetIdx === 0 ? repMailYes : repMailNo;
-                            catName = datasetIdx === 0 ? 'Report Mailed (Yes)' : 'Report Mailed (Pending/No)';
-                        } else {
-                            if (datasetIdx === 0) {
-                                matched = nablSent;
-                                catName = 'NABL Samples Sent ("Sample send for NABL Test")';
-                            } else {
-                                return;
-                            }
-                        }
-
-                        if(matched) {
-                            openDrilldownModal(`Compliance Tracking: ${catName}`, `${matched.length} inspection records`, matched);
-                        }
-                    }
-                },
-                scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#f1f5f9' } } },
-                plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
-            }
-        });
-    }
-
-    // ==========================================
-    // TABULATED MATRICES
-    // ==========================================
-    window.switchAnalysisTab = function(tabKey) {
-        const inspPanel = document.getElementById("matrix-inspector-panel");
-        const mfgPanel = document.getElementById("matrix-manufacturer-panel");
-        const matPanel = document.getElementById("matrix-materials-panel");
-
-        const btnInsp = document.getElementById("tab-btn-inspector");
-        const btnMfg = document.getElementById("tab-btn-manufacturer");
-        const btnMat = document.getElementById("tab-btn-materials");
-
-        const activeClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer bg-blue-600 text-white shadow-xs";
-        const inactiveClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer text-slate-600 hover:text-slate-900";
-
-        inspPanel.classList.add("hidden");
-        mfgPanel.classList.add("hidden");
-        matPanel.classList.add("hidden");
-
-        btnInsp.className = inactiveClass;
-        btnMfg.className = inactiveClass;
-        btnMat.className = inactiveClass;
-
-        if (tabKey === 'inspector') {
-            inspPanel.classList.remove("hidden");
-            btnInsp.className = activeClass;
-        } else if (tabKey === 'manufacturer') {
-            mfgPanel.classList.remove("hidden");
-            btnMfg.className = activeClass;
-        } else if (tabKey === 'materials') {
-            matPanel.classList.remove("hidden");
-            btnMat.className = activeClass;
-        }
-    }
-
-    function renderInspectorMatrix(records) {
-        const tbody = document.getElementById("matrix-inspector-body");
-        if (!tbody) return;
-
-        let validCallsTotal = 0;
-        records.forEach(r => {
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (!stat.includes("cancel") && !stat.includes("revis")) validCallsTotal++;
-        });
-
-        const inspMap = {};
-        window.analyticsInspectorsMaster.forEach(insp => {
-            const name = getInspectorName(insp);
-            const key = cleanInspectorName(name);
-            if (key) inspMap[key] = { name: name, total: 0, pass: 0, mom: 0, pending: 0, manDays: 0 };
-        });
-
-        records.forEach(r => {
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
-
-            const rawName = String(r.conductedBy || r.tpiaInspector || "").trim();
-            const key = cleanInspectorName(rawName);
-            if (!key || ["notappointed", "notupdated", "pending", "-"].includes(key)) return;
-
-            if (!inspMap[key]) inspMap[key] = { name: rawName, total: 0, pass: 0, mom: 0, pending: 0, manDays: 0 };
-
-            inspMap[key].total++;
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-
-            if (sub.includes("pass")) inspMap[key].pass++;
-            else if (sub.includes("mom")) inspMap[key].mom++;
-            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) inspMap[key].pending++;
-
-            inspMap[key].manDays += Number(r.manDays || 0);
-        });
-
-        const sorted = Object.values(inspMap).sort((a, b) => b.total - a.total);
-
-        let html = "";
-        sorted.forEach((item, idx) => {
-            const passRate = item.total > 0 ? ((item.pass / item.total) * 100).toFixed(1) + "%" : "-";
-            const share = validCallsTotal > 0 ? ((item.total / validCallsTotal) * 100).toFixed(1) + "%" : "0%";
-            const bg = idx % 2 === 0 ? "bg-white" : "bg-slate-50/50";
-
-            html += `
-                <tr class="${bg} hover:bg-blue-50/40 transition">
-                    <td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 border-r font-bold text-slate-900">${item.name}</td>
-                    <td class="p-3 border-r text-center font-mono font-black text-slate-800">${item.total}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 bg-emerald-50/30">${item.pass}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-purple-700 bg-purple-50/30">${item.mom}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${item.pending}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-slate-800">${passRate}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-slate-600">${item.manDays.toFixed(1)}</td>
-                    <td class="p-3 text-center font-mono text-slate-500">${share}</td>
-                </tr>
-            `;
-        });
-
-        tbody.innerHTML = html || `<tr><td colspan="9" class="p-8 text-center text-slate-400">No registered inspectors found.</td></tr>`;
-    }
-
-    function renderManufacturerMatrix(records) {
-        const tbody = document.getElementById("matrix-manufacturer-body");
-        if (!tbody) return;
-
-        const mfgMap = {};
-        records.forEach(r => {
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
-
-            const name = String(r.manufacturer || "Unspecified Manufacturer").trim();
-            if (!mfgMap[name]) mfgMap[name] = { total: 0, pass: 0, mom: 0, pending: 0, materials: new Set() };
-
-            mfgMap[name].total++;
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-
-            if (sub.includes("pass")) mfgMap[name].pass++;
-            else if (sub.includes("mom")) mfgMap[name].mom++;
-            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) mfgMap[name].pending++;
-
-            if (r.materialInspected) mfgMap[name].materials.add(String(r.materialInspected).trim());
-        });
-
-        const sorted = Object.entries(mfgMap).sort((a, b) => b[1].total - a[1].total);
-
-        let html = "";
-        sorted.forEach(([mfgName, stats], idx) => {
-            const passRate = stats.total > 0 ? ((stats.pass / stats.total) * 100).toFixed(1) + "%" : "-";
-            const matList = Array.from(stats.materials).slice(0, 3).join(", ") || "-";
-            const bg = idx % 2 === 0 ? "bg-white" : "bg-slate-50/50";
-
-            html += `
-                <tr class="${bg} hover:bg-purple-50/30 transition">
-                    <td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 border-r font-bold text-slate-900">${mfgName}</td>
-                    <td class="p-3 border-r text-center font-mono font-black text-slate-800">${stats.total}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 bg-emerald-50/30">${stats.pass}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-purple-700 bg-purple-50/30">${stats.mom}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${stats.pending}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-slate-800">${passRate}</td>
-                    <td class="p-3 text-[11px] text-slate-600 truncate max-w-xs" title="${matList}">${matList}</td>
-                </tr>
-            `;
-        });
-        tbody.innerHTML = html || `<tr><td colspan="8" class="p-8 text-center text-slate-400">No manufacturer records found.</td></tr>`;
-    }
-
-    function renderMaterialsMatrix(records) {
-        const tbody = document.getElementById("matrix-materials-body");
-        if (!tbody) return;
-
-        const catMap = {};
-        records.forEach(r => {
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
-
-            const cat = String(r.materialInspected || "Unspecified Category").trim();
-            if (!catMap[cat]) catMap[cat] = { total: 0, pass: 0, mom: 0, pending: 0, mfgs: new Set() };
-
-            catMap[cat].total++;
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-
-            if (sub.includes("pass")) catMap[cat].pass++;
-            else if (sub.includes("mom")) catMap[cat].mom++;
-            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) catMap[cat].pending++;
-
-            if (r.manufacturer) catMap[cat].mfgs.add(String(r.manufacturer).trim());
-        });
-
-        const sorted = Object.entries(catMap).sort((a, b) => b[1].total - a[1].total);
-
-        let html = "";
-        sorted.forEach(([catName, stats], idx) => {
-            const passRate = stats.total > 0 ? ((stats.pass / stats.total) * 100).toFixed(1) + "%" : "-";
-            const mfgList = Array.from(stats.mfgs).slice(0, 3).join(", ") || "-";
-            const bg = idx % 2 === 0 ? "bg-white" : "bg-slate-50/50";
-
-            html += `
-                <tr class="${bg} hover:bg-emerald-50/30 transition">
-                    <td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>
-                    <td class="p-3 border-r font-bold text-slate-900">${catName}</td>
-                    <td class="p-3 border-r text-center font-mono font-black text-slate-800">${stats.total}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 bg-emerald-50/30">${stats.pass}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-purple-700 bg-purple-50/30">${stats.mom}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-amber-700 bg-amber-50/30">${stats.pending}</td>
-                    <td class="p-3 border-r text-center font-mono font-bold text-slate-800">${passRate}</td>
-                    <td class="p-3 text-[11px] text-slate-600 truncate max-w-xs" title="${mfgList}">${mfgList}</td>
-                </tr>
-            `;
-        });
-        tbody.innerHTML = html || `<tr><td colspan="8" class="p-8 text-center text-slate-400">No material category records found.</td></tr>`;
-    }
+    };
 
     if (typeof Chart === 'undefined') {
         const script = document.createElement('script');
