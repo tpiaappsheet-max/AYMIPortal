@@ -269,8 +269,7 @@
                 `;
             }
 
-            // ... further down, update the ADMIN block:
-           if (currentMiUser.role === "admin") {
+            if (currentMiUser.role === "admin") {
                 html += `
                     <div class="px-4 mb-2 mt-4"><span class="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Administration</span></div>
                     
@@ -313,12 +312,21 @@
                     
                 `;
             }
+
             nav.innerHTML = html;
             if (window.lucide) lucide.createIcons();
         }
 
         async function loadMiModule(moduleName, btnElement) {
             activeModule = moduleName;
+
+            // Auto-hide sidebar on mobile screens once a module selection is made
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('mi-sidebar');
+                if (sidebar && !sidebar.classList.contains('sidebar-hidden')) {
+                    sidebar.classList.add('sidebar-hidden');
+                }
+            }
 
             // UI Button Active State Logic
             if (btnElement) {
@@ -331,395 +339,45 @@
             }
 
             const view = document.getElementById("mi-viewport");
+            const fileUrl = moduleName === "notificationPortal" ? "notificationPortal.html" : 
+                            moduleName === "summaryDashboard" ? "summaryDashboard.html" : 
+                            moduleName === "inspectorSchedule" ? "inspectorSchedule.html" : 
+                            moduleName === "materialSpecs" ? "materialSpecs.html" : 
+                            moduleName === "manufacturerDetails" ? "manufacturerDetails.html" : 
+                            moduleName === "billingOverview" ? "billingOverview.html" : 
+                            moduleName === "sealDetails" ? "sealDetails.html" : 
+                            moduleName === "analyticsPortal" ? "analyticsPortal.html" : 
+                            moduleName === "specExtractor" ? "specExtractor.html" : `${moduleName}.html`;
 
-            // 🎯 ROUTE 1: NOTIFICATION PORTAL (COMMAND CENTER)
-            if (moduleName === "notificationPortal") {
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Command Center...</div>`;
-                try {
-                    const res = await fetch(`notificationPortal.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load Command Center view.</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "summaryDashboard") {
-                if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator')) {
-                    view.innerHTML = `
-                        <div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm">
-                            <i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i>
-                            <h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3>
-                            <p class="text-xs text-slate-500">The Executive Summary is accessible exclusively to System Administrators.</p>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Summary Dashboard...</div>`;
-                try {
-                    const res = await fetch(`summaryDashboard.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: summaryDashboard.html</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "inspectorsRecords") {
-                if (!currentMiUser || currentMiUser.role !== 'admin') {
-                    view.innerHTML = `
-                        <div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm">
-                            <i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i>
-                            <h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3>
-                            <p class="text-xs text-slate-500">This module is accessible exclusively to System Administrators.</p>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-
-                view.innerHTML = `
-                    <div class="max-w-[98%] mx-auto space-y-3 animate-fade-in">
-                        <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm space-y-3">
-                            <div class="flex flex-col sm:flex-row items-center justify-between border-b pb-3 gap-3">
-                                <h3 class="font-black text-sm uppercase text-slate-800 flex items-center gap-2">
-                                    <i data-lucide="users" class="text-blue-600 w-4 h-4"></i> Inspecting Engineers Directory (Admin Only)
-                                </h3>
-                                <div class="flex items-center gap-2 w-full sm:w-auto">
-                                    <span id="inspector-count-badge" class="text-[10px] font-mono bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full font-bold">Loading...</span>
-                                </div>
-                            </div>
-                            <div id="inspectors-table-wrap" class="overflow-auto h-[74vh] border border-slate-200 rounded-2xl shadow-inner relative custom-scrollbar">
-                                <p class="text-xs text-slate-400 py-12 text-center animate-pulse">Synchronizing inspector records...</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                if (window.lucide) lucide.createIcons();
-
-                try {
-                    const res = await fetch(`${API_URL}?action=getInspectors`);
-                    const textData = await res.text();
-                    const data = JSON.parse(textData);
-
-                    setTimeout(() => {
-                        const wrap = document.getElementById("inspectors-table-wrap");
-                        const badge = document.getElementById("inspector-count-badge");
-                        if (!wrap) return;
-
-                        if (data.status) {
-                            const inspectors = data.data;
-                            if (badge) badge.innerText = `${inspectors.length} Records Found`;
-
-                            if (inspectors.length === 0) {
-                                wrap.innerHTML = `<p class="text-xs text-slate-400 py-8 text-center">No inspector records found in sheet.</p>`;
-                                return;
-                            }
-
-                            const keys = Object.keys(inspectors[0]).filter(k => k !== 'srNo');
-
-                            let html = `<table class="w-full text-left text-xs border-collapse table-auto"><thead class="sticky top-0 bg-slate-900 text-white uppercase text-[10px] z-20 font-mono"><tr>`;
-                            html += `<th class="p-3 border-r border-slate-700 text-center w-12">Sr</th>`;
-                            keys.forEach(k => {
-                                html += `<th class="p-3 border-r border-slate-700 truncate">${k}</th>`;
-                            });
-                            html += `</tr></thead><tbody class="divide-y bg-white font-medium align-top">`;
-
-                            inspectors.forEach((row, idx) => {
-                                const bg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
-                                html += `<tr class="${bg} hover:bg-blue-50/40 transition">`;
-                                html += `<td class="p-3 border-r text-center font-mono text-slate-400">${idx + 1}</td>`;
-                                keys.forEach(key => {
-                                    const val = row[key] !== undefined && row[key] !== "" ? row[key] : "-";
-                                    html += `<td class="p-3 border-r text-slate-700 whitespace-pre-wrap break-words">${val}</td>`;
-                                });
-                                html += `</tr>`;
-                            });
-                            html += `</tbody></table>`;
-                            wrap.innerHTML = html;
-                        } else {
-                            wrap.innerHTML = `<p class="text-xs text-rose-600 py-8 text-center font-bold">Error: ${data.message}</p>`;
-                        }
-                    }, 50);
-                } catch (e) {
-                    const wrap = document.getElementById("inspectors-table-wrap");
-                    if (wrap) {
-                        wrap.innerHTML = `<p class="text-xs text-rose-600 py-8 text-center font-bold">Failed to synchronize inspectors data.</p>`;
-                    }
-                }
-                return;
-            }
-
-            if (moduleName === "materialSpecs") {
-                if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'manager')) {
-                    view.innerHTML = `
-                        <div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm">
-                            <i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i>
-                            <h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3>
-                            <p class="text-xs text-slate-500">This module is accessible exclusively to Administrators and Managers.</p>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Material Specifications view...</div>`;
-                try {
-                    const res = await fetch(`materialSpecs.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-
-                    setTimeout(() => {
-                        if (typeof initMaterialSpecsModule === 'function') {
-                            initMaterialSpecsModule();
-                        }
-                    }, 50);
-
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: materialSpecs.html</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "inspectorSchedule") {
-                if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator')) {
-                    view.innerHTML = `
-                        <div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm">
-                            <i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i>
-                            <h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3>
-                            <p class="text-xs text-slate-500">This module is accessible exclusively to System Administrators and Coordinators.</p>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Inspector Schedule view...</div>`;
-                try {
-                    const res = await fetch(`inspectorSchedule.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: inspectorSchedule.html</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "manufacturerDetails") {
-                if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'manager')) {
-                    view.innerHTML = `
-                        <div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm">
-                            <i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i>
-                            <h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3>
-                            <p class="text-xs text-slate-500">This module is accessible exclusively to Administrators and Managers.</p>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Manufacturer Details view...</div>`;
-                try {
-                    const res = await fetch(`manufacturerDetails.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-
-                    setTimeout(() => {
-                        if (typeof initManufacturerModule === 'function') {
-                            initManufacturerModule();
-                        }
-                    }, 50);
-
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: manufacturerDetails.html</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "billingOverview") {
-                if (!currentMiUser || currentMiUser.role !== 'admin') {
-                    view.innerHTML = `
-                        <div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm">
-                            <i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i>
-                            <h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3>
-                            <p class="text-xs text-slate-500">This module is accessible exclusively to System Administrators.</p>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Billing Overview view...</div>`;
-                try {
-                    const res = await fetch(`billingOverview.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: billingOverview.html</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "sealDetails") {
-                // 🎯 Fixed: Checked against lowercase 'manager' to match login assignment
-                if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator' && currentMiUser.role !== 'manager')) {
-                    view.innerHTML = `
-                        <div class="p-12 text-center space-y-3 bg-white rounded-3xl border shadow-sm">
-                            <i data-lucide="shield-alert" class="w-12 h-12 text-rose-500 mx-auto"></i>
-                            <h3 class="font-black text-slate-800 uppercase text-sm">Access Restricted</h3>
-                            <p class="text-xs text-slate-500">This module is accessible exclusively to Administrators, Managers, and Coordinators.</p>
-                        </div>
-                    `;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Seal Inventory view...</div>`;
-                try {
-                    const res = await fetch(`sealDetails.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: sealDetails.html</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "analyticsPortal") {
-                if (!currentMiUser || (currentMiUser.role !== 'admin')) {
-                    view.innerHTML = `<div class="p-12 text-center text-rose-500 font-bold">Access Restricted to Admin & Coordinators.</div>`;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Analytics Portal...</div>`;
-                try {
-                    const res = await fetch(`analyticsPortal.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load analyticsPortal.html</div>`;
-                }
-                return;
-            }
-
-            if (moduleName === "specExtractor") {
-                if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'manager')) {
-                    view.innerHTML = `<div class="p-12 text-center text-rose-500 font-bold">Access Restricted to Admin & Managers.</div>`;
-                    if (window.lucide) lucide.createIcons();
-                    return;
-                }
-                view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading Spec Extractor...</div>`;
-                try {
-                    const res = await fetch(`specExtractor.html`);
-                    const html = await res.text();
-                    view.innerHTML = html;
-                    const scripts = view.getElementsByTagName("script");
-                    for (let s of scripts) {
-                        const sc = document.createElement("script");
-                        sc.text = s.textContent;
-                        document.head.appendChild(sc);
-                        document.head.removeChild(sc);
-                    }
-                    if (window.lucide) lucide.createIcons();
-                } catch (err) {
-                    view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load specExtractor.html</div>`;
-                }
-                return;
-            }
-
-            // Fallback for file-based modules like masterRecords and addInspection
-            const fileUrl = `${moduleName}.html`;
-            view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading data view...</div>`;
+            view.innerHTML = `<div class="p-8 text-center text-slate-500 font-bold animate-pulse text-xs">Loading module view...</div>`;
+            
             try {
                 const res = await fetch(fileUrl);
                 const html = await res.text();
                 view.innerHTML = html;
+
+                // 🎯 Safely execute scripts without throwing global redeclaration errors
                 const scripts = view.getElementsByTagName("script");
                 for (let s of scripts) {
-                    const sc = document.createElement("script");
-                    sc.text = s.textContent;
-                    document.head.appendChild(sc);
-                    document.head.removeChild(sc);
+                    try {
+                        const safeCode = `(function() { try { ${s.textContent} } catch(err) { console.warn("Script execution notice:", err); } })();`;
+                        const sc = document.createElement("script");
+                        sc.text = safeCode;
+                        document.head.appendChild(sc);
+                        document.head.removeChild(sc);
+                    } catch(scriptErr) {
+                        console.error("Error executing module script:", scriptErr);
+                    }
                 }
+
                 if (window.lucide) lucide.createIcons();
             } catch (err) {
                 view.innerHTML = `<div class="p-6 text-red-600 text-xs font-bold">Failed to load module view: ${fileUrl}</div>`;
             }
         }
-    </script>
+        
+   
+   </script>
 </body>
 
 </html>
