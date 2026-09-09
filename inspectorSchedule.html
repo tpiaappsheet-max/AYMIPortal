@@ -11,23 +11,23 @@
             <p class="text-xs text-slate-500 mt-0.5">Comprehensive real-time status of all inspecting personnel.</p>
         </div>
         <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap">
-            <button id="export-schedule-pdf-btn" onclick="downloadSchedulePDF()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-slate-800 hover:bg-slate-900 text-white shadow-md flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait">
+            <button id="export-schedule-pdf-btn" onclick="window.downloadSchedulePDF()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-slate-800 hover:bg-slate-900 text-white shadow-md flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait">
                 <i data-lucide="download-cloud" class="w-4 h-4"></i> Export PDF
             </button>
             <div>
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Select Schedule Date</label>
-                <input type="date" id="schedule-filter-date" onchange="renderInspectorSchedule()" class="p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white cursor-pointer w-full sm:w-auto">
+                <input type="date" id="schedule-filter-date" onchange="window.renderInspectorSchedule()" class="p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white cursor-pointer w-full sm:w-auto">
             </div>
         </div>
     </div>
 
     <!-- Unified Main Content Grid -->
-    <div class="bg-white p-6 rounded-3xl border shadow-sm space-y-4 relative">
-        <div class="flex items-center justify-between border-b pb-3">
+    <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm space-y-4 relative">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-3 gap-3">
             <h4 class="font-black text-sm uppercase text-slate-800 tracking-wider flex items-center gap-2">
                 <i data-lucide="users" class="w-5 h-5 text-indigo-600"></i> Personnel Directory (<span id="total-count">0</span>)
             </h4>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-wrap">
                 <span class="text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg">On Duty: <span id="on-duty-count" class="text-emerald-900">0</span></span>
                 <span class="text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-lg">Idle: <span id="idle-count" class="text-amber-900">0</span></span>
             </div>
@@ -37,32 +37,36 @@
         <div id="pdf-schedule-wrapper" class="p-1 max-h-[65vh] overflow-y-auto custom-scrollbar w-full bg-white">
             <h2 id="pdf-report-title" class="hidden font-black text-lg mb-4 uppercase tracking-wider text-center text-slate-800"></h2>
             
-            <!-- 🎯 Daily Operations Summary Banner -->
-            <div id="pdf-summary-banner" class="mb-5 bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm hidden">
-                <h4 class="font-black text-[10px] uppercase text-slate-400 mb-3 text-center tracking-widest border-b border-slate-200 pb-2">Daily Operations Summary</h4>
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center divide-x divide-slate-200">
-                    <div>
-                        <p class="text-[9px] font-bold uppercase text-slate-400">Total Duty</p>
+            <!-- 🎯 Daily Operations Summary Banner (MOBILE WRAP FIXED) -->
+            <div id="pdf-summary-banner" class="mb-5 bg-slate-50 md:bg-transparent border border-slate-200 md:border-none rounded-2xl md:rounded-none p-4 md:p-0 shadow-sm md:shadow-none hidden">
+                <h4 class="font-black text-[10px] uppercase text-slate-400 mb-3 text-center tracking-widest border-b border-slate-200 pb-2 md:hidden">Daily Operations Summary</h4>
+                
+                <div class="flex flex-wrap sm:grid sm:grid-cols-5 gap-2 sm:gap-4 text-center sm:divide-x divide-slate-200 justify-center">
+                    <div class="w-[48%] sm:w-auto bg-white sm:bg-transparent p-2 sm:p-0 rounded-xl sm:rounded-none border border-slate-200 sm:border-none shadow-sm sm:shadow-none">
+                        <p class="text-[9px] font-bold uppercase text-slate-400 whitespace-nowrap">Total Duty</p>
                         <p id="sum-duty" class="text-lg font-black text-emerald-600">0</p>
                     </div>
-                    <div>
-                        <p class="text-[9px] font-bold uppercase text-slate-400">Total Idle</p>
+                    <div class="w-[48%] sm:w-auto bg-white sm:bg-transparent p-2 sm:p-0 rounded-xl sm:rounded-none border border-slate-200 sm:border-none shadow-sm sm:shadow-none">
+                        <p class="text-[9px] font-bold uppercase text-slate-400 whitespace-nowrap">Total Idle</p>
                         <p id="sum-idle" class="text-lg font-black text-amber-500">0</p>
                     </div>
-                    <div>
-                        <p class="text-[9px] font-black uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded inline-block mb-1">NBPDCL</p>
-                        <p class="text-[11px] font-bold text-slate-600"><span id="sum-nb-insp" class="text-slate-900 font-black text-sm">0</span> Inspectors</p>
-                        <p class="text-[10px] font-bold text-slate-500"><span id="sum-nb-call" class="text-slate-700 font-black">0</span> Calls Attending</p>
+                    <div class="w-[100%] sm:w-auto bg-white sm:bg-transparent p-2 sm:p-0 rounded-xl sm:rounded-none border border-slate-200 sm:border-none shadow-sm sm:shadow-none flex flex-col justify-center">
+                        <div>
+                            <p class="text-[9px] font-black uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded inline-block mb-1">NBPDCL</p>
+                            <p class="text-[11px] font-bold text-slate-600 whitespace-nowrap"><span id="sum-nb-insp" class="text-slate-900 font-black text-sm">0</span> Insps <span class="mx-1 font-normal text-slate-300">|</span> <span id="sum-nb-call" class="text-slate-700 font-black">0</span> Calls</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[9px] font-black uppercase text-purple-700 bg-purple-100 px-2 py-0.5 rounded inline-block mb-1">SBPDCL</p>
-                        <p class="text-[11px] font-bold text-slate-600"><span id="sum-sb-insp" class="text-slate-900 font-black text-sm">0</span> Inspectors</p>
-                        <p class="text-[10px] font-bold text-slate-500"><span id="sum-sb-call" class="text-slate-700 font-black">0</span> Calls Attending</p>
+                    <div class="w-[48%] sm:w-auto bg-white sm:bg-transparent p-2 sm:p-0 rounded-xl sm:rounded-none border border-slate-200 sm:border-none shadow-sm sm:shadow-none flex flex-col justify-center">
+                        <div>
+                            <p class="text-[9px] font-black uppercase text-purple-700 bg-purple-100 px-2 py-0.5 rounded inline-block mb-1">SBPDCL</p>
+                            <p class="text-[11px] font-bold text-slate-600 whitespace-nowrap"><span id="sum-sb-insp" class="text-slate-900 font-black text-sm">0</span> Insps <span class="mx-1 font-normal text-slate-300 hidden sm:inline">|</span> <br class="sm:hidden" /> <span id="sum-sb-call" class="text-slate-700 font-black">0</span> Calls</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-[9px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded inline-block mb-1">PVVNL</p>
-                        <p class="text-[11px] font-bold text-slate-600"><span id="sum-pv-insp" class="text-slate-900 font-black text-sm">0</span> Inspectors</p>
-                        <p class="text-[10px] font-bold text-slate-500"><span id="sum-pv-call" class="text-slate-700 font-black">0</span> Calls Attending</p>
+                    <div class="w-[48%] sm:w-auto bg-white sm:bg-transparent p-2 sm:p-0 rounded-xl sm:rounded-none border border-slate-200 sm:border-none shadow-sm sm:shadow-none flex flex-col justify-center">
+                        <div>
+                            <p class="text-[9px] font-black uppercase text-amber-700 bg-amber-100 px-2 py-0.5 rounded inline-block mb-1">PVVNL</p>
+                            <p class="text-[11px] font-bold text-slate-600 whitespace-nowrap"><span id="sum-pv-insp" class="text-slate-900 font-black text-sm">0</span> Insps <span class="mx-1 font-normal text-slate-300 hidden sm:inline">|</span> <br class="sm:hidden" /> <span id="sum-pv-call" class="text-slate-700 font-black">0</span> Calls</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,7 +88,7 @@
             <h3 class="font-black text-sm uppercase text-slate-900 flex items-center gap-2">
                 <i data-lucide="file-text" class="text-blue-600 w-4 h-4"></i> Comprehensive Inspection Assignment Details
             </h3>
-            <button onclick="closeInspectorModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer">
+            <button onclick="window.closeInspectorModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
@@ -124,7 +128,7 @@
     window.scheduleInspectionsCache = {};
     window.activeModalFeeContext = { totalMaterialValue: 0, totalQuantitySum: 0, criteria: 'Value Percent' };
 
-    function convertNumberToWords(num) {
+    window.convertNumberToWords = function(num) {
         if (!num || num === 0) return "Zero Rupees Only";
         const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
         const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
@@ -142,9 +146,9 @@
         let hundred = Math.floor(n / 100); n %= 100; if (hundred > 0) str += getWords(hundred) + 'Hundred ';
         if (n > 0) { if (str !== '') str += 'and '; str += getWords(n); }
         return 'Rupees ' + str.trim() + ' Only';
-    }
+    };
 
-    function parseDateToKey(dateStr) {
+    window.parseDateToKey = function(dateStr) {
         if (!dateStr || dateStr.trim() === "" || dateStr === "-") return null;
         let clean = String(dateStr).trim().split('T')[0];
         if (clean.includes('/')) {
@@ -165,16 +169,16 @@
             }
         }
         return null;
-    }
+    };
 
-    function isInspectionActiveOnDate(row, targetKey) {
-        const schedKey = parseDateToKey(row.scheduleDate);
+    window.isInspectionActiveOnDate = function(row, targetKey) {
+        const schedKey = window.parseDateToKey(row.scheduleDate);
         if (schedKey && schedKey === targetKey) return true;
         if (schedKey && schedKey < targetKey) {
             const stat = String(row.status || "").trim().toLowerCase();
             if (stat.includes("sched")) return true;
         }
-        const fromKey = parseDateToKey(row.dateFrom);
+        const fromKey = window.parseDateToKey(row.dateFrom);
         if (fromKey && fromKey === targetKey) return true;
         if (fromKey && row.dateTo) {
             const fromParts = fromKey.split('-');
@@ -187,7 +191,7 @@
 
             while ((match = regex.exec(row.dateTo)) !== null) {
                 const kw = match[1].toLowerCase();
-                const targetK = parseDateToKey(match[2]);
+                const targetK = window.parseDateToKey(match[2]);
                 if (targetK) {
                     const tp = targetK.split('-');
                     const tDate = new Date(parseInt(tp[0], 10), parseInt(tp[1], 10) - 1, parseInt(tp[2], 10));
@@ -210,14 +214,14 @@
             if (activeDates.has(targetKey)) return true;
         }
         return false;
-    }
+    };
 
-    function cleanInspectorName(name) {
+    window.cleanInspectorName = function(name) {
         if (!name) return "";
         return String(name).toLowerCase().replace(/^(er\.|er\s+|mr\.|mr\s+|engr\.|dr\.)\s*/i, "").replace(/[^a-z0-9]/g, '');
-    }
+    };
 
-    function getInspectorName(insp) {
+    window.getInspectorName = function(insp) {
         if (typeof insp === 'string') return insp;
         const keys = Object.keys(insp);
         const nameKey = keys.find(k => {
@@ -225,9 +229,9 @@
             return lk.includes('name') || lk.includes('inspector') || lk.includes('engineer');
         });
         return (nameKey && insp[nameKey]) ? String(insp[nameKey]).trim() : (Object.values(insp)[1] || Object.values(insp)[0] || "Unknown");
-    }
+    };
 
-    function getInspectorPhone(insp) {
+    window.getInspectorPhone = function(insp) {
         if (typeof insp === 'string') return "N/A";
         const keys = Object.keys(insp);
         const phoneKey = keys.find(k => {
@@ -235,9 +239,8 @@
             return lk.includes('phone') || lk.includes('mobile') || lk.includes('contact');
         });
         return (phoneKey && insp[phoneKey]) ? String(insp[phoneKey]).trim() : "N/A";
-    }
+    };
 
-    // 🎯 Universal State Updater for Comments, Overrides, and Active Duty fields
     window.updateInspectorState = function(inspectorKey, field, value, rerender = false) {
         const dateKey = document.getElementById("schedule-filter-date").value;
         if (!dateKey) return;
@@ -256,11 +259,11 @@
         localStorage.setItem('schedule_comments_cache', JSON.stringify(cache));
 
         if (rerender) {
-            renderInspectorSchedule();
+            window.renderInspectorSchedule();
         }
     };
 
-    async function initInspectorScheduleModule() {
+    window.initInspectorScheduleModule = async function() {
         if (!currentMiUser || (currentMiUser.role !== 'admin' && currentMiUser.role !== 'Coordinator')) {
             const viewport = document.getElementById("mi-viewport");
             if (viewport) {
@@ -332,11 +335,11 @@
                 .map((name, i) => ({ srNo: i + 1, name: name, phone: "N/A" }));
         }
 
-        renderInspectorSchedule();
+        window.renderInspectorSchedule();
         if (window.lucide) lucide.createIcons();
-    }
+    };
     
-    function renderInspectorSchedule() {
+    window.renderInspectorSchedule = function() {
         const dateInputElem = document.getElementById("schedule-filter-date");
         if (!dateInputElem || !dateInputElem.value) return;
 
@@ -351,16 +354,16 @@
         let inspectors = window.miInspectorsList || [];
         const inspections = window.miMasterData || [];
 
-        inspectors.sort((a, b) => getInspectorName(a).localeCompare(getInspectorName(b)));
+        inspectors.sort((a, b) => window.getInspectorName(a).localeCompare(window.getInspectorName(b)));
 
-        const matchingInspections = inspections.filter(row => isInspectionActiveOnDate(row, targetKey));
+        const matchingInspections = inspections.filter(row => window.isInspectionActiveOnDate(row, targetKey));
 
         const scheduledMap = {};
         let discomStats = { NBPDCL: { calls: 0, inspectors: new Set() }, SBPDCL: { calls: 0, inspectors: new Set() }, PVVNL:  { calls: 0, inspectors: new Set() } };
 
         matchingInspections.forEach(insp => {
             const rawName = String(insp.conductedBy || insp.tpiaInspector || "").trim();
-            const cleanKey = cleanInspectorName(rawName);
+            const cleanKey = window.cleanInspectorName(rawName);
             const discom = String(insp.discom || "").trim().toUpperCase();
             
             if (discomStats[discom]) {
@@ -380,10 +383,10 @@
         let idleCount = 0;
 
         inspectors.forEach(insp => {
-            const fullName = getInspectorName(insp);
-            const matchKey = cleanInspectorName(fullName);
+            const fullName = window.getInspectorName(insp);
+            const matchKey = window.cleanInspectorName(fullName);
             const assignedInspections = scheduledMap[matchKey] || [];
-            const phone = getInspectorPhone(insp);
+            const phone = window.getInspectorPhone(insp);
 
             let savedState = commentsCache[matchKey] || { overrideStatus: '', discom: '', inspectionId: '', comment: '' };
             if (typeof savedState === 'string') savedState = { overrideStatus: '', discom: '', inspectionId: '', comment: savedState };
@@ -428,9 +431,7 @@
 
             let activeDutyDisplay = isActiveDuty ? "flex" : "hidden";
 
-            // 🎯 NEW DEDICATED FULL-WIDTH ROW FOR CONTROLS AND PDF BADGES
             let controlsHtml = `
-                <!-- Interactive Controls Row (Hidden in PDF Export) -->
                 <div class="flex items-center gap-3 flex-wrap w-full pt-2.5 mt-1 border-t border-slate-100 pdf-control-row">
                     <select onchange="window.updateInspectorState('${matchKey}', 'overrideStatus', this.value, true)" class="p-1.5 text-[10px] font-bold border border-slate-300 rounded outline-none bg-slate-50 text-slate-700 cursor-pointer shadow-2xs w-36">
                         <option value="" ${!savedState.overrideStatus ? 'selected' : ''}>- No Status Override -</option>
@@ -452,7 +453,6 @@
                     <input type="text" oninput="window.updateInspectorState('${matchKey}', 'comment', this.value, false)" value="${safeComment}" placeholder="Type any temporary remark here..." class="flex-1 min-w-[180px] p-1.5 text-[10px] border border-slate-300 rounded outline-none focus:border-blue-500 bg-slate-50 text-slate-900 font-bold placeholder-slate-400 shadow-2xs transition">
                 </div>
                 
-                <!-- Read-Only Tag Display Row (Hidden in UI, Shown in PDF Export) -->
                 <div class="hidden pdf-read-only-row w-full flex-col sm:flex-row flex-wrap items-start sm:items-center gap-2 pt-2.5 mt-1 border-t border-slate-100">
                     ${isLeave ? `<span class="text-[10px] font-bold bg-rose-50 text-rose-800 px-2 py-1 rounded border border-rose-200">Status Override: On Leave</span>` : ''}
                     ${isNoWork ? `<span class="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-1 rounded border border-slate-300">Status Override: No Work</span>` : ''}
@@ -463,13 +463,11 @@
 
             unifiedHtml += `
                 <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col gap-1 break-inside-avoid">
-                    <!-- Header Row: Name & Contact only -->
                     <div class="flex items-center gap-3 flex-wrap">
                         <span class="font-black text-sm text-slate-900">${fullName}</span>
                         <span class="text-[11px] text-slate-500 font-mono flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> ${phone}</span>
                         ${statusBadge}
                     </div>
-                    
                     ${controlsHtml}
             `;
 
@@ -484,7 +482,7 @@
                     if (item.discom === 'SBPDCL') discomBadgeColor = 'bg-purple-50 text-purple-700 border-purple-200';
                     else if (item.discom === 'PVVNL') discomBadgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
 
-                    const clickAttr = canExpand ? `onclick="showInspectionDetailById('${safeId}')"` : '';
+                    const clickAttr = canExpand ? `onclick="window.showInspectionDetailById('${safeId}')"` : '';
                     const linkClass = canExpand ? 'text-blue-600 hover:text-blue-800 underline cursor-pointer' : 'text-slate-700';
                     const schedDateStr = item.scheduleDate ? String(item.scheduleDate).replace('T00:00:00.000Z', '').trim() : 'N/A';
 
@@ -537,9 +535,9 @@
 
         unifiedDiv.innerHTML = unifiedHtml || `<p class="text-xs text-slate-400 py-6 text-center">No inspector records available.</p>`;
         if (window.lucide) lucide.createIcons();
-    }
+    };
         
-    function showInspectionDetailById(inspectionId) {
+    window.showInspectionDetailById = function(inspectionId) {
         const item = window.scheduleInspectionsCache[inspectionId];
         if (!item) return;
 
@@ -679,11 +677,11 @@
                     </div>
                     <div>
                         <span class="block text-[9px] font-black uppercase text-slate-400 mb-1">Value Factor</span>
-                        <input type="number" step="0.1" id="dynamic-fee-value-input" value="${matchedValueFactor}" oninput="recalculateDynamicFee()" class="w-full p-1.5 border border-slate-300 rounded-lg text-xs font-bold font-mono text-center bg-slate-50 focus:bg-white outline-none">
+                        <input type="number" step="0.1" id="dynamic-fee-value-input" value="${matchedValueFactor}" oninput="window.recalculateDynamicFee()" class="w-full p-1.5 border border-slate-300 rounded-lg text-xs font-bold font-mono text-center bg-slate-50 focus:bg-white outline-none">
                     </div>
                     <div>
                         <span class="block text-[9px] font-black uppercase text-slate-400 mb-1">Multiplier (%)</span>
-                        <input type="number" step="1" min="0" max="100" id="dynamic-fee-multiplier-input" value="${initialMultiplier}" oninput="recalculateDynamicFee()" class="w-full p-1.5 border border-amber-300 rounded-lg text-xs font-bold font-mono text-center bg-amber-50/40 focus:bg-white outline-none text-amber-900" title="Adjust percentage share">
+                        <input type="number" step="1" min="0" max="100" id="dynamic-fee-multiplier-input" value="${initialMultiplier}" oninput="window.recalculateDynamicFee()" class="w-full p-1.5 border border-amber-300 rounded-lg text-xs font-bold font-mono text-center bg-amber-50/40 focus:bg-white outline-none text-amber-900" title="Adjust percentage share">
                     </div>
                     <div>
                         <span class="block text-[9px] font-black uppercase text-slate-400">Total Quantity</span>
@@ -714,14 +712,14 @@
             </div>
         `;
 
-        recalculateDynamicFee();
+        window.recalculateDynamicFee();
 
         const modalElem = document.getElementById("inspector-detail-modal");
         if (modalElem) modalElem.classList.remove("hidden");
         if (window.lucide) lucide.createIcons();
-    }
+    };
 
-    function recalculateDynamicFee() {
+    window.recalculateDynamicFee = function() {
         const valueInput = document.getElementById("dynamic-fee-value-input");
         const multiplierInput = document.getElementById("dynamic-fee-multiplier-input");
         const feeDisplay = document.getElementById("dynamic-calculated-fee-display");
@@ -743,15 +741,15 @@
         calculatedFee = calculatedFee * (multiplierPct / 100);
 
         feeDisplay.innerText = calculatedFee > 0 ? 'Rs ' + calculatedFee.toLocaleString('en-IN', { minimumFractionDigits: 2 }) : 'Rs 0.00';
-        feeWords.innerText = convertNumberToWords(calculatedFee);
-    }
+        feeWords.innerText = window.convertNumberToWords(calculatedFee);
+    };
 
-    function closeInspectorModal() {
+    window.closeInspectorModal = function() {
         const modalElem = document.getElementById("inspector-detail-modal");
         if (modalElem) modalElem.classList.add("hidden");
-    }
+    };
 
-    function downloadSchedulePDF() {
+    window.downloadSchedulePDF = function() {
         const dateInputElem = document.getElementById("schedule-filter-date");
         if (!dateInputElem || !dateInputElem.value) {
             alert("Please select a date first.");
@@ -767,8 +765,7 @@
         btn.disabled = true;
         if (window.lucide) lucide.createIcons();
 
-        // 🎯 FIX: Force a quick re-render to bake the latest localStorage text into the DOM *before* taking the snapshot
-        renderInspectorSchedule();
+        window.renderInspectorSchedule();
 
         const executeExport = () => {
             const wrapper = document.getElementById('pdf-schedule-wrapper');
@@ -852,9 +849,9 @@
         } else {
             executeExport();
         }
-    }
+    };
 
     setTimeout(() => {
-        initInspectorScheduleModule();
+        window.initInspectorScheduleModule();
     }, 50);
 </script>
