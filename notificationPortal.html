@@ -67,7 +67,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         
         <!-- ROW 1, PANEL 1: TODAY'S SCHEDULE -->
-        <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+        <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-blue-50 p-4 border-b border-blue-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-blue-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="calendar-clock" class="w-5 h-5"></i> Today's Schedule 
@@ -75,9 +75,9 @@
                 </h4>
                 <p class="text-[10px] text-blue-600 font-bold mt-1">Inspections officially scheduled to execute today.</p>
             </div>
-            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
                             <th class="p-3 w-28">Inspection ID</th>
                             <th class="p-3 w-16 text-center">Discom</th>
@@ -85,7 +85,7 @@
                             <th class="p-3">Manufacturer</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-today-sched-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                    <tbody id="cc-today-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
@@ -93,7 +93,7 @@
         </div>
 
         <!-- ROW 1, PANEL 2: CALLS RECEIVED TODAY -->
-        <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+        <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-emerald-50 p-4 border-b border-emerald-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-emerald-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="inbox" class="w-5 h-5"></i> New Calls Received Today 
@@ -101,9 +101,9 @@
                 </h4>
                 <p class="text-[10px] text-emerald-600 font-bold mt-1">Fresh inspection assignments logged into the system today.</p>
             </div>
-            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
                             <th class="p-3 w-28">Inspection ID</th>
                             <th class="p-3 w-16 text-center">Discom</th>
@@ -111,7 +111,7 @@
                             <th class="p-3 w-32">Letter No</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-today-recv-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                    <tbody id="cc-today-recv-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
@@ -119,7 +119,7 @@
         </div>
 
         <!-- ROW 2, PANEL 1: URGENT DEADLINES -->
-        <div class="bg-white rounded-3xl border border-rose-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+        <div class="bg-white rounded-3xl border border-rose-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-rose-50 p-4 border-b border-rose-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-rose-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="alarm-clock" class="w-5 h-5"></i> Approaching Deadlines 
@@ -127,9 +127,9 @@
                 </h4>
                 <p class="text-[10px] text-rose-600 font-bold mt-1">Unfinished valid inspections mapped against target completion dates (<= 3 Days).</p>
             </div>
-            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
                             <th class="p-3 w-28">Inspection ID</th>
                             <th class="p-3 w-16 text-center">Discom</th>
@@ -138,7 +138,7 @@
                             <th class="p-3 text-right w-24">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-deadlines-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                    <tbody id="cc-deadlines-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
@@ -146,7 +146,7 @@
         </div>
 
         <!-- ROW 2, PANEL 2: OVERDUE FOR SCHEDULING -->
-        <div class="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+        <div class="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-orange-50 p-4 border-b border-orange-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-orange-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="clock-alert" class="w-5 h-5"></i> Overdue for Scheduling
@@ -154,9 +154,9 @@
                 </h4>
                 <p class="text-[10px] text-orange-600 font-bold mt-1">Calls received > 3 days ago but still pending assignment.</p>
             </div>
-            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
                             <th class="p-3 w-28">Inspection ID</th>
                             <th class="p-3 w-16 text-center">Discom</th>
@@ -165,7 +165,7 @@
                             <th class="p-3 text-center w-20">Days Wait</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-overdue-sched-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                    <tbody id="cc-overdue-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
@@ -173,7 +173,7 @@
         </div>
 
         <!-- ROW 3, PANEL 1: NABL REPORTS PENDING MAILING -->
-        <div class="bg-white rounded-3xl border border-indigo-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+        <div class="bg-white rounded-3xl border border-indigo-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-indigo-50 p-4 border-b border-indigo-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-indigo-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="mail-warning" class="w-5 h-5"></i> NABL Dispatched, Unmailed
@@ -181,9 +181,9 @@
                 </h4>
                 <p class="text-[10px] text-indigo-600 font-bold mt-1">Samples sent to NABL but final report transmission remains pending.</p>
             </div>
-            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
                             <th class="p-3 w-28">Inspection ID</th>
                             <th class="p-3 w-16 text-center">Discom</th>
@@ -192,7 +192,7 @@
                             <th class="p-3 text-center w-20">Days Elapsed</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-nabl-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                    <tbody id="cc-nabl-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
@@ -200,7 +200,7 @@
         </div>
 
         <!-- ROW 3, PANEL 2: READY FOR BILLING -->
-        <div class="bg-white rounded-3xl border border-purple-100 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+        <div class="bg-white rounded-3xl border border-purple-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-purple-50 p-4 border-b border-purple-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-purple-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="receipt" class="w-5 h-5"></i> Ready for Billing
@@ -208,9 +208,9 @@
                 </h4>
                 <p class="text-[10px] text-purple-600 font-bold mt-1">Inspections successfully completed but billing status is pending.</p>
             </div>
-            <div class="p-1 overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0">
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
                             <th class="p-3 w-28">Inspection ID</th>
                             <th class="p-3 w-16 text-center">Discom</th>
@@ -219,7 +219,7 @@
                             <th class="p-3 text-center w-20">Man-Days</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-ready-billing-body" class="divide-y divide-slate-50 font-medium text-slate-700">
+                    <tbody id="cc-ready-billing-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
@@ -229,11 +229,19 @@
     </div>
 </div>
 
+<style>
+    /* Expand/Collapse Custom Styles */
+    .mobile-expand-drawer { display: none; }
+    .mobile-expand-drawer.active { display: block; }
+    @media (min-width: 768px) {
+        .mobile-expand-drawer { display: none !important; }
+    }
+</style>
+
 <script>
     window.ccRawData = [];
     window.ccActiveDiscom = "ALL";
 
-    // 🎯 Defensive helpers to prevent "Cannot set properties of null" errors during tab switching
     const safeSetText = (id, text) => { 
         const el = document.getElementById(id); 
         if (el) el.innerText = text; 
@@ -241,6 +249,26 @@
     const safeSetHtml = (id, html) => { 
         const el = document.getElementById(id); 
         if (el) el.innerHTML = html; 
+    };
+
+    // 🎯 Mobile Toggle Script
+    window.toggleMobileRow = function(element) {
+        if (window.innerWidth >= 768) return; // Disable expanding on desktop view
+        const row = element.closest('tr');
+        const drawer = row.nextElementSibling;
+        const icon = row.querySelector('.toggle-icon');
+
+        if (drawer && drawer.classList.contains('mobile-expand-drawer')) {
+            if (drawer.classList.contains('active')) {
+                drawer.classList.remove('active');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+                row.classList.remove('bg-slate-50');
+            } else {
+                drawer.classList.add('active');
+                if (icon) icon.style.transform = 'rotate(90deg)';
+                row.classList.add('bg-slate-50');
+            }
+        }
     };
 
     async function initCommandCenter() {
@@ -312,21 +340,10 @@
         safeSetText("cc-record-count-badge", `Live Scanning: ${records.length} Records`);
 
         let tTotal = records.length;
-        let tCancelRev = 0;
-        let tValid = 0;
-        let tSched = 0;
-        let tPend = 0;
-        let tComp = 0;
-        let tBill = 0;
-        let tRepRecv = 0;
-        let tRepMail = 0;
+        let tCancelRev = 0, tValid = 0, tSched = 0, tPend = 0, tComp = 0, tBill = 0, tRepRecv = 0, tRepMail = 0;
 
-        let deadlineAlerts = [];
-        let nablAlerts = [];
-        let todaySchedAlerts = [];
-        let todayRecvAlerts = [];
-        let overdueSchedAlerts = [];
-        let readyBillingAlerts = [];
+        let deadlineAlerts = [], nablAlerts = [], todaySchedAlerts = [];
+        let todayRecvAlerts = [], overdueSchedAlerts = [], readyBillingAlerts = [];
 
         const today = new Date();
         today.setHours(0,0,0,0);
@@ -337,7 +354,6 @@
             const bill = String(r.billingStatus || "").trim().toLowerCase();
             const discom = String(r.discom || "").trim().toUpperCase();
 
-            // 1. KPI Counts
             if (stat.includes("cancel") || stat.includes("revis")) {
                 tCancelRev++;
             } else {
@@ -351,13 +367,11 @@
             if (String(r.reportReceived || "").trim().toLowerCase() === "yes") tRepRecv++;
             if (String(r.reportMail || "").trim().toLowerCase() === "yes") tRepMail++;
 
-            // Ignore cancelled/revised for operational alerts entirely
             if (stat.includes("cancel") || stat.includes("revis")) return;
 
             let dSch = parseAnyDateObj(r.scheduleDate);
             let dRec = parseAnyDateObj(r.receivedDate);
 
-            // TODAY SCHEDULE
             if (isSameDate(dSch, today)) {
                 todaySchedAlerts.push({
                     id: r.inspectionId || r.InspectionID || 'N/A',
@@ -367,7 +381,6 @@
                 });
             }
 
-            // RECEIVED TODAY
             if (isSameDate(dRec, today)) {
                 todayRecvAlerts.push({
                     id: r.inspectionId || r.InspectionID || 'N/A',
@@ -377,7 +390,6 @@
                 });
             }
 
-            // OVERDUE FOR SCHEDULING (> 3 days wait, no schedule date, still pending)
             if (dRec && !dSch && stat.includes("pend")) {
                 let diffDays = Math.floor((today - dRec) / (1000 * 60 * 60 * 24));
                 if (diffDays >= 3) {
@@ -391,7 +403,6 @@
                 }
             }
 
-            // READY FOR BILLING
             if ((sub.includes("pass") || sub.includes("mom")) && bill !== "billed") {
                 readyBillingAlerts.push({
                     id: r.inspectionId || r.InspectionID || 'N/A',
@@ -402,7 +413,6 @@
                 });
             }
 
-            // APPROACHING DEADLINES (Unfinished only)
             if (!sub.includes("pass") && !sub.includes("mom")) {
                 if (dRec) {
                     let dl = new Date(dRec);
@@ -421,7 +431,6 @@
                 }
             }
 
-            // NABL ALERTS
             const nablRaw = String(r.nablStatusDate || "").trim();
             if (nablRaw.toLowerCase().includes("sample send for nabl test") && String(r.reportMail || "").trim().toLowerCase() !== "yes") {
                 let extractedDate = "No Date Found";
@@ -444,7 +453,6 @@
             }
         });
 
-        // 🎯 Safely update Top Summaries
         safeSetText("cc-total-calls", tTotal);
         safeSetText("cc-valid-calls", tValid);
         safeSetText("cc-scheduled", tSched);
@@ -454,7 +462,6 @@
         safeSetText("cc-rep-recv", tRepRecv);
         safeSetText("cc-rep-mail", tRepMail);
 
-        // 🎯 Safely update Header Count Badges
         safeSetText("count-today-sched", todaySchedAlerts.length);
         safeSetText("count-today-recv", todayRecvAlerts.length);
         safeSetText("count-deadlines", deadlineAlerts.length);
@@ -462,54 +469,188 @@
         safeSetText("count-nabl", nablAlerts.length);
         safeSetText("count-ready-billing", readyBillingAlerts.length);
 
-        // RENDER: TODAY SCHEDULE
+        // 🎯 RENDER: TODAY SCHEDULE
         let tsHtml = "";
         todaySchedAlerts.forEach(a => {
-            tsHtml += `<tr class="hover:bg-blue-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.insp}">${a.insp}</td><td class="p-3 text-slate-600 truncate max-w-[150px]" title="${a.mfg}">${a.mfg}</td></tr>`;
+            tsHtml += `
+            <tr class="flex flex-col md:table-row bg-white hover:bg-blue-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
+                <td class="p-3 flex justify-between items-center md:hidden w-full">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                        <span class="font-mono font-black text-blue-700">${a.id}</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-500 font-bold truncate max-w-[120px] shrink-0 text-right">${a.insp}</span>
+                </td>
+                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
+                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
+                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.insp}">${a.insp}</td>
+                <td class="p-3 text-slate-600 truncate max-w-[150px] hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
+            </tr>
+            <tr class="mobile-expand-drawer">
+                <td colspan="4" class="p-3 border-t border-slate-100 text-xs">
+                    <div class="flex flex-col gap-2 pl-7">
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
+                    </div>
+                </td>
+            </tr>`;
         });
         safeSetHtml("cc-today-sched-body", tsHtml || `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No inspections scheduled for today.</td></tr>`);
 
-        // RENDER: CALLS RECEIVED TODAY
+        // 🎯 RENDER: CALLS RECEIVED TODAY
         let trHtml = "";
         todayRecvAlerts.forEach(a => {
-            trHtml += `<tr class="hover:bg-emerald-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-medium text-emerald-700 truncate max-w-[120px]" title="${a.letter}">${a.letter}</td></tr>`;
+            trHtml += `
+            <tr class="flex flex-col md:table-row bg-white hover:bg-emerald-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
+                <td class="p-3 flex justify-between items-center md:hidden w-full">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                        <span class="font-mono font-black text-blue-700">${a.id}</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-500 font-bold truncate max-w-[120px] shrink-0 text-right">${a.mfg}</span>
+                </td>
+                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
+                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
+                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
+                <td class="p-3 font-mono font-medium text-emerald-700 truncate max-w-[120px] hidden md:table-cell" title="${a.letter}">${a.letter}</td>
+            </tr>
+            <tr class="mobile-expand-drawer">
+                <td colspan="4" class="p-3 border-t border-slate-100 text-xs">
+                    <div class="flex flex-col gap-2 pl-7">
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Letter No:</strong> <span class="text-emerald-700 font-medium whitespace-pre-wrap break-words">${a.letter}</span></div>
+                    </div>
+                </td>
+            </tr>`;
         });
         safeSetHtml("cc-today-recv-body", trHtml || `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No new calls received today.</td></tr>`);
 
-        // RENDER: DEADLINES
+        // 🎯 RENDER: DEADLINES
         deadlineAlerts.sort((a, b) => a.daysLeft - b.daysLeft);
         let dlHtml = "";
         deadlineAlerts.forEach(a => {
             let statusBadge = "";
-            if (a.daysLeft < 0) statusBadge = `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-300 shadow-xs">Overdue by ${Math.abs(a.daysLeft)}d</span>`;
+            if (a.daysLeft < 0) statusBadge = `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-300 shadow-xs">Overdue ${Math.abs(a.daysLeft)}d</span>`;
             else if (a.daysLeft === 0) statusBadge = `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-bold border border-orange-300 shadow-xs">Due Today</span>`;
             else statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 shadow-xs">Due in ${a.daysLeft}d</span>`;
 
-            dlHtml += `<tr class="hover:bg-rose-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-bold text-slate-600 text-center border-r">${a.deadlineDate}</td><td class="p-3 text-right">${statusBadge}</td></tr>`;
+            dlHtml += `
+            <tr class="flex flex-col md:table-row bg-white hover:bg-rose-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
+                <td class="p-3 flex justify-between items-center md:hidden w-full">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                        <span class="font-mono font-black text-blue-700">${a.id}</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
+                    </div>
+                    <div class="text-right shrink-0">${statusBadge}</div>
+                </td>
+                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
+                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
+                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
+                <td class="p-3 font-mono font-bold text-slate-600 text-center border-r border-slate-100 hidden md:table-cell">${a.deadlineDate}</td>
+                <td class="p-3 text-right hidden md:table-cell">${statusBadge}</td>
+            </tr>
+            <tr class="mobile-expand-drawer">
+                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
+                    <div class="flex flex-col gap-2 pl-7">
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Deadline Date:</strong> <span class="text-slate-800 font-mono font-bold">${a.deadlineDate}</span></div>
+                    </div>
+                </td>
+            </tr>`;
         });
         safeSetHtml("cc-deadlines-body", dlHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No urgent deadlines approaching.</td></tr>`);
 
-        // RENDER: OVERDUE FOR SCHEDULING
+        // 🎯 RENDER: OVERDUE FOR SCHEDULING
         overdueSchedAlerts.sort((a, b) => b.daysWait - a.daysWait);
         let osHtml = "";
         overdueSchedAlerts.forEach(a => {
-            osHtml += `<tr class="hover:bg-orange-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-bold text-orange-700 text-center border-r">${a.recvDate}</td><td class="p-3 text-center font-black text-orange-600">${a.daysWait} days</td></tr>`;
+            osHtml += `
+            <tr class="flex flex-col md:table-row bg-white hover:bg-orange-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
+                <td class="p-3 flex justify-between items-center md:hidden w-full">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                        <span class="font-mono font-black text-blue-700">${a.id}</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
+                    </div>
+                    <span class="text-[10px] font-black text-orange-600 shrink-0 text-right">${a.daysWait} Days Wait</span>
+                </td>
+                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
+                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
+                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
+                <td class="p-3 font-mono font-bold text-orange-700 text-center border-r border-slate-100 hidden md:table-cell">${a.recvDate}</td>
+                <td class="p-3 text-center font-black text-orange-600 hidden md:table-cell">${a.daysWait} days</td>
+            </tr>
+            <tr class="mobile-expand-drawer">
+                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
+                    <div class="flex flex-col gap-2 pl-7">
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Recv Date:</strong> <span class="text-orange-700 font-mono font-bold">${a.recvDate}</span></div>
+                    </div>
+                </td>
+            </tr>`;
         });
         safeSetHtml("cc-overdue-sched-body", osHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No calls overdue for scheduling.</td></tr>`);
 
-        // RENDER: NABL PENDING
+        // 🎯 RENDER: NABL PENDING
         nablAlerts.sort((a, b) => b.daysElapsed - a.daysElapsed);
         let nblHtml = "";
         nablAlerts.forEach(a => {
-            nblHtml += `<tr class="hover:bg-indigo-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-mono font-bold text-indigo-700 text-center border-r">${a.nablDate}</td><td class="p-3 text-center font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'}">${a.daysElapsed} days</td></tr>`;
+            nblHtml += `
+            <tr class="flex flex-col md:table-row bg-white hover:bg-indigo-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
+                <td class="p-3 flex justify-between items-center md:hidden w-full">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                        <span class="font-mono font-black text-blue-700">${a.id}</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
+                    </div>
+                    <span class="text-[10px] font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'} shrink-0 text-right">${a.daysElapsed} Days</span>
+                </td>
+                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
+                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
+                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
+                <td class="p-3 font-mono font-bold text-indigo-700 text-center border-r border-slate-100 hidden md:table-cell">${a.nablDate}</td>
+                <td class="p-3 text-center font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'} hidden md:table-cell">${a.daysElapsed} days</td>
+            </tr>
+            <tr class="mobile-expand-drawer">
+                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
+                    <div class="flex flex-col gap-2 pl-7">
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
+                        <div><strong class="text-slate-400 text-[9px] uppercase">NABL Send Date:</strong> <span class="text-indigo-700 font-mono font-bold">${a.nablDate}</span></div>
+                    </div>
+                </td>
+            </tr>`;
         });
         safeSetHtml("cc-nabl-body", nblHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No pending NABL reports found.</td></tr>`);
 
-        // RENDER: READY FOR BILLING
+        // 🎯 RENDER: READY FOR BILLING
         let rbHtml = "";
         readyBillingAlerts.forEach(a => {
             const outColor = a.outcome === "Material Pass" ? "text-emerald-700" : "text-purple-700";
-            rbHtml += `<tr class="hover:bg-purple-50/50 transition"><td class="p-3 font-mono font-black text-blue-700 border-r">${a.id}</td><td class="p-3 text-center border-r"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td><td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r" title="${a.mfg}">${a.mfg}</td><td class="p-3 font-bold ${outColor} text-center border-r">${a.outcome}</td><td class="p-3 text-center font-mono font-bold text-slate-600">${a.md}</td></tr>`;
+            rbHtml += `
+            <tr class="flex flex-col md:table-row bg-white hover:bg-purple-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
+                <td class="p-3 flex justify-between items-center md:hidden w-full">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                        <span class="font-mono font-black text-blue-700">${a.id}</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
+                    </div>
+                    <span class="text-[10px] font-bold ${outColor} shrink-0 text-right">${a.outcome}</span>
+                </td>
+                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
+                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
+                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
+                <td class="p-3 font-bold ${outColor} text-center border-r border-slate-100 hidden md:table-cell">${a.outcome}</td>
+                <td class="p-3 text-center font-mono font-bold text-slate-600 hidden md:table-cell">${a.md}</td>
+            </tr>
+            <tr class="mobile-expand-drawer">
+                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
+                    <div class="flex flex-col gap-2 pl-7">
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
+                        <div><strong class="text-slate-400 text-[9px] uppercase">Man-Days Utilized:</strong> <span class="text-slate-800 font-mono font-bold">${a.md}</span></div>
+                    </div>
+                </td>
+            </tr>`;
         });
         safeSetHtml("cc-ready-billing-body", rbHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No unbilled completions found.</td></tr>`);
 
