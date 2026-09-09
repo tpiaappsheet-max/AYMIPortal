@@ -1,5 +1,8 @@
+<!-- html2pdf Library for PDF Generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <div class="max-w-7xl mx-auto space-y-4 animate-fade-in pb-12">
-    <!-- Header & Filter Bar -->
+    <!-- Header & Action Bar -->
     <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b pb-3">
             <div>
@@ -13,11 +16,11 @@
             </div>
         </div>
 
-        <!-- Cascading / Narrowing Filters: Discom > Status > Letter No > Conducted By -->
+        <!-- Cascading / Narrowing Filters: Discom > Status > Inspection ID > Conducted By -->
         <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Discom</label>
-                <select id="billing-filter-discom" onchange="onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
+                <select id="billing-filter-discom" onchange="window.onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
                     <option value="">-- All Discoms --</option>
                     <option value="NBPDCL">NBPDCL</option>
                     <option value="SBPDCL">SBPDCL</option>
@@ -26,24 +29,23 @@
             </div>
             <div>
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Status</label>
-                <select id="billing-filter-status" onchange="onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
+                <select id="billing-filter-status" onchange="window.onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
                     <option value="">-- All Statuses --</option>
                 </select>
             </div>
             <div>
-                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Letter No</label>
-                <select id="billing-filter-letter" onchange="onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
-                    <option value="">-- All Letter Nos --</option>
-                </select>
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Search Inspection ID</label>
+                <input type="text" id="billing-filter-inspection" list="billing-inspection-ids-list" oninput="window.onBillingFilterChange()" placeholder="Type or select ID..." class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
+                <datalist id="billing-inspection-ids-list"></datalist>
             </div>
             <div class="flex items-end gap-2">
                 <div class="flex-1">
                     <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Conducted By</label>
-                    <select id="billing-filter-conducted" onchange="onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
+                    <select id="billing-filter-conducted" onchange="window.onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
                         <option value="">-- All Inspectors --</option>
                     </select>
                 </div>
-                <button onclick="resetBillingFilters()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-black rounded-xl transition cursor-pointer h-[34px]">Reset</button>
+                <button onclick="window.resetBillingFilters()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-black rounded-xl transition cursor-pointer h-[34px]">Reset</button>
             </div>
         </div>
     </div>
@@ -116,7 +118,7 @@
         return 'Rupees ' + str.trim() + ' Only';
     }
 
-    async function initBillingPortalModule() {
+    window.initBillingPortalModule = async function() {
         if (!currentMiUser || currentMiUser.role !== 'admin') {
             const viewport = document.getElementById("mi-viewport");
             if (viewport) {
@@ -174,23 +176,26 @@
         updateBillingFilterOptions();
         renderBillingPortalTable();
         if (window.lucide) lucide.createIcons();
-    }
+    };
 
     function getFilteredInspections(excludeFilter = "") {
         const elDiscom = document.getElementById("billing-filter-discom");
         const elStatus = document.getElementById("billing-filter-status");
-        const elLetter = document.getElementById("billing-filter-letter");
+        const elInspection = document.getElementById("billing-filter-inspection");
         const elConducted = document.getElementById("billing-filter-conducted");
 
         const fDiscom = elDiscom ? elDiscom.value.trim().toLowerCase() : "";
         const fStatus = elStatus ? elStatus.value.trim().toLowerCase() : "";
-        const fLetter = elLetter ? elLetter.value.trim().toLowerCase() : "";
+        const fInspection = elInspection ? elInspection.value.trim().toLowerCase() : "";
         const fConducted = elConducted ? elConducted.value.trim().toLowerCase() : "";
 
         return (window.miMasterData || []).filter(item => {
             if (excludeFilter !== 'discom' && fDiscom && String(item.discom || "").trim().toLowerCase() !== fDiscom) return false;
             if (excludeFilter !== 'status' && fStatus && String(item.status || "").trim().toLowerCase() !== fStatus) return false;
-            if (excludeFilter !== 'letter' && fLetter && String(item.letterNo || "").trim().toLowerCase() !== fLetter) return false;
+            if (excludeFilter !== 'inspection' && fInspection) {
+                const inspId = String(item.inspectionId || item.InspectionID || "").trim().toLowerCase();
+                if (!inspId.includes(fInspection)) return false;
+            }
             if (excludeFilter !== 'conducted' && fConducted && String(item.conductedBy || "").trim().toLowerCase() !== fConducted) return false;
             return true;
         });
@@ -198,11 +203,10 @@
 
     function updateBillingFilterOptions() {
         const statusSel = document.getElementById("billing-filter-status");
-        const letterSel = document.getElementById("billing-filter-letter");
+        const inspectionDatalist = document.getElementById("billing-inspection-ids-list");
         const conductedSel = document.getElementById("billing-filter-conducted");
 
         const currentStatus = statusSel ? statusSel.value : "";
-        const currentLetter = letterSel ? letterSel.value : "";
         const currentConducted = conductedSel ? conductedSel.value : "";
 
         const statusPool = getFilteredInspections('status');
@@ -213,12 +217,11 @@
             statusSel.value = statusSet.includes(currentStatus) ? currentStatus : "";
         }
 
-        const letterPool = getFilteredInspections('letter');
-        const letterSet = [...new Set(letterPool.map(i => String(i.letterNo || "").trim()))].filter(Boolean);
-        letterSet.sort();
-        if (letterSel) {
-            letterSel.innerHTML = `<option value="">-- All Letter Nos --</option>` + letterSet.map(l => `<option value="${l}">${l}</option>`).join('');
-            letterSel.value = letterSet.includes(currentLetter) ? currentLetter : "";
+        const inspectionPool = getFilteredInspections('inspection');
+        const inspectionSet = [...new Set(inspectionPool.map(i => String(i.inspectionId || i.InspectionID || "").trim()))].filter(Boolean);
+        inspectionSet.sort();
+        if (inspectionDatalist) {
+            inspectionDatalist.innerHTML = inspectionSet.map(id => `<option value="${id}"></option>`).join('');
         }
 
         const conductedPool = getFilteredInspections('conducted');
@@ -230,21 +233,21 @@
         }
     }
 
-    function onBillingFilterChange() {
+    window.onBillingFilterChange = function() {
         updateBillingFilterOptions();
         renderBillingPortalTable();
-    }
+    };
 
-    function resetBillingFilters() {
+    window.resetBillingFilters = function() {
         document.getElementById("billing-filter-discom").value = "";
         document.getElementById("billing-filter-status").value = "";
-        document.getElementById("billing-filter-letter").value = "";
+        document.getElementById("billing-filter-inspection").value = "";
         document.getElementById("billing-filter-conducted").value = "";
         updateBillingFilterOptions();
         renderBillingPortalTable();
-    }
+    };
 
-    function updateRowFeeCalculation(inspectionId, rowTotalVal, totalQty, criteria) {
+    window.updateRowFeeCalculation = function(inspectionId, rowTotalVal, totalQty, criteria) {
         const valInput = document.getElementById(`val-input-${inspectionId}`);
         const multInput = document.getElementById(`mult-input-${inspectionId}`);
         const feeDisplay = document.getElementById(`fee-display-${inspectionId}`);
@@ -276,9 +279,9 @@
         } catch (e) {
             console.warn("Could not update button payload data attribute.");
         }
-    }
+    };
 
-    async function addRowToFeeDetailsSheet(btnElement, statusVal) {
+    window.addRowToFeeDetailsSheet = async function(btnElement, statusVal) {
         const lowerStatus = String(statusVal || "").trim().toLowerCase();
         if (lowerStatus === 'cancelled' || lowerStatus === 'revised') {
             alert(`Cannot process: Inspection status is '${statusVal}'. Cancelled or Revised records are not billed.`);
@@ -346,7 +349,7 @@
             btnElement.disabled = false;
             btnElement.innerText = isUpdate ? "Update / Overwrite" : "Add to Sheet";
         }
-    }
+    };
 
     function renderBillingPortalTable() {
         const wrap = document.getElementById("billing-table-wrap");
@@ -363,7 +366,6 @@
 
         let html = `<table id="billing-resizable-table" class="w-full text-left text-xs border-collapse table-fixed"><thead class="sticky top-0 bg-slate-900 text-white uppercase text-[10px] z-20 font-mono"><tr>`;
         
-        // 🎯 Note: Column F (index 6) matches Status / SubStatus & Remarks mapping
         const colDefs = [
             { label: "Sheet Status", width: "130px" },
             { label: "Sr", width: "60px" },
@@ -499,11 +501,10 @@
             const discomColor = item.discom === 'SBPDCL' ? 'text-purple-700 bg-purple-50 border-purple-200' : 'text-blue-700 bg-blue-50 border-blue-200';
             const letterNameDateVal = `${item.letterNo || '-'} (${item.letterDate || ''})`;
             
-            // 🎯 NEW: Process and append Remarks logically for Column F (statusSubStatus mapped column)
             const rawRemarks = String(item.remarks || "").trim();
             let statusSubStatusVal = `${statusVal} / ${item.subStatus || 'Pending'}`;
             if (rawRemarks) {
-                statusSubStatusVal += `\nRemarks- ${rawRemarks}`; // Appends to the payload for the Google Sheet
+                statusSubStatusVal += `\nRemarks- ${rawRemarks}`;
             }
             
             const rawManDays = (item.manDays !== undefined && item.manDays !== null && String(item.manDays).trim() !== "") ? Number(item.manDays) : 0;
@@ -515,7 +516,7 @@
                 inspectionId: inspectionId,
                 discom: item.discom || '-',
                 conductedBy: item.conductedBy || 'Pending',
-                statusSubStatus: statusSubStatusVal, // Maps perfectly to Column F
+                statusSubStatus: statusSubStatusVal,
                 dateRangeManDays: dateRangeManDaysVal,
                 manufacturerName: item.manufacturer || '-',
                 materialCategory: item.materialInspected || '-',
@@ -533,18 +534,15 @@
                 virtualStatusHtml = `
                     <div class="space-y-1.5 px-1">
                         <span class="py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-bold block text-center font-mono">Added in Sheet</span>
-                        <button id="add-btn-${inspectionId}" onclick="addRowToFeeDetailsSheet(this, '${statusVal}')" data-payload="${encodedPayload}" class="px-2 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] rounded-lg shadow-sm transition cursor-pointer w-full text-center">Update / Overwrite</button>
+                        <button id="add-btn-${inspectionId}" onclick="window.addRowToFeeDetailsSheet(this, '${statusVal}')" data-payload="${encodedPayload}" class="px-2 py-1.5 bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] rounded-lg shadow-sm transition cursor-pointer w-full text-center">Update / Overwrite</button>
                     </div>`;
             } else {
-                virtualStatusHtml = `<div class="px-1"><button id="add-btn-${inspectionId}" onclick="addRowToFeeDetailsSheet(this, '${statusVal}')" data-payload="${encodedPayload}" class="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] rounded-lg shadow-sm transition cursor-pointer w-full text-center">Add to Sheet</button></div>`;
+                virtualStatusHtml = `<div class="px-1"><button id="add-btn-${inspectionId}" onclick="window.addRowToFeeDetailsSheet(this, '${statusVal}')" data-payload="${encodedPayload}" class="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] rounded-lg shadow-sm transition cursor-pointer w-full text-center">Add to Sheet</button></div>`;
             }
 
             const letterInfo = `${item.letterNo || '-'}<br/><span class="text-[10px] text-slate-400 font-mono">${item.letterDate || ''}</span>`;
-            
-            // 🎯 NEW: Display Remarks logically in the UI column
             const remarksHtml = rawRemarks ? `<div class="mt-1 text-[9px] text-rose-600 font-bold leading-tight">Remarks- ${rawRemarks}</div>` : "";
             const statusInfo = `<span class="font-bold text-slate-800">${statusVal}</span><br/><span class="text-[10px] text-slate-500">${item.subStatus || 'Pending'}</span>${remarksHtml}`;
-            
             const dateRangeStr = `${item.dateFrom || '-'}<br/><span class="text-[10px] text-slate-500 font-mono">${item.dateTo || ''}</span> <span class="font-bold text-blue-600">[${rawManDays} Man Days]</span>`;
 
             const criteriaInputsHtml = `
@@ -553,11 +551,11 @@
                     <div class="grid grid-cols-2 gap-1.5">
                         <div>
                             <span class="block text-[8px] font-black uppercase text-slate-400">Value Factor</span>
-                            <input type="number" step="0.1" id="val-input-${inspectionId}" value="${valFactor}" oninput="updateRowFeeCalculation('${inspectionId}', ${rowTotalVal}, ${totalQty}, '${criteria}')" class="w-full p-1 border border-slate-300 rounded text-xs font-mono font-bold text-center bg-slate-50 focus:bg-white outline-none">
+                            <input type="number" step="0.1" id="val-input-${inspectionId}" value="${valFactor}" oninput="window.updateRowFeeCalculation('${inspectionId}', ${rowTotalVal}, ${totalQty}, '${criteria}')" class="w-full p-1 border border-slate-300 rounded text-xs font-mono font-bold text-center bg-slate-50 focus:bg-white outline-none">
                         </div>
                         <div>
                             <span class="block text-[8px] font-black uppercase text-slate-400">Share Multiplier (%)</span>
-                            <input type="number" step="1" min="0" max="100" id="mult-input-${inspectionId}" value="${initialMultiplier}" oninput="updateRowFeeCalculation('${inspectionId}', ${rowTotalVal}, ${totalQty}, '${criteria}')" class="w-full p-1 border border-amber-300 rounded text-xs font-mono font-bold text-center bg-amber-50/40 focus:bg-white outline-none text-amber-900">
+                            <input type="number" step="1" min="0" max="100" id="mult-input-${inspectionId}" value="${initialMultiplier}" oninput="window.updateRowFeeCalculation('${inspectionId}', ${rowTotalVal}, ${totalQty}, '${criteria}')" class="w-full p-1 border border-amber-300 rounded text-xs font-mono font-bold text-center bg-amber-50/40 focus:bg-white outline-none text-amber-900">
                         </div>
                     </div>
                 </div>
@@ -628,6 +626,6 @@
     }
 
     setTimeout(() => {
-        initBillingPortalModule();
+        window.initBillingPortalModule();
     }, 50);
 </script>
