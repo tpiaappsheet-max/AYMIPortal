@@ -5,10 +5,10 @@
     
     <!-- Tab Navigation -->
     <div class="bg-white p-2 rounded-2xl border shadow-sm flex items-center gap-2 mb-4 w-fit hide-on-print">
-        <button onclick="switchSealTab('inventory')" id="tab-btn-inventory" class="px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center gap-2 cursor-pointer">
+        <button onclick="window.switchSealTab('inventory')" id="tab-btn-inventory" class="px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center gap-2 cursor-pointer">
             <i data-lucide="edit-3" class="w-4 h-4"></i> Seal Inventory Entry
         </button>
-        <button onclick="switchSealTab('tracker')" id="tab-btn-tracker" class="px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-transparent text-slate-500 hover:bg-slate-100 flex items-center gap-2 cursor-pointer">
+        <button onclick="window.switchSealTab('tracker')" id="tab-btn-tracker" class="px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-transparent text-slate-500 hover:bg-slate-100 flex items-center gap-2 cursor-pointer">
             <i data-lucide="radar" class="w-4 h-4"></i> Seal Usage Tracker
         </button>
     </div>
@@ -24,15 +24,16 @@
                 </h3>
                 <p class="text-xs text-slate-500 mt-0.5">Procure, allocate, and manage seal numbering sequences.</p>
             </div>
-            <button onclick="openSealModal()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center gap-2">
+            <button onclick="window.openSealModal()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-blue-600 hover:bg-blue-700 text-white shadow-md flex items-center gap-2 w-full sm:w-auto justify-center">
                 <i data-lucide="plus" class="w-4 h-4"></i> <span>Add New Allocation</span>
             </button>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl border shadow-sm">
-            <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-slate-900 text-white uppercase text-[10px] font-mono">
+        <div class="bg-white p-4 sm:p-6 rounded-3xl border shadow-sm">
+            <div class="overflow-x-hidden md:overflow-x-auto custom-scrollbar w-full">
+                <!-- 🎯 Made the Inventory Table Mobile Responsive -->
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-slate-900 text-white uppercase text-[10px] font-mono hidden md:table-header-group">
                         <tr>
                             <th class="p-3 border-r border-slate-700 w-12 text-center">Sr No</th>
                             <th class="p-3 border-r border-slate-700 w-48">Type of Seal</th>
@@ -43,8 +44,8 @@
                             <th class="p-3 text-center w-24">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="seal-table-body" class="divide-y font-medium text-slate-700">
-                        <tr><td colspan="7" class="p-12 text-center text-slate-400 animate-pulse">Synchronizing inventory data...</td></tr>
+                    <tbody id="seal-table-body" class="divide-y md:divide-y-0 divide-slate-200 font-medium text-slate-700 block md:table-row-group">
+                        <tr><td colspan="7" class="p-12 text-center text-slate-400 animate-pulse block md:table-cell w-full">Synchronizing inventory data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -63,12 +64,12 @@
                 <p class="text-xs text-slate-500 mt-0.5">Real-time breakdown of assigned stock, field execution, and borrowed/lent inventory.</p>
             </div>
             <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap">
-                <button id="export-tracker-pdf-btn" onclick="downloadTrackerPDF()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-slate-800 hover:bg-slate-900 text-white shadow-md flex items-center gap-2">
+                <button id="export-tracker-pdf-btn" onclick="window.downloadTrackerPDF()" class="px-4 py-2.5 rounded-xl text-xs font-black transition cursor-pointer bg-slate-800 hover:bg-slate-900 text-white shadow-md flex items-center gap-2 w-full sm:w-auto justify-center">
                     <i data-lucide="download-cloud" class="w-4 h-4"></i> <span>Export PDF Report</span>
                 </button>
-                <div>
+                <div class="w-full sm:w-auto">
                     <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Usage By Discom</label>
-                    <select id="tracker-discom-filter" onchange="processAndRenderTracker()" class="p-2 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-slate-50 focus:bg-white cursor-pointer w-full sm:w-48 transition">
+                    <select id="tracker-discom-filter" onchange="window.processAndRenderTracker()" class="p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-slate-50 focus:bg-white cursor-pointer w-full sm:w-48 transition shadow-xs">
                         <option value="ALL">All Discoms (Combined)</option>
                         <option value="NBPDCL">NBPDCL</option>
                         <option value="SBPDCL">SBPDCL</option>
@@ -79,7 +80,7 @@
         </div>
 
         <!-- 🎯 Container for Tracker Data -->
-        <div id="pdf-tracker-wrapper" class="space-y-6 bg-white p-6 rounded-3xl border shadow-sm w-full block">
+        <div id="pdf-tracker-wrapper" class="space-y-6 bg-white p-4 sm:p-6 rounded-3xl border shadow-sm w-full block">
             <h2 id="pdf-tracker-title" class="hidden font-black text-lg mb-6 uppercase tracking-wider text-center text-slate-800">
                 <span>Detailed Seal Inventory & Usage Report</span>
             </h2>
@@ -95,11 +96,11 @@
             </div>
 
             <!-- 1. Central Inventory (Unassigned) -->
-            <div class="pt-2">
+            <div class="pt-2 w-full overflow-hidden">
                 <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2 mb-3">
                     <i data-lucide="box" class="w-4 h-4 text-amber-600"></i> <span>Central Inventory (Unassigned Stock)</span>
                 </h4>
-                <div class="overflow-x-auto border border-slate-200 rounded-xl scroll-lockable custom-scrollbar">
+                <div class="overflow-x-auto border border-slate-200 rounded-xl scroll-lockable custom-scrollbar w-full">
                     <table class="w-full text-left text-xs border-collapse table-fixed resizable-table min-w-[700px]">
                         <thead class="bg-slate-100 text-slate-600 uppercase text-[10px] font-black border-b">
                             <tr>
@@ -116,11 +117,11 @@
             </div>
 
             <!-- 2. Inspector Allocations -->
-            <div class="pt-4 border-t border-slate-200">
+            <div class="pt-4 border-t border-slate-200 w-full overflow-hidden">
                 <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2 mb-4">
                     <i data-lucide="users" class="w-4 h-4 text-blue-600"></i> <span>Inspector-Wise Allocations, Discom Usage & Cross-Transfers</span>
                 </h4>
-                <div id="tracker-inspectors-body" class="space-y-4">
+                <div id="tracker-inspectors-body" class="space-y-4 w-full">
                     <!-- Populated dynamically -->
                 </div>
             </div>
@@ -129,24 +130,24 @@
 </div>
 
 <!-- Modal for Add/Edit Inventory -->
-<div id="seal-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+<div id="seal-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-6 sm:p-8 relative border">
         <div class="flex items-center justify-between border-b pb-4 mb-4">
             <h3 class="font-black text-sm uppercase text-slate-900 flex items-center gap-2">
                 <i data-lucide="lock" class="text-amber-600 w-5 h-5"></i> <span id="seal-modal-title">Add Seal Allocation</span>
             </h3>
-            <button onclick="closeSealModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer">
+            <button onclick="window.closeSealModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
 
-        <form onsubmit="handleSaveSeal(event)" class="space-y-4">
+        <form onsubmit="window.handleSaveSeal(event)" class="space-y-4">
             <input type="hidden" id="seal-id">
             
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Type of Seal</label>
-                    <select id="seal-type" required class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 cursor-pointer">
+                    <select id="seal-type" required class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 cursor-pointer shadow-xs">
                         <option value="">-- Select Type --</option>
                         <option value="Polycarbonate Seal">Polycarbonate Seal</option>
                         <option value="Holographic Seal">Holographic Seal</option>
@@ -155,7 +156,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">TPIA Inspector (Issue To)</label>
-                    <select id="seal-tpia" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-blue-500 cursor-pointer text-blue-700">
+                    <select id="seal-tpia" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white focus:border-blue-500 cursor-pointer text-blue-700 shadow-xs">
                         <option value="">-- Unassigned (Inventory) --</option>
                     </select>
                 </div>
@@ -164,21 +165,21 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Seal No From</label>
-                    <input type="text" id="seal-from" oninput="autoCalculateSeals()" required placeholder="e.g. SL-1001" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 font-mono">
+                    <input type="text" id="seal-from" oninput="window.autoCalculateSeals()" required placeholder="e.g. SL-1001" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 font-mono shadow-xs">
                 </div>
                 <div>
                     <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Seal No To</label>
-                    <input type="text" id="seal-to" oninput="autoCalculateSeals()" required placeholder="e.g. SL-1500" class="w-full p-2.5 border rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 font-mono">
+                    <input type="text" id="seal-to" oninput="window.autoCalculateSeals()" required placeholder="e.g. SL-1500" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold outline-none bg-white focus:border-amber-500 font-mono shadow-xs">
                 </div>
             </div>
 
             <div>
                 <label class="block text-[11px] font-black uppercase text-slate-500 mb-1">Total Number of Seals</label>
-                <input type="number" id="seal-total" required placeholder="Auto-calculated or enter manually" class="w-full p-2.5 border rounded-xl text-xs font-black outline-none bg-slate-50 focus:border-amber-500 focus:bg-white">
+                <input type="number" id="seal-total" required placeholder="Auto-calculated or enter manually" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-black outline-none bg-slate-50 focus:border-amber-500 focus:bg-white shadow-xs">
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t mt-6">
-                <button type="button" onclick="closeSealModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer">Cancel</button>
+                <button type="button" onclick="window.closeSealModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl cursor-pointer">Cancel</button>
                 <button type="submit" id="save-seal-btn" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl shadow-md cursor-pointer flex items-center gap-2">
                     <i data-lucide="save" class="w-4 h-4"></i> <span>Save Record</span>
                 </button>
@@ -188,7 +189,14 @@
 </div>
 
 <style>
-    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    /* 🎯 Enhanced Mobile Scrollbar Support */
+    .custom-scrollbar {
+        -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    @media (min-width: 768px) {
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 2px solid #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
@@ -239,13 +247,14 @@
 </style>
 
 <script>
+    // Global Scopes mapped to Window to prevent Reference Errors dynamically
     window.sealRecordsData = [];
     window.trackerMasterInspections = [];
     window.miInspectorsList = [];
     window.trackerDataLoaded = false;
-    window.hierarchySortModes = {}; // Stores sort preference per inspector-type
+    window.hierarchySortModes = {}; 
 
-    async function initSealModule() {
+    window.initSealModule = async function() {
         try {
             const [sealsRes, inspRes, masterRes] = await Promise.all([
                 fetch(`${API_URL}?action=getSealDetails`),
@@ -270,14 +279,14 @@
 
             window.trackerDataLoaded = true;
 
-            renderSealTable();
-            populateInspectorDropdown();
+            window.renderSealTable();
+            window.populateInspectorDropdown();
         } catch (err) {
             document.getElementById("seal-table-body").innerHTML = `<tr><td colspan="7" class="p-8 text-center text-rose-500 font-bold">Network Error loading core data.</td></tr>`;
         }
-    }
+    };
 
-    function switchSealTab(tabId) {
+    window.switchSealTab = function(tabId) {
         document.getElementById("tab-inventory").classList.add("hidden");
         document.getElementById("tab-tracker").classList.add("hidden");
         
@@ -288,19 +297,19 @@
         
         if (tabId === 'inventory') {
             document.getElementById("tab-btn-inventory").className = "px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center gap-2 cursor-pointer";
-            renderSealTable();
+            window.renderSealTable();
         } else if (tabId === 'tracker') {
             document.getElementById("tab-btn-tracker").className = "px-5 py-2 text-xs font-black rounded-xl transition-all duration-200 bg-blue-600 text-white shadow-md flex items-center gap-2 cursor-pointer";
-            if (window.trackerDataLoaded) processAndRenderTracker();
+            if (window.trackerDataLoaded) window.processAndRenderTracker();
         }
-    }
+    };
 
-    function cleanInspectorName(name) {
+    window.cleanInspectorName = function(name) {
         if (!name) return "";
         return String(name).toLowerCase().replace(/^(er\.|er\s+|mr\.|mr\s+|engr\.|dr\.)\s*/i, "").replace(/[^a-z0-9]/g, '');
-    }
+    };
 
-    function getInspectorName(insp) {
+    window.getInspectorName = function(insp) {
         if (typeof insp === 'string') return insp;
         const keys = Object.keys(insp);
         const nameKey = keys.find(k => {
@@ -308,9 +317,9 @@
             return lk.includes('name') || lk.includes('inspector') || lk.includes('engineer');
         });
         return (nameKey && insp[nameKey]) ? String(insp[nameKey]).trim() : (Object.values(insp)[1] || Object.values(insp)[0] || "Unknown");
-    }
+    };
 
-    function autoCalculateSeals() {
+    window.autoCalculateSeals = function() {
         let fromStr = document.getElementById("seal-from").value.trim();
         let toStr = document.getElementById("seal-to").value.trim();
         let fromNum = fromStr.match(/\d+$/);
@@ -320,23 +329,24 @@
             let total = parseInt(toNum[0], 10) - parseInt(fromNum[0], 10) + 1;
             if (total > 0) document.getElementById("seal-total").value = total;
         }
-    }
+    };
 
-    function populateInspectorDropdown() {
+    window.populateInspectorDropdown = function() {
         if (!window.miInspectorsList || window.miInspectorsList.length === 0) return;
-        const uniqueNames = [...new Set(window.miInspectorsList.map(i => getInspectorName(i)))].filter(Boolean);
+        const uniqueNames = [...new Set(window.miInspectorsList.map(i => window.getInspectorName(i)))].filter(Boolean);
         uniqueNames.sort();
 
         const tpiaSelect = document.getElementById("seal-tpia");
         if (tpiaSelect) {
             tpiaSelect.innerHTML = `<option value="">-- Unassigned (Inventory) --</option>` + uniqueNames.map(n => `<option value="${n}">${n}</option>`).join('');
         }
-    }
+    };
 
-    function renderSealTable() {
+    // 🎯 MOBILE-RESPONSIVE CARD RENDER FOR TAB 1
+    window.renderSealTable = function() {
         const tbody = document.getElementById("seal-table-body");
         if (window.sealRecordsData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">No seal allocations found.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 block md:table-cell w-full">No seal allocations found.</td></tr>`;
             return;
         }
 
@@ -346,17 +356,30 @@
             const encodedData = encodeURIComponent(JSON.stringify(row));
             const inspectorLabel = row.tpiaInspector ? `<span class="font-bold text-blue-700">${row.tpiaInspector}</span>` : `<span class="italic text-slate-400">Inventory (Unassigned)</span>`;
             
-            html += `<tr class="${bg} hover:bg-amber-50/40 transition">
-                <td class="p-3 border-r text-center font-mono text-slate-400">${index + 1}</td>
-                <td class="p-3 border-r font-bold text-slate-800">${row.sealType || '-'}</td>
-                <td class="p-3 border-r text-sm">${inspectorLabel}</td>
-                <td class="p-3 border-r font-mono text-slate-700 font-bold">${row.sealFrom || '-'}</td>
-                <td class="p-3 border-r font-mono text-slate-700 font-bold">${row.sealTo || '-'}</td>
-                <td class="p-3 border-r text-center font-black text-slate-900">${row.totalSeals || 0}</td>
-                <td class="p-3 text-center">
+            html += `<tr class="flex flex-col md:table-row ${bg} hover:bg-amber-50/40 transition border-b md:border-b-0 border-slate-200">
+                <td class="p-3 flex md:hidden items-center justify-between w-full gap-2">
+                    <div class="flex flex-col gap-1 min-w-0 flex-1">
+                        <span class="font-bold text-slate-800 text-xs truncate">${row.sealType || '-'}</span>
+                        <span class="text-[10px] text-slate-500 truncate">${inspectorLabel}</span>
+                    </div>
+                    <div class="flex flex-col items-end gap-1.5 shrink-0">
+                        <span class="text-[10px] font-black bg-slate-200 text-slate-800 px-2 py-0.5 rounded border border-slate-300 whitespace-nowrap">${row.totalSeals || 0} Seals</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.openSealModal('${encodedData}')" class="p-1.5 bg-blue-50 text-blue-600 rounded-lg shadow-sm border border-blue-200"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                            <button onclick="window.deleteSealRecord('${row.sealId}')" class="p-1.5 bg-rose-50 text-rose-600 rounded-lg shadow-sm border border-rose-200"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                        </div>
+                    </div>
+                </td>
+                <td class="p-3 border-r text-center font-mono text-slate-400 hidden md:table-cell">${index + 1}</td>
+                <td class="p-3 border-r font-bold text-slate-800 hidden md:table-cell">${row.sealType || '-'}</td>
+                <td class="p-3 border-r text-sm hidden md:table-cell">${inspectorLabel}</td>
+                <td class="p-3 border-r font-mono text-slate-700 font-bold hidden md:table-cell">${row.sealFrom || '-'}</td>
+                <td class="p-3 border-r font-mono text-slate-700 font-bold hidden md:table-cell">${row.sealTo || '-'}</td>
+                <td class="p-3 border-r text-center font-black text-slate-900 hidden md:table-cell">${row.totalSeals || 0}</td>
+                <td class="p-3 text-center hidden md:table-cell">
                     <div class="flex items-center justify-center gap-2">
-                        <button onclick="openSealModal('${encodedData}')" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition cursor-pointer" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
-                        <button onclick="deleteSealRecord('${row.sealId}')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition cursor-pointer" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button onclick="window.openSealModal('${encodedData}')" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition cursor-pointer border border-blue-200" title="Edit"><i data-lucide="edit-2" class="w-4 h-4"></i></button>
+                        <button onclick="window.deleteSealRecord('${row.sealId}')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition cursor-pointer border border-rose-200" title="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 </td>
             </tr>`;
@@ -364,9 +387,9 @@
 
         tbody.innerHTML = html;
         if (window.lucide) lucide.createIcons();
-    }
+    };
 
-    function openSealModal(encodedData = null) {
+    window.openSealModal = function(encodedData = null) {
         const modal = document.getElementById("seal-modal");
         const title = document.getElementById("seal-modal-title");
         
@@ -401,11 +424,11 @@
         }
 
         modal.classList.remove("hidden");
-    }
+    };
 
-    function closeSealModal() { document.getElementById("seal-modal").classList.add("hidden"); }
+    window.closeSealModal = function() { document.getElementById("seal-modal").classList.add("hidden"); };
 
-    async function handleSaveSeal(e) {
+    window.handleSaveSeal = async function(e) {
         e.preventDefault();
         const btn = document.getElementById("save-seal-btn");
         const origText = btn.innerHTML;
@@ -426,21 +449,21 @@
             const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
             const data = await res.json();
             if (data.status) {
-                closeSealModal();
+                window.closeSealModal();
                 const sealsRes = await fetch(`${API_URL}?action=getSealDetails`);
                 const sealData = await sealsRes.json();
                 if (sealData.status) window.sealRecordsData = sealData.data || [];
-                renderSealTable();
-                if (!document.getElementById("tab-tracker").classList.contains("hidden")) processAndRenderTracker();
+                window.renderSealTable();
+                if (!document.getElementById("tab-tracker").classList.contains("hidden")) window.processAndRenderTracker();
             } else alert("Error: " + data.message);
         } catch (err) { alert("Network error while saving."); }
 
         btn.innerHTML = origText;
         btn.disabled = false;
         if (window.lucide) lucide.createIcons();
-    }
+    };
 
-    async function deleteSealRecord(sealId) {
+    window.deleteSealRecord = async function(sealId) {
         if (!confirm("Permanently delete this seal allocation?")) return;
         try {
             const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "deleteSealDetails", sealId: sealId }) });
@@ -449,11 +472,11 @@
                 const sealsRes = await fetch(`${API_URL}?action=getSealDetails`);
                 const sealData = await sealsRes.json();
                 if (sealData.status) window.sealRecordsData = sealData.data || [];
-                renderSealTable();
-                if (!document.getElementById("tab-tracker").classList.contains("hidden")) processAndRenderTracker();
+                window.renderSealTable();
+                if (!document.getElementById("tab-tracker").classList.contains("hidden")) window.processAndRenderTracker();
             } else alert("Error deleting record: " + data.message);
         } catch (err) { alert("Network error while deleting."); }
-    }
+    };
 
     // ==========================================
     // TRACKER MATH & EXACT APPS SCRIPT PARITY LOGIC
@@ -464,7 +487,6 @@
         return null;
     }
 
-    // 🎯 EXACT APPS SCRIPT PARITY
     function expandSealRange(inputStr) {
         if (!inputStr || String(inputStr).trim() === "") return [];
         
@@ -593,7 +615,7 @@
             el.classList.add("hidden");
             if(icon) icon.style.transform = "rotate(0deg)";
         }
-    }
+    };
 
     window.toggleNestedAccordion = function(id, iconId) {
         const el = document.getElementById(id);
@@ -608,17 +630,16 @@
     };
 
     window.switchHierarchySort = function(safeKey, type, sortMode) {
-        window.hierarchySortModes[`${safeKey}-${cleanInspectorName(type)}`] = sortMode;
-        processAndRenderTracker();
+        window.hierarchySortModes[`${safeKey}-${window.cleanInspectorName(type)}`] = sortMode;
+        window.processAndRenderTracker();
     };
 
-    // 🎯 ADDED discomCounts to accurately track sum vs set size
     function createInspObj(name) { return { name: name, types: {}, rawExecutions: [] }; }
     function createTypeObj() {
         return { issued: new Set(), usedFromOwn: new Set(), lentOut: {}, borrowedFrom: {}, discomUsage: {}, discomCounts: {} }; 
     }
 
-    function processAndRenderTracker() {
+    window.processAndRenderTracker = function() {
         const filterDiscom = document.getElementById("tracker-discom-filter").value;
         const centralBody = document.getElementById("tracker-central-body");
         const inspBody = document.getElementById("tracker-inspectors-body");
@@ -633,13 +654,13 @@
         // 1. Build Procurement
         window.sealRecordsData.forEach(row => {
             let type = String(row.sealType || "Unknown").trim();
-            let insp = String(getInspectorName(row.tpiaInspector || row.inspector || "")).trim();
+            let insp = String(window.getInspectorName(row.tpiaInspector || row.inspector || "")).trim();
             let expanded = expandSealRange(`${row.sealFrom} to ${row.sealTo}`);
 
             if (!globalProcuredMap[type]) globalProcuredMap[type] = new Set();
             expanded.forEach(s => globalProcuredMap[type].add(s));
 
-            let ownerKey = cleanInspectorName(insp);
+            let ownerKey = window.cleanInspectorName(insp);
             let ownerName = insp;
 
             if (!ownerKey || ["notappointed", "notupdated", "pending", "-"].includes(ownerKey)) {
@@ -660,7 +681,7 @@
         window.trackerMasterInspections.forEach(row => {
             let type = String(row.sealType || "").trim();
             let serials = String(row.sealSerial || "").trim();
-            let insp = String(getInspectorName(row.conductedBy || row.tpiaInspector || row.inspector || "")).trim();
+            let insp = String(window.getInspectorName(row.conductedBy || row.tpiaInspector || row.inspector || "")).trim();
             let discom = String(row.discom || "").trim().toUpperCase();
 
             if (!type || !serials) return;
@@ -669,7 +690,7 @@
             if (!globalUsedMap[type]) globalUsedMap[type] = new Set();
             expanded.forEach(s => globalUsedMap[type].add(s));
 
-            let userKey = cleanInspectorName(insp);
+            let userKey = window.cleanInspectorName(insp);
             let userName = insp;
             if (!userKey || ["notappointed", "notupdated", "pending", "-"].includes(userKey)) {
                 userKey = "UNKNOWN_USER";
@@ -681,7 +702,6 @@
                 if (!inspectorData[userKey].types[type]) inspectorData[userKey].types[type] = createTypeObj();
                 inspectorData[userKey].rawExecutions.push(row);
 
-                // 🎯 Track total Excel count
                 if (!discom) discom = "UNKNOWN";
                 if (!inspectorData[userKey].types[type].discomCounts[discom]) {
                     inspectorData[userKey].types[type].discomCounts[discom] = 0;
@@ -806,7 +826,6 @@
                 inspTotalIssued += issuedArr.length;
                 inspTotalAvailable += availArr.length;
 
-                // 🎯 Fix applied here: Total matched to Excel sum
                 let discomBreakdownHtml = "";
                 let typeFilteredExecutedCount = 0;
                 let activeDiscoms = Object.keys(discomUsage).sort();
@@ -832,8 +851,8 @@
                     rawExecutions = rawExecutions.filter(r => String(r.discom || "").trim().toUpperCase() === filterDiscom);
                 }
 
-                const safeKey = cleanInspectorName(inspObj.name);
-                const safeType = cleanInspectorName(type);
+                const safeKey = window.cleanInspectorName(inspObj.name);
+                const safeType = window.cleanInspectorName(type);
                 const nestedId = `nested-${safeKey}-${safeType}`;
                 const sortModeKey = `${safeKey}-${safeType}`;
                 const currentSortMode = window.hierarchySortModes[sortModeKey] || 'hierarchy';
@@ -988,7 +1007,7 @@
 
             if (typesList.length === 0) return;
 
-            const safeKey = cleanInspectorName(inspObj.name);
+            const safeKey = window.cleanInspectorName(inspObj.name);
 
             inspHtml += `
                 <div class="border border-slate-200 rounded-2xl shadow-sm break-inside-avoid pdf-accordion bg-white overflow-hidden">
@@ -1032,13 +1051,13 @@
         inspBody.innerHTML = inspHtml;
 
         if (window.lucide) lucide.createIcons();
-        initTrackerColumnResizer();
-    }
+        window.initTrackerColumnResizer();
+    };
 
     // ==========================================
     // COLUMN RESIZER LOGIC
     // ==========================================
-    function initTrackerColumnResizer() {
+    window.initTrackerColumnResizer = function() {
         const tables = document.querySelectorAll('.resizable-table');
         tables.forEach(table => {
             const cols = table.querySelectorAll('th.resizable-th');
@@ -1076,12 +1095,12 @@
                 resizer.addEventListener('mousedown', mouseDownHandler);
             });
         });
-    }
+    };
 
     // ==========================================
-    // FLAWLESS ANTI-CROP PDF EXPORT (Summary Only)
+    // FLAWLESS ANTI-CROP PDF EXPORT
     // ==========================================
-    function downloadTrackerPDF() {
+    window.downloadTrackerPDF = function() {
         const filterDiscom = document.getElementById("tracker-discom-filter").value;
         const dStr = filterDiscom === 'ALL' ? 'ALL_DISCOMS' : filterDiscom;
         
@@ -1103,14 +1122,12 @@
             const wrapper = document.getElementById('pdf-tracker-wrapper');
             const titleEl = document.getElementById('pdf-tracker-title');
             
-            // 1. Expand top level accordions (Keep nested hierarchical rows hidden in PDF summary as requested)
             const accordions = wrapper.querySelectorAll('.pdf-accordion > div.hidden');
             accordions.forEach(el => el.classList.remove('hidden'));
 
             titleEl.innerText = `Detailed Seal Inventory & Usage Report - ${dStr}`;
             titleEl.classList.remove('hidden');
 
-            // 2. Clear manual resizer pixels so it uses perfect percentages
             const allCells = wrapper.querySelectorAll('th, td');
             allCells.forEach(cell => {
                 if (cell.hasAttribute('data-default-width')) {
@@ -1120,14 +1137,12 @@
                 }
             });
 
-            // 3. Remove custom scrollbars
             const scrollContainers = wrapper.querySelectorAll('.scroll-lockable, .overflow-x-auto, .custom-scrollbar');
             scrollContainers.forEach(el => {
                 el.classList.remove('overflow-x-auto', 'custom-scrollbar');
                 el.style.overflow = 'visible';
             });
 
-            // 4. 🎯 NODE RELOCATION: Move the LIVE DOM wrapper absolutely to the body.
             const originalParent = wrapper.parentNode;
             const originalNextSibling = wrapper.nextSibling;
             
@@ -1135,7 +1150,7 @@
             printAnchor.style.position = 'absolute';
             printAnchor.style.top = '0';
             printAnchor.style.left = '0';
-            printAnchor.style.width = '1250px'; // 🎯 Exact width for A4 landscape
+            printAnchor.style.width = '1250px'; 
             printAnchor.style.minHeight = '100vh';
             printAnchor.style.background = 'white';
             printAnchor.style.zIndex = '99999';
@@ -1144,7 +1159,6 @@
             printAnchor.appendChild(wrapper);
             document.body.appendChild(printAnchor);
 
-            // Hide resizers and buttons during print
             wrapper.querySelectorAll('.resizer, .hide-on-print, button').forEach(el => el.style.display = 'none');
             
             wrapper.querySelectorAll('table').forEach(table => {
@@ -1198,7 +1212,7 @@
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 
-                processAndRenderTracker(); 
+                window.processAndRenderTracker(); 
                 if (window.lucide) lucide.createIcons();
             });
         };
@@ -1217,9 +1231,9 @@
         } else {
             executeExport();
         }
-    }
+    };
     
     setTimeout(() => {
-        initSealModule();
+        window.initSealModule();
     }, 100);
 </script>
