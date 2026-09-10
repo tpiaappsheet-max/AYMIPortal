@@ -63,116 +63,118 @@
         </div>
     </div>
 
-    <!-- Alert Grids Container (3 Rows x 2 Columns) -->
+    <!-- Alert Grids Container (Auto-flowing Grid, 3 Rows x 2 Columns) -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         
-        <!-- ROW 1, PANEL 1: TODAY'S SCHEDULE -->
+        <!-- PANEL 1: TODAY'S SCHEDULE -->
         <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-blue-50 p-4 border-b border-blue-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-blue-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="calendar-clock" class="w-5 h-5"></i> Today's Schedule 
                     <span id="count-today-sched" class="bg-blue-200 text-blue-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
                 </h4>
-                <p class="text-[10px] text-blue-600 font-bold mt-1">Inspections officially scheduled to execute today.</p>
+                <p class="text-[10px] text-blue-600 font-bold mt-1">Inspections currently active and scheduled for today.</p>
             </div>
             <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
                 <table class="w-full text-left text-xs border-collapse block md:table">
                     <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
-                            <th class="p-3 w-28">Inspection ID</th>
-                            <th class="p-3 w-16 text-center">Discom</th>
-                            <th class="p-3 w-40">Inspector</th>
+                            <th class="p-3 w-36">Inspection ID</th>
                             <th class="p-3">Manufacturer</th>
+                            <th class="p-3 w-48">Inspector</th>
                         </tr>
                     </thead>
                     <tbody id="cc-today-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
-                        <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ROW 1, PANEL 2: CALLS RECEIVED TODAY -->
+        <!-- PANEL 2: DYNAMIC CALLS RECEIVED LOG -->
         <div class="bg-white rounded-3xl border border-emerald-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
-            <div class="bg-emerald-50 p-4 border-b border-emerald-100 shrink-0">
-                <h4 class="font-black text-sm uppercase text-emerald-700 tracking-wider flex items-center gap-2">
-                    <i data-lucide="inbox" class="w-5 h-5"></i> New Calls Received Today 
-                    <span id="count-today-recv" class="bg-emerald-200 text-emerald-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
-                </h4>
-                <p class="text-[10px] text-emerald-600 font-bold mt-1">Fresh inspection assignments logged into the system today.</p>
+            <div class="bg-emerald-50 p-4 border-b border-emerald-100 shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h4 class="font-black text-sm uppercase text-emerald-700 tracking-wider flex items-center gap-2">
+                        <i data-lucide="inbox" class="w-5 h-5"></i> Calls Received Log 
+                        <span id="count-dynamic-recv" class="bg-emerald-200 text-emerald-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                    </h4>
+                    <p class="text-[10px] text-emerald-600 font-bold mt-1">Inspection assignments logged on the selected date.</p>
+                </div>
+                <div class="flex items-center gap-2 bg-white px-2 py-1 rounded-lg border border-emerald-200 shadow-2xs shrink-0">
+                    <label class="text-[10px] font-black uppercase text-emerald-800">Date:</label>
+                    <input type="date" id="recv-log-filter-date" onchange="window.renderDynamicRecvLog()" class="p-1 border-none rounded-lg text-xs font-bold outline-none bg-transparent cursor-pointer text-emerald-900">
+                </div>
             </div>
             <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
                 <table class="w-full text-left text-xs border-collapse block md:table">
                     <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
-                            <th class="p-3 w-28">Inspection ID</th>
-                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3 w-36">Inspection ID</th>
                             <th class="p-3">Manufacturer</th>
-                            <th class="p-3 w-32">Letter No</th>
+                            <th class="p-3 w-36">Letter No</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-today-recv-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
+                    <tbody id="cc-dynamic-recv-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PANEL 3: CALLS NOT SCHEDULED -->
+        <div class="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
+            <div class="bg-orange-50 p-4 border-b border-orange-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-orange-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="clock-alert" class="w-5 h-5"></i> Calls Not Scheduled
+                    <span id="count-not-sched" class="bg-orange-200 text-orange-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-orange-600 font-bold mt-1">All valid calls currently stuck in Pending status.</p>
+            </div>
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
+                        <tr>
+                            <th class="p-3 w-36">Inspection ID</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 text-center w-24">Recv Date</th>
+                            <th class="p-3 text-center w-20">Wait Days</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-not-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ROW 2, PANEL 1: URGENT DEADLINES -->
+        <!-- PANEL 4: URGENT DEADLINES -->
         <div class="bg-white rounded-3xl border border-rose-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-rose-50 p-4 border-b border-rose-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-rose-700 tracking-wider flex items-center gap-2">
                     <i data-lucide="alarm-clock" class="w-5 h-5"></i> Approaching Deadlines 
                     <span id="count-deadlines" class="bg-rose-200 text-rose-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
                 </h4>
-                <p class="text-[10px] text-rose-600 font-bold mt-1">Unfinished valid inspections mapped against target completion dates (<= 3 Days).</p>
+                <p class="text-[10px] text-rose-600 font-bold mt-1">Unfinished inspections approaching target completion dates (<= 3 Days).</p>
             </div>
             <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
                 <table class="w-full text-left text-xs border-collapse block md:table">
                     <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
-                            <th class="p-3 w-28">Inspection ID</th>
-                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3 w-36">Inspection ID</th>
                             <th class="p-3">Manufacturer</th>
                             <th class="p-3 text-center w-24">Deadline</th>
                             <th class="p-3 text-right w-24">Status</th>
                         </tr>
                     </thead>
                     <tbody id="cc-deadlines-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
-                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                        <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ROW 2, PANEL 2: OVERDUE FOR SCHEDULING -->
-        <div class="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
-            <div class="bg-orange-50 p-4 border-b border-orange-100 shrink-0">
-                <h4 class="font-black text-sm uppercase text-orange-700 tracking-wider flex items-center gap-2">
-                    <i data-lucide="clock-alert" class="w-5 h-5"></i> Overdue for Scheduling
-                    <span id="count-overdue-sched" class="bg-orange-200 text-orange-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
-                </h4>
-                <p class="text-[10px] text-orange-600 font-bold mt-1">Calls received > 3 days ago but still pending assignment.</p>
-            </div>
-            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
-                <table class="w-full text-left text-xs border-collapse block md:table">
-                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
-                        <tr>
-                            <th class="p-3 w-28">Inspection ID</th>
-                            <th class="p-3 w-16 text-center">Discom</th>
-                            <th class="p-3">Manufacturer</th>
-                            <th class="p-3 text-center w-24">Recv Date</th>
-                            <th class="p-3 text-center w-20">Days Wait</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cc-overdue-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
-                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- ROW 3, PANEL 1: NABL REPORTS PENDING MAILING -->
+        <!-- PANEL 5: NABL REPORTS PENDING MAILING -->
         <div class="bg-white rounded-3xl border border-indigo-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-indigo-50 p-4 border-b border-indigo-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-indigo-700 tracking-wider flex items-center gap-2">
@@ -185,21 +187,20 @@
                 <table class="w-full text-left text-xs border-collapse block md:table">
                     <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
-                            <th class="p-3 w-28">Inspection ID</th>
-                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3 w-36">Inspection ID</th>
                             <th class="p-3">Manufacturer</th>
-                            <th class="p-3 text-center w-28">NABL Send Date</th>
-                            <th class="p-3 text-center w-20">Days Elapsed</th>
+                            <th class="p-3 text-center w-28">NABL Date</th>
+                            <th class="p-3 text-center w-20">Elapsed</th>
                         </tr>
                     </thead>
                     <tbody id="cc-nabl-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
-                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                        <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ROW 3, PANEL 2: READY FOR BILLING -->
+        <!-- PANEL 6: READY FOR BILLING -->
         <div class="bg-white rounded-3xl border border-purple-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-purple-50 p-4 border-b border-purple-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-purple-700 tracking-wider flex items-center gap-2">
@@ -212,15 +213,14 @@
                 <table class="w-full text-left text-xs border-collapse block md:table">
                     <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
                         <tr>
-                            <th class="p-3 w-28">Inspection ID</th>
-                            <th class="p-3 w-16 text-center">Discom</th>
+                            <th class="p-3 w-36">Inspection ID</th>
                             <th class="p-3">Manufacturer</th>
                             <th class="p-3 text-center w-24">Outcome</th>
                             <th class="p-3 text-center w-20">Man-Days</th>
                         </tr>
                     </thead>
                     <tbody id="cc-ready-billing-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
-                        <tr><td colspan="5" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                        <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -229,14 +229,22 @@
     </div>
 </div>
 
-<style>
-    /* Expand/Collapse Custom Styles */
-    .mobile-expand-drawer { display: none; }
-    .mobile-expand-drawer.active { display: block; }
-    @media (min-width: 768px) {
-        .mobile-expand-drawer { display: none !important; }
-    }
-</style>
+<!-- 🎯 COMPREHENSIVE POPUP MODAL FOR INSPECTION DETAILS -->
+<div id="cc-inspection-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[100] flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl p-6 sm:p-8 relative border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <div class="flex items-center justify-between border-b pb-3 sticky top-0 bg-white z-10">
+            <h3 id="cc-modal-title-text" class="font-black text-sm uppercase text-slate-900 flex items-center gap-2">
+                <i data-lucide="file-search" class="text-blue-600 w-5 h-5"></i> Complete Inspection Profile
+            </h3>
+            <button onclick="window.closeCcInspectionModal()" class="text-slate-400 hover:text-rose-600 p-1.5 rounded-xl hover:bg-slate-100 cursor-pointer transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="cc-inspection-modal-body" class="text-xs">
+            <!-- Dynamic Content Injected Here -->
+        </div>
+    </div>
+</div>
 
 <script>
     window.ccRawData = [];
@@ -246,29 +254,60 @@
         const el = document.getElementById(id); 
         if (el) el.innerText = text; 
     };
-    const safeSetHtml = (id, html) => { 
-        const el = document.getElementById(id); 
-        if (el) el.innerHTML = html; 
+
+    // 🎯 OPEN POPUP MODAL FUNCTION (With Date Received, Material Category, and Appointed Badge)
+    window.openCcInspectionModal = function(encodedRawData) {
+        if (!encodedRawData) return;
+        const r = JSON.parse(decodeURIComponent(encodedRawData));
+        const modal = document.getElementById("cc-inspection-modal");
+        const body = document.getElementById("cc-inspection-modal-body");
+        const titleText = document.getElementById("cc-modal-title-text");
+
+        const insp = String(r.conductedBy || r.tpiaInspector || "").trim();
+        const isAppointed = insp && insp.toLowerCase() !== "pending" && insp.toLowerCase() !== "not appointed" && insp !== "-";
+        
+        if (titleText) {
+            titleText.innerHTML = `
+                <i data-lucide="file-search" class="text-blue-600 w-5 h-5"></i> Complete Inspection Profile
+                ${isAppointed ? `<span class="bg-emerald-100 text-emerald-800 text-[10px] px-2.5 py-0.5 rounded-full ml-2 font-black tracking-normal align-middle uppercase border border-emerald-200 shadow-xs">Appointed</span>` : ''}
+            `;
+        }
+
+        body.innerHTML = `
+            <div class="flex flex-col gap-4 p-1">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Inspection ID</strong><span class="text-sm font-black text-blue-700 font-mono">${r.inspectionId || r.InspectionID || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Discom</strong><span class="text-xs font-bold text-slate-800">${r.discom || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Scheme</strong><span class="text-xs font-bold text-slate-800">${r.scheme || '-'}</span></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Letter No & Date</strong><span class="text-xs font-bold text-slate-800">${r.letterNo || '-'} <span class="text-slate-500 font-normal">(${r.letterDate || '-'})</span></span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">TKC</strong><span class="text-xs font-bold text-slate-800">${r.tkc || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Material Category</strong><span class="text-xs font-bold text-purple-700">${r.materialInspected || '-'}</span></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Manufacturer & Address</strong><span class="text-xs font-bold text-slate-800">${r.manufacturer || '-'}<br><span class="text-[10px] font-medium text-slate-500 mt-1 inline-block leading-relaxed">${r.address || '-'}</span></span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Contact Person</strong><span class="text-xs font-bold text-slate-800">${r.contactPerson || '-'} <span class="text-slate-500 font-normal block mt-1">${r.mobile || '-'}</span></span></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Material Spec</strong><span class="text-[11px] font-medium text-slate-800 whitespace-pre-wrap break-words leading-relaxed">${r.materialSpec || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Quantity</strong><span class="text-[11px] font-medium text-slate-800 whitespace-pre-wrap break-words leading-relaxed">${r.quantity || '-'}</span></div>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 border-t border-slate-200 pt-4 mt-2">
+                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Date Recv / Tentative</strong><span class="text-xs font-mono font-bold text-slate-800">${r.receivedDate || '-'}</span></div>
+                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Schedule Date</strong><span class="text-xs font-mono font-bold text-slate-800">${r.scheduleDate || '-'}</span></div>
+                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Inspector</strong><span class="text-xs font-bold text-blue-700">${insp || '-'}</span></div>
+                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Status</strong><span class="text-xs font-bold text-emerald-700">${r.status || '-'}</span></div>
+                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Sub-Status</strong><span class="text-xs font-bold text-slate-600">${r.subStatus || '-'}</span></div>
+                </div>
+            </div>
+        `;
+        modal.classList.remove("hidden");
+        if (window.lucide) lucide.createIcons();
     };
 
-    // 🎯 Mobile Toggle Script
-    window.toggleMobileRow = function(element) {
-        if (window.innerWidth >= 768) return; // Disable expanding on desktop view
-        const row = element.closest('tr');
-        const drawer = row.nextElementSibling;
-        const icon = row.querySelector('.toggle-icon');
-
-        if (drawer && drawer.classList.contains('mobile-expand-drawer')) {
-            if (drawer.classList.contains('active')) {
-                drawer.classList.remove('active');
-                if (icon) icon.style.transform = 'rotate(0deg)';
-                row.classList.remove('bg-slate-50');
-            } else {
-                drawer.classList.add('active');
-                if (icon) icon.style.transform = 'rotate(90deg)';
-                row.classList.add('bg-slate-50');
-            }
-        }
+    window.closeCcInspectionModal = function() {
+        document.getElementById("cc-inspection-modal").classList.add("hidden");
     };
 
     async function initCommandCenter() {
@@ -312,6 +351,75 @@
                d1.getFullYear() === d2.getFullYear();
     }
 
+    // 🎯 Active Schedule Date-Matching Logic
+    function parseDateToKey(dateStr) {
+        if (!dateStr || String(dateStr).trim() === "" || dateStr === "-") return null;
+        let clean = String(dateStr).trim().split('T')[0];
+        if (clean.includes('/')) {
+            const p = clean.split('/');
+            if (p.length === 3) {
+                let d = parseInt(p[0], 10), m = parseInt(p[1], 10), y = parseInt(p[2], 10);
+                if (y < 100) y += 2000;
+                return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            }
+        } else if (clean.includes('-')) {
+            const p = clean.split('-');
+            if (p.length === 3) {
+                let y, m, d;
+                if (p[0].length === 4) { y = parseInt(p[0], 10); m = parseInt(p[1], 10); d = parseInt(p[2], 10); } 
+                else { d = parseInt(p[0], 10); m = parseInt(p[1], 10); y = parseInt(p[2], 10); }
+                if (y < 100) y += 2000;
+                return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            }
+        }
+        return null;
+    }
+
+    function isInspectionActiveOnDate(row, targetKey) {
+        const schedKey = parseDateToKey(row.scheduleDate);
+        if (schedKey && schedKey === targetKey) return true;
+        if (schedKey && schedKey < targetKey) {
+            const stat = String(row.status || "").trim().toLowerCase();
+            if (stat.includes("sched")) return true;
+        }
+        const fromKey = parseDateToKey(row.dateFrom);
+        if (fromKey && fromKey === targetKey) return true;
+        if (fromKey && row.dateTo) {
+            const fromParts = fromKey.split('-');
+            const fromDate = new Date(parseInt(fromParts[0], 10), parseInt(fromParts[1], 10) - 1, parseInt(fromParts[2], 10));
+            const regex = /(To|And)[\s\n\r]+(\d{2}\/\d{2}\/\d{4})/gi;
+            let match;
+            let currentBase = new Date(fromDate);
+            const activeDates = new Set();
+            activeDates.add(fromKey);
+
+            while ((match = regex.exec(row.dateTo)) !== null) {
+                const kw = match[1].toLowerCase();
+                const targetK = parseDateToKey(match[2]);
+                if (targetK) {
+                    const tp = targetK.split('-');
+                    const tDate = new Date(parseInt(tp[0], 10), parseInt(tp[1], 10) - 1, parseInt(tp[2], 10));
+                    if (kw === 'to') {
+                        let cur = new Date(currentBase);
+                        cur.setDate(cur.getDate() + 1);
+                        while (cur <= tDate) {
+                            const y = cur.getFullYear();
+                            const m = String(cur.getMonth() + 1).padStart(2, '0');
+                            const d = String(cur.getDate()).padStart(2, '0');
+                            activeDates.add(`${y}-${m}-${d}`);
+                            cur.setDate(cur.getDate() + 1);
+                        }
+                    } else if (kw === 'and') {
+                        activeDates.add(targetK);
+                    }
+                    currentBase = new Date(tDate);
+                }
+            }
+            if (activeDates.has(targetKey)) return true;
+        }
+        return false;
+    }
+
     window.filterCommandCenter = function(discom) {
         window.ccActiveDiscom = discom;
         
@@ -329,6 +437,101 @@
         renderCommandCenter();
     }
 
+    // 🎯 Universal Discom Grouping Renderer (Now uses the Popup Modal directly)
+    function renderGroupedTable(tbodyId, dataArr, colsHtmlFn) {
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
+        if (dataArr.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold block md:table-cell w-full">No records found.</td></tr>`;
+            return;
+        }
+
+        let html = "";
+        ["NBPDCL", "SBPDCL", "PVVNL", "OTHER"].forEach(d => {
+            const group = dataArr.filter(a => d === "OTHER" ? !["NBPDCL", "SBPDCL", "PVVNL"].includes(a.discom) : a.discom === d);
+            if (group.length > 0) {
+                let discomColor = d === 'NBPDCL' ? 'text-blue-700 bg-blue-100 border-blue-200' : 
+                                  d === 'SBPDCL' ? 'text-purple-700 bg-purple-100 border-purple-200' : 
+                                  d === 'PVVNL' ? 'text-amber-700 bg-amber-100 border-amber-200' : 
+                                  'text-slate-700 bg-slate-200 border-slate-300';
+                
+                html += `<tr class="bg-slate-50 block md:table-row w-full"><td colspan="5" class="p-2 border-y border-slate-200 block md:table-cell"><span class="px-2 py-1 rounded text-[10px] font-black uppercase border ${discomColor}">${d} (${group.length})</span></td></tr>`;
+                
+                group.forEach(a => {
+                    const encodedPayload = encodeURIComponent(JSON.stringify(a.raw));
+                    html += `
+                    <tr class="flex flex-col md:table-row bg-white hover:bg-blue-50/50 transition border-b border-slate-100 cursor-pointer" data-payload="${encodedPayload}" onclick="window.openCcInspectionModal(this.getAttribute('data-payload'))">
+                        <td class="p-3 flex justify-between items-center md:hidden w-full">
+                            <div class="flex items-center gap-2 flex-1 overflow-hidden">
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                                <span class="font-mono font-black text-blue-700 truncate">${a.id}</span>
+                            </div>
+                            <span class="text-[10px] text-slate-500 font-bold truncate max-w-[120px] shrink-0 text-right">${a.mfg}</span>
+                        </td>
+                        <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell w-36 cursor-pointer">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 shrink-0"></i>
+                                ${a.id}
+                            </div>
+                        </td>
+                        <td class="p-3 font-bold text-slate-800 truncate max-w-[200px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
+                        ${colsHtmlFn(a)}
+                    </tr>`;
+                });
+            }
+        });
+        tbody.innerHTML = html;
+    }
+
+    // 🎯 Render Dynamic Received Log
+    window.renderDynamicRecvLog = function() {
+        const dateInput = document.getElementById("recv-log-filter-date");
+        const tbodyId = "cc-dynamic-recv-body";
+        const countSpan = document.getElementById("count-dynamic-recv");
+        
+        if (!dateInput || !window.ccRawData) return;
+
+        // Default to yesterday if empty
+        if (!dateInput.value) {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            dateInput.value = `${y}-${m}-${day}`;
+        }
+
+        const targetParts = dateInput.value.split('-');
+        if (targetParts.length !== 3) return;
+        const targetDate = new Date(parseInt(targetParts[0], 10), parseInt(targetParts[1], 10) - 1, parseInt(targetParts[2], 10));
+        targetDate.setHours(0,0,0,0);
+
+        let dynamicRecvAlerts = [];
+
+        window.ccRawData.forEach(r => {
+            if (window.ccActiveDiscom !== "ALL" && String(r.discom || "").trim().toUpperCase() !== window.ccActiveDiscom) return;
+            
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            let dRec = parseAnyDateObj(r.receivedDate);
+            if (isSameDate(dRec, targetDate)) {
+                dynamicRecvAlerts.push({
+                    id: r.inspectionId || r.InspectionID || 'N/A',
+                    discom: String(r.discom || "OTHER").trim().toUpperCase(),
+                    mfg: r.manufacturer || 'N/A',
+                    letter: r.letterNo || 'N/A',
+                    raw: r
+                });
+            }
+        });
+
+        if (countSpan) countSpan.innerText = dynamicRecvAlerts.length;
+
+        renderGroupedTable(tbodyId, dynamicRecvAlerts, a => `<td class="p-3 font-mono text-emerald-700 hidden md:table-cell w-36 truncate" title="${a.letter}">${a.letter}</td>`);
+        if (window.lucide) lucide.createIcons();
+    };
+
     function renderCommandCenter() {
         if (!window.ccRawData) return;
 
@@ -342,17 +545,22 @@
         let tTotal = records.length;
         let tCancelRev = 0, tValid = 0, tSched = 0, tPend = 0, tComp = 0, tBill = 0, tRepRecv = 0, tRepMail = 0;
 
-        let deadlineAlerts = [], nablAlerts = [], todaySchedAlerts = [];
-        let todayRecvAlerts = [], overdueSchedAlerts = [], readyBillingAlerts = [];
+        let todaySchedAlerts = [];
+        let deadlineAlerts = [], notScheduledAlerts = [], nablAlerts = [], readyBillingAlerts = [];
 
         const today = new Date();
         today.setHours(0,0,0,0);
+        
+        const y_str = today.getFullYear();
+        const m_str = String(today.getMonth() + 1).padStart(2, '0');
+        const d_str = String(today.getDate()).padStart(2, '0');
+        const todayKey = `${y_str}-${m_str}-${d_str}`;
 
         records.forEach(r => {
             const stat = String(r.status || "").trim().toLowerCase();
             const sub = String(r.subStatus || "").trim().toLowerCase();
             const bill = String(r.billingStatus || "").trim().toLowerCase();
-            const discom = String(r.discom || "").trim().toUpperCase();
+            const discom = String(r.discom || "OTHER").trim().toUpperCase();
 
             if (stat.includes("cancel") || stat.includes("revis")) {
                 tCancelRev++;
@@ -372,47 +580,24 @@
             let dSch = parseAnyDateObj(r.scheduleDate);
             let dRec = parseAnyDateObj(r.receivedDate);
 
-            if (isSameDate(dSch, today)) {
-                todaySchedAlerts.push({
-                    id: r.inspectionId || r.InspectionID || 'N/A',
-                    discom: discom,
-                    insp: r.conductedBy || r.tpiaInspector || 'Not Appointed',
-                    mfg: r.manufacturer || 'N/A'
-                });
+            // TODAY SCHEDULE
+            if (isInspectionActiveOnDate(r, todayKey)) {
+                todaySchedAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, insp: r.conductedBy || r.tpiaInspector || 'Not Appointed', mfg: r.manufacturer || 'N/A', raw: r });
             }
 
-            if (isSameDate(dRec, today)) {
-                todayRecvAlerts.push({
-                    id: r.inspectionId || r.InspectionID || 'N/A',
-                    discom: discom,
-                    mfg: r.manufacturer || 'N/A',
-                    letter: r.letterNo || 'N/A'
-                });
+            // CALLS NOT SCHEDULED (Any Pending Status)
+            if (stat.includes("pend")) {
+                let diffDays = 0;
+                if (dRec) diffDays = Math.floor((today - dRec) / (1000 * 60 * 60 * 24));
+                notScheduledAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, mfg: r.manufacturer || 'N/A', recvDate: dRec ? `${String(dRec.getDate()).padStart(2,'0')}/${String(dRec.getMonth()+1).padStart(2,'0')}/${dRec.getFullYear()}` : 'N/A', daysWait: diffDays, raw: r });
             }
 
-            if (dRec && !dSch && stat.includes("pend")) {
-                let diffDays = Math.floor((today - dRec) / (1000 * 60 * 60 * 24));
-                if (diffDays >= 3) {
-                    overdueSchedAlerts.push({
-                        id: r.inspectionId || r.InspectionID || 'N/A',
-                        discom: discom,
-                        mfg: r.manufacturer || 'N/A',
-                        recvDate: `${String(dRec.getDate()).padStart(2,'0')}/${String(dRec.getMonth()+1).padStart(2,'0')}/${dRec.getFullYear()}`,
-                        daysWait: diffDays
-                    });
-                }
-            }
-
+            // READY FOR BILLING
             if ((sub.includes("pass") || sub.includes("mom")) && bill !== "billed") {
-                readyBillingAlerts.push({
-                    id: r.inspectionId || r.InspectionID || 'N/A',
-                    discom: discom,
-                    mfg: r.manufacturer || 'N/A',
-                    outcome: sub.includes("pass") ? "Material Pass" : "MOM Notice",
-                    md: r.manDays || "0"
-                });
+                readyBillingAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, mfg: r.manufacturer || 'N/A', outcome: sub.includes("pass") ? "Material Pass" : "MOM Notice", md: r.manDays || "0", raw: r });
             }
 
+            // APPROACHING DEADLINES
             if (!sub.includes("pass") && !sub.includes("mom")) {
                 if (dRec) {
                     let dl = new Date(dRec);
@@ -420,17 +605,12 @@
                     dl.setHours(0,0,0,0);
                     let diffDays = Math.ceil((dl - today) / (1000 * 60 * 60 * 24));
                     if (diffDays <= 3) {
-                        deadlineAlerts.push({
-                            id: r.inspectionId || r.InspectionID || 'N/A',
-                            discom: discom,
-                            mfg: r.manufacturer || 'N/A',
-                            deadlineDate: `${String(dl.getDate()).padStart(2,'0')}/${String(dl.getMonth()+1).padStart(2,'0')}/${dl.getFullYear()}`,
-                            daysLeft: diffDays
-                        });
+                        deadlineAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, mfg: r.manufacturer || 'N/A', deadlineDate: `${String(dl.getDate()).padStart(2,'0')}/${String(dl.getMonth()+1).padStart(2,'0')}/${dl.getFullYear()}`, daysLeft: diffDays, raw: r });
                     }
                 }
             }
 
+            // NABL ALERTS
             const nablRaw = String(r.nablStatusDate || "").trim();
             if (nablRaw.toLowerCase().includes("sample send for nabl test") && String(r.reportMail || "").trim().toLowerCase() !== "yes") {
                 let extractedDate = "No Date Found";
@@ -442,14 +622,7 @@
                     nablDate.setHours(0,0,0,0);
                     diffDays = Math.ceil((today - nablDate) / (1000 * 60 * 60 * 24));
                 }
-
-                nablAlerts.push({
-                    id: r.inspectionId || r.InspectionID || 'N/A',
-                    discom: discom,
-                    mfg: r.manufacturer || 'N/A',
-                    nablDate: extractedDate,
-                    daysElapsed: diffDays
-                });
+                nablAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, mfg: r.manufacturer || 'N/A', nablDate: extractedDate, daysElapsed: diffDays, raw: r });
             }
         });
 
@@ -463,196 +636,33 @@
         safeSetText("cc-rep-mail", tRepMail);
 
         safeSetText("count-today-sched", todaySchedAlerts.length);
-        safeSetText("count-today-recv", todayRecvAlerts.length);
+        safeSetText("count-not-sched", notScheduledAlerts.length);
         safeSetText("count-deadlines", deadlineAlerts.length);
-        safeSetText("count-overdue-sched", overdueSchedAlerts.length);
         safeSetText("count-nabl", nablAlerts.length);
         safeSetText("count-ready-billing", readyBillingAlerts.length);
 
-        // 🎯 RENDER: TODAY SCHEDULE
-        let tsHtml = "";
-        todaySchedAlerts.forEach(a => {
-            tsHtml += `
-            <tr class="flex flex-col md:table-row bg-white hover:bg-blue-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
-                <td class="p-3 flex justify-between items-center md:hidden w-full">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
-                        <span class="font-mono font-black text-blue-700">${a.id}</span>
-                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
-                    </div>
-                    <span class="text-[10px] text-slate-500 font-bold truncate max-w-[120px] shrink-0 text-right">${a.insp}</span>
-                </td>
-                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
-                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
-                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.insp}">${a.insp}</td>
-                <td class="p-3 text-slate-600 truncate max-w-[150px] hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
-            </tr>
-            <tr class="mobile-expand-drawer">
-                <td colspan="4" class="p-3 border-t border-slate-100 text-xs">
-                    <div class="flex flex-col gap-2 pl-7">
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
-                    </div>
-                </td>
-            </tr>`;
-        });
-        safeSetHtml("cc-today-sched-body", tsHtml || `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No inspections scheduled for today.</td></tr>`);
-
-        // 🎯 RENDER: CALLS RECEIVED TODAY
-        let trHtml = "";
-        todayRecvAlerts.forEach(a => {
-            trHtml += `
-            <tr class="flex flex-col md:table-row bg-white hover:bg-emerald-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
-                <td class="p-3 flex justify-between items-center md:hidden w-full">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
-                        <span class="font-mono font-black text-blue-700">${a.id}</span>
-                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
-                    </div>
-                    <span class="text-[10px] text-slate-500 font-bold truncate max-w-[120px] shrink-0 text-right">${a.mfg}</span>
-                </td>
-                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
-                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
-                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
-                <td class="p-3 font-mono font-medium text-emerald-700 truncate max-w-[120px] hidden md:table-cell" title="${a.letter}">${a.letter}</td>
-            </tr>
-            <tr class="mobile-expand-drawer">
-                <td colspan="4" class="p-3 border-t border-slate-100 text-xs">
-                    <div class="flex flex-col gap-2 pl-7">
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Letter No:</strong> <span class="text-emerald-700 font-medium whitespace-pre-wrap break-words">${a.letter}</span></div>
-                    </div>
-                </td>
-            </tr>`;
-        });
-        safeSetHtml("cc-today-recv-body", trHtml || `<tr><td colspan="4" class="p-8 text-center text-slate-400 font-bold">No new calls received today.</td></tr>`);
-
-        // 🎯 RENDER: DEADLINES
+        // 🎯 RENDER GROUPED TABLES
+        renderGroupedTable("cc-today-sched-body", todaySchedAlerts, a => `<td class="p-3 text-slate-600 hidden md:table-cell w-48 truncate" title="${a.insp}">${a.insp}</td>`);
+        
+        notScheduledAlerts.sort((a, b) => b.daysWait - a.daysWait);
+        renderGroupedTable("cc-not-sched-body", notScheduledAlerts, a => `<td class="p-3 font-mono font-bold text-orange-700 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.recvDate}</td><td class="p-3 text-center font-black text-orange-600 hidden md:table-cell w-20">${a.daysWait} d</td>`);
+        
         deadlineAlerts.sort((a, b) => a.daysLeft - b.daysLeft);
-        let dlHtml = "";
-        deadlineAlerts.forEach(a => {
-            let statusBadge = "";
-            if (a.daysLeft < 0) statusBadge = `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold border border-rose-300 shadow-xs">Overdue ${Math.abs(a.daysLeft)}d</span>`;
-            else if (a.daysLeft === 0) statusBadge = `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-bold border border-orange-300 shadow-xs">Due Today</span>`;
-            else statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 shadow-xs">Due in ${a.daysLeft}d</span>`;
-
-            dlHtml += `
-            <tr class="flex flex-col md:table-row bg-white hover:bg-rose-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
-                <td class="p-3 flex justify-between items-center md:hidden w-full">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
-                        <span class="font-mono font-black text-blue-700">${a.id}</span>
-                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
-                    </div>
-                    <div class="text-right shrink-0">${statusBadge}</div>
-                </td>
-                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
-                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
-                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
-                <td class="p-3 font-mono font-bold text-slate-600 text-center border-r border-slate-100 hidden md:table-cell">${a.deadlineDate}</td>
-                <td class="p-3 text-right hidden md:table-cell">${statusBadge}</td>
-            </tr>
-            <tr class="mobile-expand-drawer">
-                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
-                    <div class="flex flex-col gap-2 pl-7">
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Deadline Date:</strong> <span class="text-slate-800 font-mono font-bold">${a.deadlineDate}</span></div>
-                    </div>
-                </td>
-            </tr>`;
+        renderGroupedTable("cc-deadlines-body", deadlineAlerts, a => {
+            let statusBadge = a.daysLeft < 0 ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold shadow-xs">Overdue ${Math.abs(a.daysLeft)}d</span>` : a.daysLeft === 0 ? `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-bold shadow-xs">Due Today</span>` : `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold shadow-xs">Due in ${a.daysLeft}d</span>`;
+            return `<td class="p-3 font-mono font-bold text-slate-600 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.deadlineDate}</td><td class="p-3 text-right hidden md:table-cell w-24">${statusBadge}</td>`;
         });
-        safeSetHtml("cc-deadlines-body", dlHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No urgent deadlines approaching.</td></tr>`);
 
-        // 🎯 RENDER: OVERDUE FOR SCHEDULING
-        overdueSchedAlerts.sort((a, b) => b.daysWait - a.daysWait);
-        let osHtml = "";
-        overdueSchedAlerts.forEach(a => {
-            osHtml += `
-            <tr class="flex flex-col md:table-row bg-white hover:bg-orange-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
-                <td class="p-3 flex justify-between items-center md:hidden w-full">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
-                        <span class="font-mono font-black text-blue-700">${a.id}</span>
-                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
-                    </div>
-                    <span class="text-[10px] font-black text-orange-600 shrink-0 text-right">${a.daysWait} Days Wait</span>
-                </td>
-                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
-                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
-                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
-                <td class="p-3 font-mono font-bold text-orange-700 text-center border-r border-slate-100 hidden md:table-cell">${a.recvDate}</td>
-                <td class="p-3 text-center font-black text-orange-600 hidden md:table-cell">${a.daysWait} days</td>
-            </tr>
-            <tr class="mobile-expand-drawer">
-                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
-                    <div class="flex flex-col gap-2 pl-7">
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Recv Date:</strong> <span class="text-orange-700 font-mono font-bold">${a.recvDate}</span></div>
-                    </div>
-                </td>
-            </tr>`;
-        });
-        safeSetHtml("cc-overdue-sched-body", osHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No calls overdue for scheduling.</td></tr>`);
-
-        // 🎯 RENDER: NABL PENDING
         nablAlerts.sort((a, b) => b.daysElapsed - a.daysElapsed);
-        let nblHtml = "";
-        nablAlerts.forEach(a => {
-            nblHtml += `
-            <tr class="flex flex-col md:table-row bg-white hover:bg-indigo-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
-                <td class="p-3 flex justify-between items-center md:hidden w-full">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
-                        <span class="font-mono font-black text-blue-700">${a.id}</span>
-                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
-                    </div>
-                    <span class="text-[10px] font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'} shrink-0 text-right">${a.daysElapsed} Days</span>
-                </td>
-                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
-                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
-                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
-                <td class="p-3 font-mono font-bold text-indigo-700 text-center border-r border-slate-100 hidden md:table-cell">${a.nablDate}</td>
-                <td class="p-3 text-center font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'} hidden md:table-cell">${a.daysElapsed} days</td>
-            </tr>
-            <tr class="mobile-expand-drawer">
-                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
-                    <div class="flex flex-col gap-2 pl-7">
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
-                        <div><strong class="text-slate-400 text-[9px] uppercase">NABL Send Date:</strong> <span class="text-indigo-700 font-mono font-bold">${a.nablDate}</span></div>
-                    </div>
-                </td>
-            </tr>`;
-        });
-        safeSetHtml("cc-nabl-body", nblHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No pending NABL reports found.</td></tr>`);
+        renderGroupedTable("cc-nabl-body", nablAlerts, a => `<td class="p-3 font-mono font-bold text-indigo-700 text-center border-r border-slate-100 hidden md:table-cell w-28">${a.nablDate}</td><td class="p-3 text-center font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'} hidden md:table-cell w-20">${a.daysElapsed} d</td>`);
 
-        // 🎯 RENDER: READY FOR BILLING
-        let rbHtml = "";
-        readyBillingAlerts.forEach(a => {
+        renderGroupedTable("cc-ready-billing-body", readyBillingAlerts, a => {
             const outColor = a.outcome === "Material Pass" ? "text-emerald-700" : "text-purple-700";
-            rbHtml += `
-            <tr class="flex flex-col md:table-row bg-white hover:bg-purple-50/50 transition border-b border-slate-100 cursor-pointer md:cursor-auto" onclick="window.toggleMobileRow(this)">
-                <td class="p-3 flex justify-between items-center md:hidden w-full">
-                    <div class="flex items-center gap-2">
-                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
-                        <span class="font-mono font-black text-blue-700">${a.id}</span>
-                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold ml-1">${a.discom}</span>
-                    </div>
-                    <span class="text-[10px] font-bold ${outColor} shrink-0 text-right">${a.outcome}</span>
-                </td>
-                <td class="p-3 font-mono font-black text-blue-700 border-r border-slate-100 hidden md:table-cell">${a.id}</td>
-                <td class="p-3 text-center border-r border-slate-100 hidden md:table-cell"><span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold">${a.discom}</span></td>
-                <td class="p-3 font-bold text-slate-800 truncate max-w-[150px] border-r border-slate-100 hidden md:table-cell" title="${a.mfg}">${a.mfg}</td>
-                <td class="p-3 font-bold ${outColor} text-center border-r border-slate-100 hidden md:table-cell">${a.outcome}</td>
-                <td class="p-3 text-center font-mono font-bold text-slate-600 hidden md:table-cell">${a.md}</td>
-            </tr>
-            <tr class="mobile-expand-drawer">
-                <td colspan="5" class="p-3 border-t border-slate-100 text-xs">
-                    <div class="flex flex-col gap-2 pl-7">
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Manufacturer:</strong> <span class="text-slate-800 font-medium whitespace-pre-wrap break-words">${a.mfg}</span></div>
-                        <div><strong class="text-slate-400 text-[9px] uppercase">Man-Days Utilized:</strong> <span class="text-slate-800 font-mono font-bold">${a.md}</span></div>
-                    </div>
-                </td>
-            </tr>`;
+            return `<td class="p-3 font-bold ${outColor} text-center border-r border-slate-100 hidden md:table-cell w-24">${a.outcome}</td><td class="p-3 text-center font-mono font-bold text-slate-600 hidden md:table-cell w-20">${a.md}</td>`;
         });
-        safeSetHtml("cc-ready-billing-body", rbHtml || `<tr><td colspan="5" class="p-8 text-center text-slate-400 font-bold">No unbilled completions found.</td></tr>`);
+
+        // Initialize Dynamic Logs Panel
+        window.renderDynamicRecvLog();
 
         if (window.lucide) lucide.createIcons();
     }
