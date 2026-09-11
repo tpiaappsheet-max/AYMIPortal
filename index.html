@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -76,7 +76,7 @@
 
     <script>
         // 🎯 PASTE YOUR DEPLOYED GOOGLE APPS SCRIPT WEB APP URL HERE
-        const API_URL = "https://script.google.com/macros/s/AKfycbzKQC_Eu740xB7qjxi8EE9iMKHIjHctBicAzV9YiYwXxXLGay9turQH_pUwjX3URU-1bg/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxmcxoHzKtHoU6eMBFXvdYQfz9LYQOStypy8q3WWMZIr62EjMkTg-D5E4OmjWcy4Z8lrg/exec";
         let currentMiUser = null;
 
         // 🎯 SET NOTIFICATION PORTAL AS PRIMARY LOGIN LANDING PAGE
@@ -92,6 +92,59 @@
     <div id="mi-app-root" class="w-full h-full flex flex-col overflow-hidden"></div>
 
     <script>
+
+window.toggleMobileRow = function(element) {
+    if (!element) return;
+    const row = element.closest('tr');
+    if (!row) return;
+    const drawer = row.nextElementSibling;
+    const icons = row.querySelectorAll('.toggle-icon');
+
+    if (drawer && drawer.classList.contains('mobile-expand-drawer')) {
+        if (drawer.classList.contains('hidden')) {
+            drawer.classList.remove('hidden');
+            icons.forEach(i => i.style.transform = 'rotate(90deg)');
+            row.classList.add('bg-slate-50');
+        } else {
+            drawer.classList.add('hidden');
+            icons.forEach(i => i.style.transform = 'rotate(0deg)');
+            row.classList.remove('bg-slate-50');
+        }
+    }
+};
+
+window.switchAnalysisTab = function(tabKey) {
+    const inspPanel = document.getElementById("matrix-inspector-panel");
+    const mfgPanel = document.getElementById("matrix-manufacturer-panel");
+    const matPanel = document.getElementById("matrix-materials-panel");
+
+    const btnInsp = document.getElementById("tab-btn-inspector");
+    const btnMfg = document.getElementById("tab-btn-manufacturer");
+    const btnMat = document.getElementById("tab-btn-materials");
+
+    const activeClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer bg-blue-600 text-white shadow-xs";
+    const inactiveClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer text-slate-600 hover:text-slate-900";
+
+    if (inspPanel) inspPanel.classList.add("hidden");
+    if (mfgPanel) mfgPanel.classList.add("hidden");
+    if (matPanel) matPanel.classList.add("hidden");
+
+    if (btnInsp) btnInsp.className = inactiveClass;
+    if (btnMfg) btnMfg.className = inactiveClass;
+    if (btnMat) btnMat.className = inactiveClass;
+
+    if (tabKey === 'inspector') {
+        if (inspPanel) inspPanel.classList.remove("hidden");
+        if (btnInsp) btnInsp.className = activeClass;
+    } else if (tabKey === 'manufacturer') {
+        if (mfgPanel) mfgPanel.classList.remove("hidden");
+        if (btnMfg) btnMfg.className = activeClass;
+    } else if (tabKey === 'materials') {
+        if (matPanel) matPanel.classList.remove("hidden");
+        if (btnMat) btnMat.className = activeClass;
+    }
+};
+
         document.addEventListener("DOMContentLoaded", () => {
             const cached = localStorage.getItem("mi_current_user_cache");
             if (cached) {
