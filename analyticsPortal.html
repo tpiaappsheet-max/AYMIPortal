@@ -86,7 +86,7 @@
                     <p id="kpi-total-calls" class="text-2xl font-black text-slate-900 leading-none">0</p>
                     <span id="kpi-valid-calls" class="text-[10px] font-bold text-blue-600 mb-0.5">(0 Valid)</span>
                 </div>
-                <span id="kpi-cancelled-revised" class="text-[10px] text-rose-500 font-bold block mt-1">0 Cancelled / Revised</span>
+                <span id="kpi-cancelled-revised" class="text-[10px] text-rose-500 font-bold block mt-1">0 Canc / Rev / Wav</span>
             </div>
             <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 shadow-xs">
                 <span class="text-[9px] font-black uppercase text-emerald-600 block tracking-wider">Material Pass</span>
@@ -171,31 +171,39 @@
     <!-- Comparative Analytics Section -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Chart: Schedule Adherence -->
-        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
-                    <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i> Execution Schedule Adherence
-                </h4>
-                <span class="text-[10px] font-bold text-slate-400" title="Difference between Schedule Date and Actual Start Date">Sched vs Actual Start</span>
-            </div>
-            <div class="h-64 sm:h-72 w-full relative flex items-center justify-center">
-                <canvas id="chart-adherence"></canvas>
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i> Execution Schedule Adherence
+                    </h4>
+                    <span class="text-[10px] font-bold text-slate-400" title="Difference between Schedule Date and Actual Start Date">Sched vs Actual Start</span>
+                </div>
+                <div class="h-64 sm:h-72 w-full relative flex items-center justify-center pt-2">
+                    <canvas id="chart-adherence"></canvas>
+                </div>
             </div>
         </div>
 
         <!-- Chart: Quality & Compliance Docs -->
-        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
-                    <i data-lucide="file-check" class="w-4 h-4 text-indigo-500"></i> Quality & Compliance Tracking (NABL / Reports)
-                </h4>
-                <span class="text-[10px] font-bold text-slate-400">Click a bar to view IDs</span>
-            </div>
-            <div class="h-64 sm:h-72 w-full relative flex items-center justify-center">
-                <canvas id="chart-quality"></canvas>
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
+                        <i data-lucide="file-check" class="w-4 h-4 text-indigo-500"></i> Quality & Compliance Tracking (NABL / Reports)
+                    </h4>
+                    <span class="text-[10px] font-bold text-slate-400">Click a bar to view IDs</span>
+                </div>
+                <div class="h-64 sm:h-72 w-full relative flex items-center justify-center pt-2">
+                    <canvas id="chart-quality"></canvas>
+                </div>
             </div>
         </div>
     </div>
+    
+    <!-- Full-Width Containers for Adherence & Quality Details -->
+    <div id="adherence-details-container"></div>
+    <div id="quality-details-container"></div>
 
     <!-- 🎯 INTEGRATED COMBO CHART (SIDE-BY-SIDE BARS) -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
@@ -208,40 +216,53 @@
         <div class="h-72 sm:h-96 w-full relative">
             <canvas id="chart-monthly-trend"></canvas>
         </div>
+        <!-- Monthly Trend Inline Details Container -->
+        <div id="monthly-trend-details-container"></div>
     </div>
 
-    <!-- Secondary Charts: Doughnut & Categories -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Outcome & DISCOM Distribution -->
-        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
-            <div class="border-b border-slate-100 pb-3">
-                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
-                    <i data-lucide="pie-chart" class="w-4 h-4 text-purple-600"></i> Overall Outcome Ratio
+    <!-- Secondary Charts: Stacked Rows (Outcome in one row, Categories in another) -->
+    <div class="space-y-6">
+        <!-- Outcome & DISCOM Distribution (Bigger Size in its own row) -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+                <h4 class="font-black text-sm uppercase text-slate-800 tracking-wider flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-purple-600"></i> <span id="outcome-chart-title">Overall Outcome Ratio</span>
                 </h4>
+                <button id="outcome-back-btn" onclick="window.resetOutcomeChartView()" class="hidden text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200 cursor-pointer flex items-center gap-1.5">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Back to Main
+                </button>
             </div>
-            <div class="h-56 w-full relative my-auto">
+            <div class="h-80 sm:h-96 w-full relative my-auto flex items-center justify-center">
                 <canvas id="chart-outcome-doughnut"></canvas>
             </div>
-            <div class="border-t border-slate-100 pt-2 flex justify-around text-center text-xs font-bold">
-                <div><span class="text-[9px] uppercase text-slate-400 block">NBPDCL</span><span id="sub-nb-cnt" class="text-blue-700 font-black">0</span></div>
-                <div><span class="text-[9px] uppercase text-slate-400 block">SBPDCL</span><span id="sub-sb-cnt" class="text-purple-700 font-black">0</span></div>
-                <div><span class="text-[9px] uppercase text-slate-400 block">PVVNL</span><span id="sub-pv-cnt" class="text-amber-700 font-black">0</span></div>
+            <div class="border-t border-slate-100 pt-3 flex justify-around text-center text-sm font-bold">
+                <div><span class="text-[10px] uppercase text-slate-400 block">NBPDCL</span><span id="sub-nb-cnt" class="text-blue-700 font-black text-base">0</span></div>
+                <div><span class="text-[10px] uppercase text-slate-400 block">SBPDCL</span><span id="sub-sb-cnt" class="text-purple-700 font-black text-base">0</span></div>
+                <div><span class="text-[10px] uppercase text-slate-400 block">PVVNL</span><span id="sub-pv-cnt" class="text-amber-700 font-black text-base">0</span></div>
             </div>
         </div>
+            <!-- 🎯 Interactive Outcome Details Collapsible Container -->
+    <div id="outcome-details-table-container"></div>
 
-        <!-- Chart: Material Category Distribution -->
-        <div class="lg:col-span-2 bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
-                    <i data-lucide="layers" class="w-4 h-4 text-emerald-600"></i> Top Material Categories Inspected
-                </h4>
-                <span class="text-[10px] font-bold text-slate-400">Click bar for Inspection Codes</span>
+        <!-- Chart: Material Category Distribution (In its own row) -->
+        <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4 text-emerald-600"></i> Top Material Categories Inspected
+                    </h4>
+                    <span class="text-[10px] font-bold text-slate-400">Click bar for Inspection Codes</span>
+                </div>
+                <div class="h-64 sm:h-72 w-full relative pt-2">
+                    <canvas id="chart-material-category"></canvas>
+                </div>
             </div>
-            <div class="h-64 sm:h-72 w-full relative">
-                <canvas id="chart-material-category"></canvas>
-            </div>
+            <!-- Material Category Inline Details Container -->
+            <div id="material-category-details-container"></div>
         </div>
     </div>
+
+
 
     <!-- Deep-Dive Breakdown Section with Tab Navigation -->
     <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
@@ -484,11 +505,13 @@
 </style>
 
 <script>
+    // 🎯 MASTER GLOBAL STATE & HOISTED DEFINITIONS
     window.analyticsRawData = [];
     window.analyticsInspectorsMaster = [];
     window.analyticsFilteredCache = [];
     window.portalMData = []; 
     window.currentPivotRecords = {}; 
+    window.outcomeDrilldownMainKey = null;
     
     window.analyticsChartInstances = {
         monthlyTrend: null,
@@ -498,58 +521,32 @@
         qualityChart: null
     };
 
-    // 🎯 EXACT 42-COLUMN MAPPING SEQUENCE
-    const fullHeaderCustomNames = {
-        "srNo": "Sr. No",
-        "inspectionId": "Inspection ID",
-        "discom": "DISCOM",
-        "scheme": "Scheme",
-        "district": "District",
-        "letterNo": "Inspection Letter No",
-        "letterDate": "Letter Date (dd/mm/yyyy)",
-        "receivedDate": "Date of received Inspection Call / Scheduled Date (dd/mm/yyyy)",
-        "pqccName": "PQCC Name",
-        "officials": "Name of Officials",
-        "nodalCe": "Nodal Chief Engineer",
-        "manufacturer": "Manufacturer Name",
-        "address": "Address",
-        "contactPerson": "Contact Person",
-        "mobile": "Mobile No",
-        "materialInspected": "Material Inspected",
-        "materialSpec": "Material Specification",
-        "quantity": "Quantity",
-        "tkc": "Name of TKC",
-        "tpiaInspector": "Name of TPIA Inspector (Appointed)",
-        "tpiaContact": "Contact Number (Formula)",
-        "authLetterNo": "Authorization Letter No",
-        "scheduleDate": "Schedule Date (dd/mm/yyyy)",
-        "status": "Inspection Status",
-        "subStatus": "Inspection Sub Status",
-        "inspectionCompletedOn": "Inspection Completed On (dd/mm/yyyy)",
-        "reportOm": "Report/ OM No and Date",
-        "conductedBy": "Inspection conducted by TPIA Inspector",
-        "dateFrom": "Date(s) of Inspection (From - To)",
-        "dateTo": "Date(s) of NABL Witness (From - To)",
-        "manDays": "Man Days",
-        "sealType": "Type of Seal",
-        "sealSerial": "Seal Serial No Used in Inspection",
-        "sealNoCount": "No of Seal",
-        "nablStatusDate": "NABL Status and Testing Date",
-        "reportReceived": "Report Received",
-        "reportMail": "Report Mail",
-        "letterRevision": "Letter Revision Status",
-        "remarks": "Remark",
-        "month": "Month of Inspection (conducted)",
-        "billingStatus": "Billing Status",
-        "invoiceNo": "Invoice No"
+    window.fullHeaderCustomNames = {
+        "srNo": "Sr. No", "inspectionId": "Inspection ID", "discom": "DISCOM", "scheme": "Scheme",
+        "district": "District", "letterNo": "Inspection Letter No", "letterDate": "Letter Date (dd/mm/yyyy)",
+        "receivedDate": "Date of received Inspection Call / Scheduled Date (dd/mm/yyyy)", "pqccName": "PQCC Name",
+        "officials": "Name of Officials", "nodalCe": "Nodal Chief Engineer", "manufacturer": "Manufacturer Name",
+        "address": "Address", "contactPerson": "Contact Person", "mobile": "Mobile No",
+        "materialInspected": "Material Inspected", "materialSpec": "Material Specification", "quantity": "Quantity",
+        "tkc": "Name of TKC", "tpiaInspector": "Name of TPIA Inspector (Appointed)", "tpiaContact": "Contact Number (Formula)",
+        "authLetterNo": "Authorization Letter No", "scheduleDate": "Schedule Date (dd/mm/yyyy)",
+        "status": "Inspection Status", "subStatus": "Inspection Sub Status",
+        "inspectionCompletedOn": "Inspection Completed On (dd/mm/yyyy)", "reportOm": "Report/ OM No and Date",
+        "conductedBy": "Inspection conducted by TPIA Inspector", "dateFrom": "Date(s) of Inspection (From - To)",
+        "dateTo": "Date(s) of NABL Witness (From - To)", "manDays": "Man Days", "sealType": "Type of Seal",
+        "sealSerial": "Seal Serial No Used in Inspection", "sealNoCount": "No of Seal",
+        "nablStatusDate": "NABL Status and Testing Date", "reportReceived": "Report Received",
+        "reportMail": "Report Mail", "letterRevision": "Letter Revision Status", "remarks": "Remark",
+        "month": "Month of Inspection (conducted)", "billingStatus": "Billing Status", "invoiceNo": "Invoice No"
     };
 
-    function cleanInspectorName(name) {
+    // 🎯 UTILITY FUNCTIONS ATTACHED TO WINDOW
+    window.cleanInspectorName = function(name) {
         if (!name) return "";
         return String(name).toLowerCase().replace(/^(er\.|er\s+|mr\.|mr\s+|engr\.|dr\.)\s*/i, "").replace(/[^a-z0-9]/g, '');
-    }
+    };
 
-    function getInspectorName(insp) {
+    window.getInspectorName = function(insp) {
         if (typeof insp === 'string') return insp;
         const keys = Object.keys(insp);
         const nameKey = keys.find(k => {
@@ -557,21 +554,19 @@
             return lk.includes('name') || lk.includes('inspector') || lk.includes('engineer');
         });
         return (nameKey && insp[nameKey]) ? String(insp[nameKey]).trim() : (Object.values(insp)[1] || Object.values(insp)[0] || "Unknown");
-    }
+    };
 
-    function parseAnyDateToObject(dateStr) {
+    window.parseAnyDateToObject = function(dateStr) {
         if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === "null") return null;
         if (dateStr instanceof Date) return isNaN(dateStr.getTime()) ? null : dateStr;
         
         let s = String(dateStr).trim();
 
-        // Handle Excel serial date numbers (e.g., 45000+)
         if (!isNaN(s) && Number(s) > 30000 && Number(s) < 60000) {
             let excelDate = new Date(Math.round((Number(s) - (25567 + 2)) * 86400 * 1000));
             return isNaN(excelDate.getTime()) ? null : excelDate;
         }
 
-        // Handle ISO strings or timestamps
         if (s.includes('T') || (s.includes('-') && s.length >= 10)) {
             let d = new Date(s);
             if (!isNaN(d.getTime())) {
@@ -580,13 +575,11 @@
             }
         }
 
-        // Match DD/MM/YYYY or DD-MM-YYYY
         let mDMY = s.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
         if (mDMY) {
             return new Date(parseInt(mDMY[3], 10), parseInt(mDMY[2], 10) - 1, parseInt(mDMY[1], 10));
         }
 
-        // Match YYYY-MM-DD or YYYY/MM/DD
         let mYMD = s.match(/(\d{4})[-/](\d{2})[-/](\d{2})/);
         if (mYMD) {
             return new Date(parseInt(mYMD[1], 10), parseInt(mYMD[2], 10) - 1, parseInt(mYMD[3], 10));
@@ -595,75 +588,19 @@
         let fallback = new Date(s);
         fallback.setHours(0,0,0,0);
         return isNaN(fallback.getTime()) ? null : fallback;
-    }
-
-    function extractFirstDate(str) {
-        if (!str) return null;
-        let s = String(str).trim();
-        
-        // Extract first valid date occurrence from sequence strings (e.g. "09/09/2026 To 11/09/2026")
-        let matches = s.match(/(\d{2}[-/]\d{2}[-/]\d{4}|\d{4}[-/]\d{2}[-/]\d{2})/g);
-        if (matches && matches.length > 0) {
-            return parseAnyDateToObject(matches[0]);
-        }
-        
-        return parseAnyDateToObject(str);
-    }
-
-    window.renderAdherenceChart = function(records) {
-        const ctx = document.getElementById("chart-adherence");
-        if (!ctx) return;
-
-        let earlyArr = [], minorArr = [], majorArr = [], notStartArr = [];
-
-        records.forEach(r => {
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
-
-            const dSch = extractFirstDate(r.scheduleDate);
-            const dFrm = extractFirstDate(r.dateFrom);
-
-            if (dSch) {
-                if (dFrm) {
-                    let diff = (dFrm - dSch) / 86400000;
-                    if (diff <= 0) earlyArr.push(r);
-                    else if (diff <= 3) minorArr.push(r);
-                    else majorArr.push(r);
-                } else {
-                    notStartArr.push(r);
-                }
-            }
-        });
-
-        if (window.analyticsChartInstances.adherenceChart) window.analyticsChartInstances.adherenceChart.destroy();
-
-        window.analyticsChartInstances.adherenceChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['On-Time / Early', 'Minor Delay (1-3d)', 'Major Delay (>3d)', 'Not Started'],
-                datasets: [{ data: [earlyArr.length, minorArr.length, majorArr.length, notStartArr.length], backgroundColor: ['#10b981', '#facc15', '#f43f5e', '#cbd5e1'], borderWidth: 2, borderColor: '#ffffff' }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, cutout: '65%',
-                onClick: (evt, elements) => {
-                    if (elements.length > 0) {
-                        const idx = elements[0].index;
-                        let matched = [];
-                        let catName = '';
-                        if (idx === 0) { matched = earlyArr; catName = 'On-Time / Early Executions'; }
-                        else if (idx === 1) { matched = minorArr; catName = 'Minor Delay (1-3 days)'; }
-                        else if (idx === 2) { matched = majorArr; catName = 'Major Delay (>3 days)'; }
-                        else { matched = notStartArr; catName = 'Not Started Yet'; }
-
-                        openDrilldownModal(`Schedule Adherence: ${catName}`, `${matched.length} inspection records`, matched);
-                    }
-                },
-                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
-            }
-        });
     };
 
-    function getCompletionMonth(row) {
+    window.extractFirstDate = function(str) {
+        if (!str) return null;
+        let s = String(str).trim();
+        let matches = s.match(/(\d{2}[-/]\d{2}[-/]\d{4}|\d{4}[-/]\d{2}[-/]\d{2})/g);
+        if (matches && matches.length > 0) {
+            return window.parseAnyDateToObject(matches[0]);
+        }
+        return window.parseAnyDateToObject(str);
+    };
+
+    window.getCompletionMonth = function(row) {
         const stat = String(row.status || "").trim().toLowerCase();
         const sub = String(row.subStatus || "").trim().toLowerCase();
 
@@ -679,14 +616,14 @@
             const regex = /(?:To|And)[\s\n\r]+(\d{2}\/\d{2}\/\d{4})/gi;
             let match;
             while ((match = regex.exec(row.dateTo)) !== null) {
-                let d = parseAnyDateToObject(match[1]);
+                let d = window.parseAnyDateToObject(match[1]);
                 if (d && !isNaN(d.getTime())) {
                     if (!latestDate || d > latestDate) latestDate = d;
                 }
             }
         }
         
-        if (!latestDate && row.dateFrom) latestDate = extractFirstDate(row.dateFrom);
+        if (!latestDate && row.dateFrom) latestDate = window.extractFirstDate(row.dateFrom);
 
         if (latestDate && !isNaN(latestDate.getTime())) {
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -694,7 +631,452 @@
         }
         
         return "Unspecified";
-    }
+    };
+
+    // 🎯 HIERARCHICAL OUTCOME CATEGORIZATION
+    window.categorizeOutcomeRecords = function(records) {
+        let groups = {
+            "Completed": {
+                label: "Completed",
+                color: "#10b981",
+                subcategories: {
+                    "Completed - Material Pass": [],
+                    "Completed - MOM": [],
+                    "Completed - Failed in NABL Lab": [],
+                    "NABL Awaited": []
+                },
+                all: []
+            },
+            "Withdrawn": {
+                label: "Withdrawn",
+                color: "#f43f5e",
+                subcategories: {
+                    "Cancelled": [],
+                    "Revised": [],
+                    "Waiver": []
+                },
+                all: []
+            },
+            "On Hold": {
+                label: "On Hold",
+                color: "#f59e0b",
+                subcategories: {
+                    "Hold by Dept": [],
+                    "Hold by Manufacturer": [],
+                    "Hold by TKC": [],
+                    "On Hold (General)": []
+                },
+                all: []
+            },
+            "Pending": {
+                label: "Pending",
+                color: "#3b82f6",
+                subcategories: {
+                    "Pending": [],
+                    "Schedule": []
+                },
+                all: []
+            }
+        };
+
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+
+            if (stat.includes("cancel")) {
+                groups["Withdrawn"].subcategories["Cancelled"].push(r);
+                groups["Withdrawn"].all.push(r);
+            } else if (stat.includes("revis")) {
+                groups["Withdrawn"].subcategories["Revised"].push(r);
+                groups["Withdrawn"].all.push(r);
+            } else if (stat.includes("waiver") || sub.includes("waiver")) {
+                groups["Withdrawn"].subcategories["Waiver"].push(r);
+                groups["Withdrawn"].all.push(r);
+            } else if (stat.includes("on hold") || sub.includes("on hold") || sub.includes("hold by")) {
+                groups["On Hold"].all.push(r);
+                if (sub.includes("dept")) groups["On Hold"].subcategories["Hold by Dept"].push(r);
+                else if (sub.includes("manufacturer")) groups["On Hold"].subcategories["Hold by Manufacturer"].push(r);
+                else if (sub.includes("tkc")) groups["On Hold"].subcategories["Hold by TKC"].push(r);
+                else groups["On Hold"].subcategories["On Hold (General)"].push(r);
+            } else if (stat === "completed" || sub.includes("pass") || sub.includes("mom") || sub.includes("failed in nabl") || sub.includes("nabl awaited")) {
+                groups["Completed"].all.push(r);
+                if (sub.includes("failed in nabl")) {
+                    groups["Completed"].subcategories["Completed - Failed in NABL Lab"].push(r);
+                } else if (sub.includes("nabl awaited")) {
+                    groups["Completed"].subcategories["NABL Awaited"].push(r);
+                } else if (sub.includes("pass")) {
+                    groups["Completed"].subcategories["Completed - Material Pass"].push(r);
+                } else if (sub.includes("mom")) {
+                    groups["Completed"].subcategories["Completed - MOM"].push(r);
+                } else {
+                    groups["Completed"].subcategories["Completed - Material Pass"].push(r);
+                }
+            } else {
+                groups["Pending"].all.push(r);
+                if (stat.includes("sched") || sub.includes("sched")) {
+                    groups["Pending"].subcategories["Schedule"].push(r);
+                } else {
+                    groups["Pending"].subcategories["Pending"].push(r);
+                }
+            }
+        });
+
+        return groups;
+    };
+
+    window.renderOutcomeDoughnutChart = function(records) {
+        const ctx = document.getElementById("chart-outcome-doughnut");
+        if (!ctx) return;
+
+        const groups = window.categorizeOutcomeRecords(records);
+        const titleEl = document.getElementById("outcome-chart-title");
+        const backBtn = document.getElementById("outcome-back-btn");
+        const detailsContainer = document.getElementById("outcome-details-table-container");
+
+        let labels = [];
+        let data = [];
+        let backgroundColors = [];
+
+        if (!window.outcomeDrilldownMainKey) {
+            if (titleEl) titleEl.innerText = "Overall Outcome Ratio";
+            if (backBtn) backBtn.classList.add("hidden");
+            
+            labels = Object.keys(groups); 
+            data = labels.map(k => groups[k].all.length);
+            backgroundColors = labels.map(k => groups[k].color);
+
+            if (detailsContainer) detailsContainer.innerHTML = "";
+        } else {
+            const mainGroup = groups[window.outcomeDrilldownMainKey];
+            if (titleEl) titleEl.innerText = `${window.outcomeDrilldownMainKey} (Sub-Categories)`;
+            if (backBtn) backBtn.classList.remove("hidden");
+
+            const subKeys = Object.keys(mainGroup.subcategories);
+            labels = subKeys;
+            data = subKeys.map(sk => mainGroup.subcategories[sk].length);
+            
+            // 🎨 Distinct color scheme for Completed Sub-Categories (rest untouched)
+            if (window.outcomeDrilldownMainKey === "Completed") {
+                backgroundColors = subKeys.map(sk => {
+                    if (sk.includes("Material Pass")) return "#10b981"; // Emerald Green
+                    if (sk.includes("MOM")) return "#8b5cf6"; // Vivid Purple
+                    if (sk.includes("Failed in NABL")) return "#f43f5e"; // Rose Red
+                    if (sk.includes("Awaited")) return "#06b6d4"; // Bright Cyan
+                    return "#3b82f6";
+                });
+            } else {
+                backgroundColors = ['#10b981', '#34d399', '#059669', '#6ee7b7', '#f43f5e', '#fb7185', '#f59e0b', '#fbbf24', '#3b82f6'];
+            }
+
+            window.renderOutcomeDetailsTable(mainGroup.all, window.outcomeDrilldownMainKey);
+        }
+
+        if (window.analyticsChartInstances.outcomeDoughnut) window.analyticsChartInstances.outcomeDoughnut.destroy();
+
+        window.analyticsChartInstances.outcomeDoughnut = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{ data: data, backgroundColor: backgroundColors, borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        if (!window.outcomeDrilldownMainKey) {
+                            const clickedKey = labels[idx];
+                            window.outcomeDrilldownMainKey = clickedKey;
+                            window.renderOutcomeDoughnutChart(records);
+                        } else {
+                            const clickedSubKey = labels[idx];
+                            const subRecords = groups[window.outcomeDrilldownMainKey].subcategories[clickedSubKey];
+                            window.renderOutcomeDetailsTable(subRecords, `${window.outcomeDrilldownMainKey} > ${clickedSubKey}`);
+                        }
+                    }
+                },
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
+            }
+        });
+    };
+
+    window.resetOutcomeChartView = function() {
+        window.outcomeDrilldownMainKey = null;
+        window.renderOutcomeDoughnutChart(window.analyticsFilteredCache || window.analyticsRawData);
+        const detailsContainer = document.getElementById("outcome-details-table-container");
+        if (detailsContainer) detailsContainer.innerHTML = "";
+    };
+
+    window.renderOutcomeDetailsTable = function(recordsList, subtitle = "Records") {
+        const container = document.getElementById("outcome-details-table-container");
+        if (!container) return;
+
+        if (!recordsList || recordsList.length === 0) {
+            container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 italic">No inspection records found for this category.</p>`;
+            return;
+        }
+
+        let rowsHtml = "";
+        recordsList.forEach((r, idx) => {
+            const matDetails = `
+                <div class="font-bold text-slate-800 whitespace-normal break-words">${r.materialInspected || '-'}</div>
+                <div class="text-[9px] text-slate-500 whitespace-normal break-words mt-0.5">${r.materialSpec || '-'}</div>
+                <div class="text-xs font-black text-indigo-600 mt-1">Qty: ${r.quantity || '-'}</div>
+            `;
+            const mfgDetails = `
+                <div class="font-bold text-slate-800 whitespace-normal break-words">${r.manufacturer || '-'}</div>
+                <div class="text-[10px] text-slate-500 whitespace-normal break-words mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline relative -top-0.5"></i> ${r.address || '-'}</div>
+            `;
+
+            let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
+            const namesMap = window.fullHeaderCustomNames || {};
+            Object.keys(namesMap).forEach(k => {
+                const label = namesMap[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
+                detailsHtml += `<div><span class="block text-[9px] font-black uppercase text-slate-400 mb-0.5">${label}</span><span class="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words">${val}</span></div>`;
+            });
+            detailsHtml += `</div>`;
+
+            rowsHtml += `
+                <tr class="flex flex-col md:table-row bg-white hover:bg-slate-50 transition border-b border-slate-100 cursor-pointer" onclick="window.toggleMobileRow(this)">
+                    <td class="p-3 flex md:hidden items-start justify-between w-full gap-2">
+                        <div class="flex items-start gap-2 overflow-hidden flex-1">
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0 mt-0.5"></i>
+                            <div class="min-w-0 pr-2">
+                                <div class="font-mono font-black text-indigo-700 truncate">${r.inspectionId || '-'}</div>
+                                <div class="text-[10px] font-bold text-slate-800 line-clamp-2 mt-0.5">${r.manufacturer || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end shrink-0 max-w-[40%] text-right">
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 truncate max-w-full">${r.status || 'Pending'}</span>
+                            <span class="text-[8px] text-slate-500 mt-1 truncate max-w-full block">${r.subStatus || '-'}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 font-mono font-bold text-indigo-700 align-top hidden md:table-cell border-r border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                            ${r.inspectionId || '-'}
+                        </div>
+                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 border-slate-200 text-slate-700 inline-block mt-1">${r.discom || '-'}</span>
+                    </td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-slate-100">${mfgDetails}</td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-slate-100">${matDetails}</td>
+                    <td class="p-3 font-bold align-top whitespace-normal break-words hidden md:table-cell border-r border-slate-100">${r.conductedBy || '-'}</td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-slate-100"><div class="font-bold text-emerald-700">${r.status || '-'}</div><div class="text-[10px] font-bold text-slate-500 mt-0.5">${r.subStatus || '-'}</div></td>
+                    <td class="p-3 text-center font-mono font-black bg-slate-50 align-top text-slate-800 whitespace-nowrap hidden md:table-cell">${r.inspectionCompletedOn || '-'}</td>
+                </tr>
+                <tr class="mobile-expand-drawer hidden bg-slate-50/80 cursor-default" onclick="event.stopPropagation()">
+                    <td colspan="6" class="p-4 border-t border-slate-100 text-xs w-full block md:table-cell">
+                        <div class="pl-6 md:pl-2">
+                            <h5 class="text-[10px] font-black uppercase text-indigo-400 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><i data-lucide="file-search" class="w-4 h-4"></i> Complete Inspection Profile</h5>
+                            ${detailsHtml}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        container.innerHTML = `
+            <div class="border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col bg-white relative mt-6 animate-fade-in">
+                <div class="p-4 sm:p-5 bg-slate-100 border-b border-slate-200 flex items-center justify-between">
+                    <h5 class="font-black text-xs uppercase text-slate-800 flex items-center gap-2">
+                        <i data-lucide="list" class="w-4 h-4 text-blue-600"></i> Detailed Records: ${subtitle}
+                    </h5>
+                    <span class="text-xs font-black bg-blue-600 text-white px-3 py-1 rounded-full shadow-sm">Count: ${recordsList.length}</span>
+                </div>
+                <div class="p-0 overflow-auto custom-scrollbar w-full max-h-[60vh] relative">
+                    <table class="w-full text-left text-[11px] border-collapse table-auto">
+                        <thead class="sticky top-0 bg-slate-200 text-slate-900 z-20 font-bold uppercase tracking-wider shadow-sm hidden md:table-header-group">
+                            <tr>
+                                <th class="p-3 border-r border-slate-300">Inspection ID / DISCOM</th>
+                                <th class="p-3 border-r border-slate-300">Manufacturer & Address</th>
+                                <th class="p-3 border-r border-slate-300">Material Details</th>
+                                <th class="p-3 border-r border-slate-300">Conducted By</th>
+                                <th class="p-3 border-r border-slate-300">Status / Sub-Status</th>
+                                <th class="p-3 text-center">Completed On</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-medium divide-y divide-slate-100">
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    // Helper for rendering other chart inline collapse/expand details
+    window.renderInlineDetailsTable = function(containerId, recordsList, title) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        if (!recordsList || recordsList.length === 0) {
+            container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4 italic">No inspection records found for this category.</p>`;
+            return;
+        }
+
+        let rowsHtml = "";
+        recordsList.forEach((r, idx) => {
+            const matDetails = `
+                <div class="font-bold text-slate-800 whitespace-normal break-words">${r.materialInspected || '-'}</div>
+                <div class="text-[9px] text-slate-500 whitespace-normal break-words mt-0.5">${r.materialSpec || '-'}</div>
+                <div class="text-xs font-black text-indigo-600 mt-1">Qty: ${r.quantity || '-'}</div>
+            `;
+            const mfgDetails = `
+                <div class="font-bold text-slate-800 whitespace-normal break-words">${r.manufacturer || '-'}</div>
+                <div class="text-[10px] text-slate-500 whitespace-normal break-words mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline relative -top-0.5"></i> ${r.address || '-'}</div>
+            `;
+
+            let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
+            const namesMap = window.fullHeaderCustomNames || {};
+            Object.keys(namesMap).forEach(k => {
+                const label = namesMap[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
+                detailsHtml += `<div><span class="block text-[9px] font-black uppercase text-slate-400 mb-0.5">${label}</span><span class="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words">${val}</span></div>`;
+            });
+            detailsHtml += `</div>`;
+
+            rowsHtml += `
+                <tr class="flex flex-col md:table-row bg-white hover:bg-slate-50 transition border-b border-slate-100 cursor-pointer" onclick="window.toggleMobileRow(this)">
+                    <td class="p-3 flex md:hidden items-start justify-between w-full gap-2">
+                        <div class="flex items-start gap-2 overflow-hidden flex-1">
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0 mt-0.5"></i>
+                            <div class="min-w-0 pr-2">
+                                <div class="font-mono font-black text-indigo-700 truncate">${r.inspectionId || '-'}</div>
+                                <div class="text-[10px] font-bold text-slate-800 line-clamp-2 mt-0.5">${r.manufacturer || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end shrink-0 max-w-[40%] text-right">
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 truncate max-w-full">${r.status || 'Pending'}</span>
+                            <span class="text-[8px] text-slate-500 mt-1 truncate max-w-full block">${r.subStatus || '-'}</span>
+                        </div>
+                    </td>
+                    <td class="p-3 font-mono font-bold text-indigo-700 align-top hidden md:table-cell border-r border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                            ${r.inspectionId || '-'}
+                        </div>
+                        <span class="text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 border-slate-200 text-slate-700 inline-block mt-1">${r.discom || '-'}</span>
+                    </td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-slate-100">${mfgDetails}</td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-slate-100">${matDetails}</td>
+                    <td class="p-3 font-bold align-top whitespace-normal break-words hidden md:table-cell border-r border-slate-100">${r.conductedBy || '-'}</td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-slate-100"><div class="font-bold text-emerald-700">${r.status || '-'}</div><div class="text-[10px] font-bold text-slate-500 mt-0.5">${r.subStatus || '-'}</div></td>
+                    <td class="p-3 text-center font-mono font-black bg-slate-50 align-top text-slate-800 whitespace-nowrap hidden md:table-cell">${r.inspectionCompletedOn || '-'}</td>
+                </tr>
+                <tr class="mobile-expand-drawer hidden bg-slate-50/80 cursor-default" onclick="event.stopPropagation()">
+                    <td colspan="6" class="p-4 border-t border-slate-100 text-xs w-full block md:table-cell">
+                        <div class="pl-6 md:pl-2">
+                            <h5 class="text-[10px] font-black uppercase text-indigo-400 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><i data-lucide="file-search" class="w-4 h-4"></i> Complete Inspection Profile</h5>
+                            ${detailsHtml}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        container.innerHTML = `
+            <div class="border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col bg-white relative mt-4 animate-fade-in w-full">
+                <div class="p-4 sm:p-5 bg-slate-100 border-b border-slate-200 flex items-center justify-between">
+                    <h5 class="font-black text-xs uppercase text-slate-800 flex items-center gap-2">
+                        <i data-lucide="list" class="w-4 h-4 text-blue-600"></i> ${title}
+                    </h5>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-black bg-blue-600 text-white px-3 py-1 rounded-full shadow-sm">Count: ${recordsList.length}</span>
+                        <button onclick="document.getElementById('${containerId}').innerHTML=''" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-200 cursor-pointer" title="Close">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-0 overflow-auto custom-scrollbar w-full max-h-[60vh] relative">
+                    <table class="w-full text-left text-[11px] border-collapse table-auto">
+                        <thead class="sticky top-0 bg-slate-200 text-slate-900 z-20 font-bold uppercase tracking-wider shadow-sm hidden md:table-header-group">
+                            <tr>
+                                <th class="p-3 border-r border-slate-300">Inspection ID / DISCOM</th>
+                                <th class="p-3 border-r border-slate-300">Manufacturer & Address</th>
+                                <th class="p-3 border-r border-slate-300">Material Details</th>
+                                <th class="p-3 border-r border-slate-300">Conducted By</th>
+                                <th class="p-3 border-r border-slate-300">Status / Sub-Status</th>
+                                <th class="p-3 text-center">Completed On</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-medium divide-y divide-slate-100">
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+    };
+
+    window.toggleMobileRow = function(element) {
+        const row = element.closest('tr');
+        const drawer = row.nextElementSibling;
+        const icons = row.querySelectorAll('.toggle-icon');
+
+        if (drawer && drawer.classList.contains('mobile-expand-drawer')) {
+            if (drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                icons.forEach(i => i.style.transform = 'rotate(90deg)');
+                row.classList.add('bg-slate-50');
+            } else {
+                drawer.classList.add('hidden');
+                icons.forEach(i => i.style.transform = 'rotate(0deg)');
+                row.classList.remove('bg-slate-50');
+            }
+        }
+    };
+
+    window.switchAnalysisTab = function(tab) {
+        document.getElementById('matrix-inspector-panel').classList.add('hidden');
+        document.getElementById('matrix-manufacturer-panel').classList.add('hidden');
+        document.getElementById('matrix-materials-panel').classList.add('hidden');
+        
+        document.getElementById('tab-btn-inspector').className = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer bg-blue-600 text-white shadow-xs";
+        document.getElementById('tab-btn-manufacturer').className = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer text-slate-600 hover:text-slate-900";
+        document.getElementById('tab-btn-materials').className = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer text-slate-600 hover:text-slate-900";
+
+        document.getElementById(`matrix-${tab}-panel`).classList.remove('hidden');
+        document.getElementById(`tab-btn-${tab}`).className = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer bg-blue-600 text-white shadow-xs";
+    };
+
+    window.populateMonthFilter = function() {
+        const monthDropdown = document.getElementById("an-filter-month");
+        if (!monthDropdown) return;
+
+        const monthsSet = new Set();
+        window.analyticsRawData.forEach(r => {
+            let m = window.getCompletionMonth(r);
+            if (m && m !== "Unspecified") monthsSet.add(m);
+        });
+
+        const sortedMonths = Array.from(monthsSet).sort((a, b) => {
+            const dA = new Date("01 " + a);
+            const dB = new Date("01 " + b);
+            return (isNaN(dA) || isNaN(dB)) ? a.localeCompare(b) : dA - dB;
+        });
+
+        let html = `<option value="ALL">All Months</option>`;
+        sortedMonths.forEach(m => {
+            html += `<option value="${m}">${m}</option>`;
+        });
+        monthDropdown.innerHTML = html;
+    };
+
+    window.populateIdFilter = function() {
+        const list = document.getElementById("an-filter-id-list");
+        if (!list) return;
+        const ids = new Set();
+        window.analyticsRawData.forEach(r => {
+            const id = String(r.inspectionId || r.InspectionID || "").trim();
+            if (id) ids.add(id);
+        });
+        let html = "";
+        Array.from(ids).sort().forEach(id => {
+            html += `<option value="${id}"></option>`;
+        });
+        list.innerHTML = html;
+    };
 
     window.switchKpiView = function(view) {
         const execGrid = document.getElementById('kpi-grid-execution');
@@ -730,7 +1112,7 @@
 
     window.computeExecutiveKpis = function(records) {
         const total = records.length;
-        let pass = 0, mom = 0, pending = 0, totalManDays = 0, cancelledRev = 0;
+        let pass = 0, mom = 0, pending = 0, totalManDays = 0, cancelledRevWav = 0;
         let billedCount = 0, unbilledCount = 0, invoiceCount = 0, billedManDays = 0;
         let lagSchedSum = 0, lagSchedCount = 0; 
         let reportReceivedCnt = 0, reportMailedCnt = 0, nablSentCnt = 0;
@@ -742,15 +1124,15 @@
             const bill = String(r.billingStatus || "").trim().toLowerCase();
             const md = Number(r.manDays || 0);
 
-            if (stat.includes("cancel") || stat.includes("revis")) {
-                cancelledRev++;
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) {
+                cancelledRevWav++;
             } else {
                 if (sub.includes("pass")) { pass++; }
                 else if (sub.includes("mom")) { mom++; }
                 else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pending++;
 
                 const inspName = String(r.conductedBy || r.tpiaInspector || "").trim();
-                const key = cleanInspectorName(inspName);
+                const key = window.cleanInspectorName(inspName);
                 if (key && !["notappointed", "notupdated", "pending", "-"].includes(key)) {
                     activeInspectors.add(key);
                 }
@@ -769,15 +1151,15 @@
                 nablSentCnt++;
             }
 
-            let dRec = parseAnyDateToObject(r.receivedDate);
-            let dSch = parseAnyDateToObject(r.scheduleDate);
+            let dRec = window.parseAnyDateToObject(r.receivedDate);
+            let dSch = window.parseAnyDateToObject(r.scheduleDate);
             if (dRec && dSch) {
                 let diff = (dSch - dRec) / 86400000;
                 if (diff >= 0) { lagSchedSum += diff; lagSchedCount++; }
             }
         });
 
-        const validCalls = total - cancelledRev;
+        const validCalls = total - cancelledRevWav;
         const passRate = validCalls > 0 ? ((pass / validCalls) * 100).toFixed(1) : 0;
         const momRate = validCalls > 0 ? ((mom / validCalls) * 100).toFixed(1) : 0;
         const billedRate = validCalls > 0 ? ((billedCount / validCalls) * 100).toFixed(0) : 0;
@@ -789,7 +1171,7 @@
 
         document.getElementById("kpi-total-calls").innerText = total;
         document.getElementById("kpi-valid-calls").innerText = `(${validCalls} Valid)`;
-        document.getElementById("kpi-cancelled-revised").innerText = `${cancelledRev} Cancelled / Revised`;
+        document.getElementById("kpi-cancelled-revised").innerText = `${cancelledRevWav} Canc / Rev / Wav`;
         document.getElementById("kpi-pass-count").innerText = pass;
         document.getElementById("kpi-pass-rate").innerText = `${passRate}% pass rate`;
         document.getElementById("kpi-mom-count").innerText = mom;
@@ -828,7 +1210,7 @@
 
         const monthMap = {};
         records.forEach(r => {
-            let m = getCompletionMonth(r);
+            let m = window.getCompletionMonth(r);
             if (!monthMap[m]) monthMap[m] = { pass: [], mom: [], pending: [], completedMD: 0, billedMD: 0, compRecords: [], billedRecords: [] };
             
             const sub = String(r.subStatus || "").trim().toLowerCase();
@@ -836,7 +1218,7 @@
             const bill = String(r.billingStatus || "").trim().toLowerCase();
             const md = Number(r.manDays || 0);
             
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
 
             if (sub.includes("pass")) monthMap[m].pass.push(r);
             else if (sub.includes("mom")) monthMap[m].mom.push(r);
@@ -897,7 +1279,7 @@
                         else if (clickedDatasetIndex === 3) { matched = monthMap[label].compRecords; dsLabel = `Completed Man-Days (${compData[idx]} Total)`; }
                         else if (clickedDatasetIndex === 4) { matched = monthMap[label].billedRecords; dsLabel = `Billed Man-Days (${billData[idx]} Total)`; }
 
-                        openDrilldownModal(`Integrated Trend Analysis: ${label}`, dsLabel, matched);
+                        renderInlineDetailsTable('monthly-trend-details-container', matched, `Trend Analysis: ${label} - ${dsLabel}`);
                     }
                 },
                 scales: { 
@@ -910,49 +1292,6 @@
         });
     };
 
-    window.renderOutcomeDoughnutChart = function(records) {
-        const ctx = document.getElementById("chart-outcome-doughnut");
-        if (!ctx) return;
-
-        let passArr = [], momArr = [], pendingArr = [], othersArr = [];
-        records.forEach(r => {
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-            const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) othersArr.push(r);
-            else if (sub.includes("pass")) passArr.push(r);
-            else if (sub.includes("mom")) momArr.push(r);
-            else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) pendingArr.push(r);
-            else othersArr.push(r);
-        });
-
-        if (window.analyticsChartInstances.outcomeDoughnut) window.analyticsChartInstances.outcomeDoughnut.destroy();
-
-        window.analyticsChartInstances.outcomeDoughnut = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Pass', 'MOM', 'Pending', 'Cancelled/Revised'],
-                datasets: [{ data: [passArr.length, momArr.length, pendingArr.length, othersArr.length], backgroundColor: ['#10b981', '#a855f7', '#f59e0b', '#cbd5e1'], borderWidth: 2, borderColor: '#ffffff' }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, cutout: '65%',
-                onClick: (evt, elements) => {
-                    if (elements.length > 0) {
-                        const idx = elements[0].index;
-                        let matched = [];
-                        let catName = '';
-                        if (idx === 0) { matched = passArr; catName = 'Material Pass'; }
-                        else if (idx === 1) { matched = momArr; catName = 'MOM Notices'; }
-                        else if (idx === 2) { matched = pendingArr; catName = 'Pending / Scheduled'; }
-                        else { matched = othersArr; catName = 'Cancelled / Revised / Others'; }
-
-                        openDrilldownModal(`Outcome Breakdown: ${catName}`, `${matched.length} inspection records found`, matched);
-                    }
-                },
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
-            }
-        });
-    };
-
     window.renderMaterialCategoryChart = function(records) {
         const ctx = document.getElementById("chart-material-category");
         if (!ctx) return;
@@ -960,7 +1299,8 @@
         const catMap = {};
         records.forEach(r => {
             const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
 
             const cat = String(r.materialInspected || "Unspecified").trim();
             if (!catMap[cat]) catMap[cat] = [];
@@ -985,7 +1325,7 @@
                     if (elements.length > 0) {
                         const idx = elements[0].index;
                         const label = labels[idx];
-                        openDrilldownModal(`Material Category: ${label}`, `${catMap[label].length} inspection records`, catMap[label]);
+                        renderInlineDetailsTable('material-category-details-container', catMap[label], `Material Category: ${label}`);
                     }
                 },
                 scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false }, ticks: { font: { size: 10 } } } },
@@ -1002,7 +1342,8 @@
 
         records.forEach(r => {
             const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
 
             const dSch = extractFirstDate(r.scheduleDate);
             const dFrm = extractFirstDate(r.dateFrom);
@@ -1039,7 +1380,7 @@
                         else if (idx === 2) { matched = majorArr; catName = 'Major Delay (>3 days)'; }
                         else { matched = notStartArr; catName = 'Not Started Yet'; }
 
-                        openDrilldownModal(`Schedule Adherence: ${catName}`, `${matched.length} inspection records`, matched);
+                        renderInlineDetailsTable('adherence-details-container', matched, `Schedule Adherence: ${catName}`);
                     }
                 },
                 plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
@@ -1057,6 +1398,9 @@
 
         records.forEach(r => {
             const sub = String(r.subStatus || "").trim().toLowerCase();
+            const stat = String(r.status || "").trim().toLowerCase();
+            if(stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
+
             if(sub.includes("pass") || sub.includes("mom")) {
                 if (String(r.reportReceived || "").trim().toLowerCase() === "yes") repRecYes.push(r); 
                 else repRecNo.push(r);
@@ -1107,7 +1451,7 @@
                         }
 
                         if(matched) {
-                            openDrilldownModal(`Compliance Tracking: ${catName}`, `${matched.length} inspection records`, matched);
+                            renderInlineDetailsTable('quality-details-container', matched, `Compliance Tracking: ${catName}`);
                         }
                     }
                 },
@@ -1117,14 +1461,15 @@
         });
     };
 
-    function renderInspectorMatrix(records) {
+    window.renderInspectorMatrix = function(records) {
         const tbody = document.getElementById("matrix-inspector-body");
         if (!tbody) return;
 
         let validCallsTotal = 0;
         records.forEach(r => {
             const stat = String(r.status || "").trim().toLowerCase();
-            if (!stat.includes("cancel") && !stat.includes("revis")) validCallsTotal++;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if (!stat.includes("cancel") && !stat.includes("revis") && !stat.includes("waiver") && !sub.includes("waiver")) validCallsTotal++;
         });
 
         const inspMap = {};
@@ -1136,7 +1481,8 @@
 
         records.forEach(r => {
             const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
 
             const rawName = String(r.conductedBy || r.tpiaInspector || "").trim();
             const key = cleanInspectorName(rawName);
@@ -1145,8 +1491,6 @@
             if (!inspMap[key]) inspMap[key] = { name: rawName, total: 0, pass: 0, mom: 0, pending: 0, manDays: 0 };
 
             inspMap[key].total++;
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-
             if (sub.includes("pass")) inspMap[key].pass++;
             else if (sub.includes("mom")) inspMap[key].mom++;
             else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) inspMap[key].pending++;
@@ -1187,14 +1531,13 @@
         const mfgMap = {};
         records.forEach(r => {
             const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
 
             const name = String(r.manufacturer || "Unspecified Manufacturer").trim();
             if (!mfgMap[name]) mfgMap[name] = { total: 0, pass: 0, mom: 0, pending: 0, materials: new Set() };
 
             mfgMap[name].total++;
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-
             if (sub.includes("pass")) mfgMap[name].pass++;
             else if (sub.includes("mom")) mfgMap[name].mom++;
             else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) mfgMap[name].pending++;
@@ -1233,14 +1576,13 @@
         const catMap = {};
         records.forEach(r => {
             const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
 
             const cat = String(r.materialInspected || "Unspecified Category").trim();
             if (!catMap[cat]) catMap[cat] = { total: 0, pass: 0, mom: 0, pending: 0, mfgs: new Set() };
 
             catMap[cat].total++;
-            const sub = String(r.subStatus || "").trim().toLowerCase();
-
             if (sub.includes("pass")) catMap[cat].pass++;
             else if (sub.includes("mom")) catMap[cat].mom++;
             else if (stat.includes("pend") || stat.includes("sched") || sub.includes("pend")) catMap[cat].pending++;
@@ -1383,7 +1725,7 @@
             }
 
             if (discomFilter !== "ALL" && String(row.discom || "").trim().toUpperCase() !== discomFilter.toUpperCase()) return false;
-            
+             
             if (monthFilter !== "ALL") {
                 let m = getCompletionMonth(row);
                 if (m.toLowerCase() !== monthFilter.toLowerCase()) return false;
@@ -1410,14 +1752,14 @@
         window.renderMonthlyTrendChart(window.analyticsFilteredCache);
         window.renderOutcomeDoughnutChart(window.analyticsFilteredCache);
         window.renderMaterialCategoryChart(window.analyticsFilteredCache);
-        
+         
         window.renderAdherenceChart(window.analyticsFilteredCache);
         window.renderQualityChart(window.analyticsFilteredCache);
 
         renderInspectorMatrix(window.analyticsFilteredCache);
         renderManufacturerMatrix(window.analyticsFilteredCache);
         renderMaterialsMatrix(window.analyticsFilteredCache);
-        
+         
         window.renderFinancialMatrix(window.analyticsFilteredCache);
         window.renderCompletedDateLog();
 
@@ -1430,7 +1772,7 @@
         const discomFilter = document.getElementById("an-filter-discom").value;
         const tbody = document.getElementById("yesterday-tbody");
         const countSpan = document.getElementById("yesterday-table-count");
-        
+         
         if (!dateInput || !dateInput.value || !tbody) return;
 
         const parts = dateInput.value.split('-'); 
@@ -1464,7 +1806,7 @@
                     <div class="font-bold text-slate-800 whitespace-normal break-words">${r.manufacturer || '-'}</div>
                     <div class="text-[10px] text-slate-500 whitespace-normal break-words mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline relative -top-0.5"></i> ${r.address || '-'}</div>
                 `;
-                
+                 
                 let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
                 Object.keys(fullHeaderCustomNames).forEach(k => {
                     const label = fullHeaderCustomNames[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
@@ -1524,7 +1866,7 @@
 
         const matrixDiscomSelect = document.getElementById("matrix-filter-discom");
         let matrixDiscom = matrixDiscomSelect ? matrixDiscomSelect.value : "ALL";
-        
+         
         let matrixRecords = records;
         if (matrixDiscom !== "ALL") {
             matrixRecords = records.filter(r => String(r.discom || "").trim().toUpperCase() === matrixDiscom.toUpperCase());
@@ -1532,7 +1874,7 @@
 
         const grp1Select = document.getElementById("matrix-grp-1");
         const grp2Select = document.getElementById("matrix-grp-2");
-        
+         
         let grp1 = grp1Select ? grp1Select.value : "none";
         let grp2 = grp2Select ? grp2Select.value : "none";
 
@@ -1543,7 +1885,7 @@
         matrixRecords.forEach(r => {
             const stat = String(r.status || "Pending").trim();
             const subStat = String(r.subStatus || "Pending").trim();
-            if (stat.toLowerCase().includes("cancel") || stat.toLowerCase().includes("revis")) return;
+            if (stat.toLowerCase().includes("cancel") || stat.toLowerCase().includes("revis") || stat.toLowerCase().includes("waiver") || subStat.toLowerCase().includes("waiver")) return;
 
             const inspId = String(r.inspectionId || r.InspectionID || "").trim();
             const mfg = String(r.manufacturer || "-").trim();
@@ -1552,7 +1894,7 @@
             const qty = String(r.quantity || "-").trim();
             const conductedBy = String(r.conductedBy || 'Pending').trim();
             const discom = String(r.discom || '-').trim();
-            
+             
             const portalMRecord = window.portalMData.find(m => 
                 String(m.inspectionId_manager).trim() === inspId || 
                 String(m.inspectionId).trim() === inspId
@@ -1561,14 +1903,14 @@
             const criteria = portalMRecord ? (String(portalMRecord.criteria || "Value Percent").trim()) : "Value Percent";
             const cVal = portalMRecord ? (Number(portalMRecord.criteriaValue) || 0) : 0;
             const criteriaFmt = `${criteria} (${cVal})`; 
-            
+             
             const tMatVal = portalMRecord ? (Number(portalMRecord.totalMaterialValue) || 0) : 0;
 
             let totalQty = 0;
             const rawSpecs = spec.split("\n").filter(Boolean);
             const rawQtys = qty.split("\n").filter(Boolean);
             let qtyIndex = 0; 
-            
+             
             if (rawSpecs.length > 0) {
                 rawSpecs.forEach((specLine) => {
                     let cleanSpec = specLine.trim();
@@ -1710,13 +2052,13 @@
             const filterList = document.getElementById("matrix-filter-primary-list");
             let uniqueV1s = [...new Set(pivotArr.map(p => p.v1))].sort();
             let currentFilterVal = filterInput.value;
-            
+             
             let filterHtml = `<option value="ALL">-- All ${g1Lbl}s --</option>`;
-            uniqueV1s.forEach(v => {
+            uniqueV1s.getInstance = uniqueV1s.forEach(v => {
                 filterHtml += `<option value="${v}">${v}</option>`;
             });
             if (filterList) filterList.innerHTML = filterHtml;
-            
+             
             if (uniqueV1s.includes(currentFilterVal) || currentFilterVal === "ALL") {
                 filterInput.value = currentFilterVal;
             } else {
@@ -1750,7 +2092,7 @@
                         </td>
                         <td class="p-3 border-r font-bold text-slate-900">${item.v1}</td>
                         ${g2Lbl ? `<td class="p-3 border-r font-bold text-indigo-700">${item.v2}</td>` : ''}
-                        
+                         
                         <td class="p-3 border-r text-center font-mono font-black text-blue-700">${item.calls}</td>
                         <td class="p-3 border-r text-center font-mono font-bold text-emerald-700 text-[10px]">${criteriaStr}</td>
                         <td class="p-3 text-right font-mono font-bold text-slate-900">Rs ${item.tMatVal > 0 ? item.tMatVal.toLocaleString('en-IN', {maximumFractionDigits: 0}) : '0'}</td>
@@ -1759,8 +2101,8 @@
             });
             tbody.innerHTML = html || `<tr><td colspan="${g2Lbl ? 6 : 5}" class="p-8 text-center text-slate-400">No comparison records available for this grouping.</td></tr>`;
         }
-        
-        if (window.lucide) lucide.createIcons();
+         
+        if (window.lucide) window.lucide.createIcons();
     };
 
     window.applyMatrixFilter = function() {
@@ -1829,59 +2171,7 @@
         `;
 
         rowEl.insertAdjacentHTML('afterend', subHtml);
-        if (window.lucide) lucide.createIcons();
-    };
-
-    window.openDrilldownModal = function(title, subtitle, matchingRecords) {
-        const modal = document.getElementById("analytics-drilldown-modal");
-        const titleEl = document.getElementById("drilldown-modal-title");
-        const subEl = document.getElementById("drilldown-modal-subtitle");
-        const bodyEl = document.getElementById("drilldown-modal-body");
-
-        titleEl.innerHTML = `<i data-lucide="list-filter" class="text-blue-600 w-4 h-4"></i> ${title}`;
-        subEl.innerText = subtitle;
-
-        if (!matchingRecords || matchingRecords.length === 0) {
-            bodyEl.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">No inspection codes found for this selection.</p>`;
-        } else {
-            let html = `<div class="space-y-3 max-h-[70vh] overflow-y-auto p-1 custom-scrollbar">`;
-            matchingRecords.forEach(r => {
-                let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
-                Object.keys(fullHeaderCustomNames).forEach(k => {
-                    const label = fullHeaderCustomNames[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
-                    detailsHtml += `<div><span class="block text-[9px] font-black uppercase text-slate-400 mb-0.5">${label}</span><span class="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words">${val}</span></div>`;
-                });
-                detailsHtml += `</div>`;
-
-                html += `
-                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 shadow-2xs">
-                        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-                            <div>
-                                <span class="font-mono font-black text-blue-700 text-sm block">${r.inspectionId || r.InspectionID || '-'}</span>
-                                <span class="text-[10px] text-slate-600 block truncate max-w-sm">${r.manufacturer || '-'}</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold block mb-0.5">${r.discom || '-'}</span>
-                                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">${r.status || 'Pending'}</span>
-                            </div>
-                        </div>
-                        <div class="pl-1">
-                            <h5 class="text-[10px] font-black uppercase text-indigo-400 mb-2 flex items-center gap-1.5"><i data-lucide="file-search" class="w-3.5 h-3.5"></i> Complete Inspection Profile</h5>
-                            ${detailsHtml}
-                        </div>
-                    </div>
-                `;
-            });
-            html += `</div>`;
-            bodyEl.innerHTML = html;
-        }
-
-        modal.classList.remove("hidden");
-        if (window.lucide) lucide.createIcons();
-    };
-
-    window.closeDrilldownModal = function() {
-        document.getElementById("analytics-drilldown-modal").classList.add("hidden");
+        if (window.lucide) window.lucide.createIcons();
     };
 
     if (typeof Chart === 'undefined') {
