@@ -16,8 +16,14 @@
             </div>
         </div>
 
-        <!-- Cascading / Narrowing Filters: Discom > Status > Inspection ID > Conducted By -->
-        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <!-- Cascading / Narrowing Filters: Month > Discom > Status > Inspection ID > Conducted By -->
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-5 gap-3">
+            <div>
+                <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Month</label>
+                <select id="billing-filter-month" onchange="window.onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
+                    <option value="">-- All Months --</option>
+                </select>
+            </div>
             <div>
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1">Filter Discom</label>
                 <select id="billing-filter-discom" onchange="window.onBillingFilterChange()" class="w-full p-2 border border-slate-300 rounded-xl bg-white text-xs font-bold outline-none cursor-pointer">
@@ -62,6 +68,14 @@
     .resizer { position: absolute; top: 0; right: 0; width: 6px; cursor: col-resize; user-select: none; touch-action: none; height: 100%; background-color: rgba(255, 255, 255, 0.2); transition: background-color 0.2s; }
     .resizer:hover, .resizing { background-color: #38bdf8; }
     th.resizable-th { position: relative; overflow: hidden; }
+
+    /* 🎯 Forces table headers and content to break words and wrap properly */
+    #billing-resizable-table th, #billing-resizable-table td {
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+    }
 </style>
 
 <script>
@@ -179,17 +193,20 @@
     };
 
     function getFilteredInspections(excludeFilter = "") {
+        const elMonth = document.getElementById("billing-filter-month");
         const elDiscom = document.getElementById("billing-filter-discom");
         const elStatus = document.getElementById("billing-filter-status");
         const elInspection = document.getElementById("billing-filter-inspection");
         const elConducted = document.getElementById("billing-filter-conducted");
 
+        const fMonth = elMonth ? elMonth.value.trim() : "";
         const fDiscom = elDiscom ? elDiscom.value.trim().toLowerCase() : "";
         const fStatus = elStatus ? elStatus.value.trim().toLowerCase() : "";
         const fInspection = elInspection ? elInspection.value.trim().toLowerCase() : "";
         const fConducted = elConducted ? elConducted.value.trim().toLowerCase() : "";
 
         return (window.miMasterData || []).filter(item => {
+            if (excludeFilter !== 'month' && fMonth && String(item.month || "").trim() !== fMonth) return false;
             if (excludeFilter !== 'discom' && fDiscom && String(item.discom || "").trim().toLowerCase() !== fDiscom) return false;
             if (excludeFilter !== 'status' && fStatus && String(item.status || "").trim().toLowerCase() !== fStatus) return false;
             if (excludeFilter !== 'inspection' && fInspection) {
@@ -202,12 +219,22 @@
     }
 
     function updateBillingFilterOptions() {
+        const monthSel = document.getElementById("billing-filter-month");
         const statusSel = document.getElementById("billing-filter-status");
         const inspectionDatalist = document.getElementById("billing-inspection-ids-list");
         const conductedSel = document.getElementById("billing-filter-conducted");
 
+        const currentMonth = monthSel ? monthSel.value : "";
         const currentStatus = statusSel ? statusSel.value : "";
         const currentConducted = conductedSel ? conductedSel.value : "";
+
+        const monthPool = getFilteredInspections('month');
+        const monthSet = [...new Set(monthPool.map(i => String(i.month || "").trim()))].filter(m => m && m !== '-');
+        monthSet.sort((a,b) => new Date("01 " + a) - new Date("01 " + b));
+        if (monthSel) {
+            monthSel.innerHTML = `<option value="">-- All Months --</option>` + monthSet.map(m => `<option value="${m}">${m}</option>`).join('');
+            monthSel.value = monthSet.includes(currentMonth) ? currentMonth : "";
+        }
 
         const statusPool = getFilteredInspections('status');
         const statusSet = [...new Set(statusPool.map(i => String(i.status || "").trim()))].filter(Boolean);
@@ -239,6 +266,7 @@
     };
 
     window.resetBillingFilters = function() {
+        document.getElementById("billing-filter-month").value = "";
         document.getElementById("billing-filter-discom").value = "";
         document.getElementById("billing-filter-status").value = "";
         document.getElementById("billing-filter-inspection").value = "";
@@ -374,7 +402,7 @@
             { label: "Discom", width: "100px" },
             { label: "Conducted By", width: "130px" },
             { label: "Status / SubStatus & Remarks", width: "170px" }, 
-            { label: "Date From - Date To & Man Days", width: "190px" },
+            { label: "Date(s) of Inspection (From - To) & Man Days", width: "190px" },
             { label: "Manufacturer Name", width: "180px" },
             { label: "Material Category", width: "150px" },
             { label: "Material Specification, Unit, Rate & Qty", width: "350px" },
