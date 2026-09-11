@@ -255,7 +255,7 @@
         if (el) el.innerText = text; 
     };
 
-    // 🎯 OPEN POPUP MODAL FUNCTION (With Date Received, Material Category, and Appointed Badge)
+    // 🎯 OPEN POPUP MODAL FUNCTION (With Proper Sequence for Requested Fields)
     window.openCcInspectionModal = function(encodedRawData) {
         if (!encodedRawData) return;
         const r = JSON.parse(decodeURIComponent(encodedRawData));
@@ -293,12 +293,26 @@
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Material Spec</strong><span class="text-[11px] font-medium text-slate-800 whitespace-pre-wrap break-words leading-relaxed">${r.materialSpec || '-'}</span></div>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Quantity</strong><span class="text-[11px] font-medium text-slate-800 whitespace-pre-wrap break-words leading-relaxed">${r.quantity || '-'}</span></div>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 border-t border-slate-200 pt-4 mt-2">
-                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Date Recv / Tentative</strong><span class="text-xs font-mono font-bold text-slate-800">${r.receivedDate || '-'}</span></div>
-                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Schedule Date</strong><span class="text-xs font-mono font-bold text-slate-800">${r.scheduleDate || '-'}</span></div>
-                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Inspector</strong><span class="text-xs font-bold text-blue-700">${insp || '-'}</span></div>
-                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Status</strong><span class="text-xs font-bold text-emerald-700">${r.status || '-'}</span></div>
-                    <div><strong class="text-slate-400 block text-[9px] uppercase mb-1">Sub-Status</strong><span class="text-xs font-bold text-slate-600">${r.subStatus || '-'}</span></div>
+
+                <!-- 🎯 PROPER SEQUENCE FOR APPOINTED INSPECTOR, AUTHORIZATION, SCHEDULE, COMPLETION, DATES, NABL, & REMARKS -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-200 pt-4 mt-2">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Name of TPIA Inspector (Appointed)</strong><span class="text-xs font-bold text-blue-700">${r.tpiaInspector || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Contact Number (Formula)</strong><span class="text-xs font-mono font-bold text-slate-800">${r.tpiaContact || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Authorization Letter No</strong><span class="text-xs font-bold text-slate-800 whitespace-pre-wrap break-words">${r.authLetterNo || '-'}</span></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Schedule Date (dd/mm/yyyy)</strong><span class="text-xs font-mono font-bold text-slate-800">${r.scheduleDate || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Inspection Completed On</strong><span class="text-xs font-mono font-bold text-slate-800">${r.inspectionCompletedOn || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Inspection Conducted By TPIA Inspector</strong><span class="text-xs font-bold text-blue-700">${r.conductedBy || '-'}</span></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Date(s) of Inspection (From - To)</strong><span class="text-xs font-mono font-bold text-slate-800">${r.dateFrom || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Date(s) of NABL Witness (From - To)</strong><span class="text-xs font-mono font-bold text-slate-800">${r.dateTo || '-'}</span></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">NABL Status & Testing Date</strong><span class="text-xs font-bold text-indigo-700">${r.nablStatusDate || '-'}</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Status / Sub-Status</strong><span class="text-xs font-bold text-emerald-700">${r.status || '-'} (${r.subStatus || '-'})</span></div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><strong class="text-slate-400 block text-[9px] uppercase mb-1">Remark</strong><span class="text-xs font-bold text-slate-700 whitespace-pre-wrap break-words">${r.remarks || '-'}</span></div>
                 </div>
             </div>
         `;
@@ -437,7 +451,7 @@
         renderCommandCenter();
     }
 
-    // 🎯 Universal Discom Grouping Renderer (Now uses the Popup Modal directly)
+    // 🎯 Universal Discom Grouping Renderer
     function renderGroupedTable(tbodyId, dataArr, colsHtmlFn) {
         const tbody = document.getElementById(tbodyId);
         if (!tbody) return;
@@ -641,19 +655,16 @@
         safeSetText("count-nabl", nablAlerts.length);
         safeSetText("count-ready-billing", readyBillingAlerts.length);
 
-        // 🎯 RENDER GROUPED TABLES
+        // 🎯 RENDER GROUPED TABLES (Strictly maintaining original database/sheet order)
         renderGroupedTable("cc-today-sched-body", todaySchedAlerts, a => `<td class="p-3 text-slate-600 hidden md:table-cell w-48 truncate" title="${a.insp}">${a.insp}</td>`);
         
-        notScheduledAlerts.sort((a, b) => b.daysWait - a.daysWait);
         renderGroupedTable("cc-not-sched-body", notScheduledAlerts, a => `<td class="p-3 font-mono font-bold text-orange-700 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.recvDate}</td><td class="p-3 text-center font-black text-orange-600 hidden md:table-cell w-20">${a.daysWait} d</td>`);
         
-        deadlineAlerts.sort((a, b) => a.daysLeft - b.daysLeft);
         renderGroupedTable("cc-deadlines-body", deadlineAlerts, a => {
             let statusBadge = a.daysLeft < 0 ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold shadow-xs">Overdue ${Math.abs(a.daysLeft)}d</span>` : a.daysLeft === 0 ? `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-bold shadow-xs">Due Today</span>` : `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold shadow-xs">Due in ${a.daysLeft}d</span>`;
             return `<td class="p-3 font-mono font-bold text-slate-600 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.deadlineDate}</td><td class="p-3 text-right hidden md:table-cell w-24">${statusBadge}</td>`;
         });
 
-        nablAlerts.sort((a, b) => b.daysElapsed - a.daysElapsed);
         renderGroupedTable("cc-nabl-body", nablAlerts, a => `<td class="p-3 font-mono font-bold text-indigo-700 text-center border-r border-slate-100 hidden md:table-cell w-28">${a.nablDate}</td><td class="p-3 text-center font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'} hidden md:table-cell w-20">${a.daysElapsed} d</td>`);
 
         renderGroupedTable("cc-ready-billing-body", readyBillingAlerts, a => {
@@ -668,4 +679,4 @@
     }
 
     setTimeout(initCommandCenter, 50);
-</script>
+</script> 
