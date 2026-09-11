@@ -26,40 +26,44 @@
     </div>
 
     <!-- Live Executive Summary Board -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-9 gap-2">
         <!-- Call Volume -->
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-slate-400 block tracking-wider">Total Calls</span>
-            <p id="cc-total-calls" class="text-xl font-black text-slate-900 mt-1">0</p>
+        <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-slate-400 block tracking-wider">Total Calls</span>
+            <p id="cc-total-calls" class="text-lg font-black text-slate-900 mt-1">0</p>
         </div>
-        <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-blue-600 block tracking-wider">Valid Calls</span>
-            <p id="cc-valid-calls" class="text-xl font-black text-blue-700 mt-1">0</p>
+        <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-blue-600 block tracking-wider">Valid Calls</span>
+            <p id="cc-valid-calls" class="text-lg font-black text-blue-700 mt-1">0</p>
         </div>
-        <div class="bg-amber-50/50 p-3 rounded-2xl border border-amber-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-amber-600 block tracking-wider">Scheduled</span>
-            <p id="cc-scheduled" class="text-xl font-black text-amber-700 mt-1">0</p>
+        <div class="bg-rose-50/50 p-2 rounded-2xl border border-rose-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-rose-600 block tracking-wider" title="Cancelled / Revised / Waivered">Canc / Rev / Wav</span>
+            <p class="text-sm font-black text-rose-700 mt-1"><span id="cc-cancelled">0</span> / <span id="cc-revised">0</span> / <span id="cc-waivered">0</span></p>
         </div>
-        <div class="bg-rose-50/50 p-3 rounded-2xl border border-rose-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-rose-600 block tracking-wider">Pending</span>
-            <p id="cc-pending" class="text-xl font-black text-rose-700 mt-1">0</p>
+        <div class="bg-amber-50/50 p-2 rounded-2xl border border-amber-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-amber-600 block tracking-wider">Scheduled</span>
+            <p id="cc-scheduled" class="text-lg font-black text-amber-700 mt-1">0</p>
         </div>
-        <div class="bg-emerald-50/50 p-3 rounded-2xl border border-emerald-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-emerald-600 block tracking-wider">Completed</span>
-            <p id="cc-completed" class="text-xl font-black text-emerald-700 mt-1">0</p>
+        <div class="bg-rose-50/50 p-2 rounded-2xl border border-rose-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-rose-600 block tracking-wider">Pending</span>
+            <p id="cc-pending" class="text-lg font-black text-rose-700 mt-1">0</p>
         </div>
-        <div class="bg-purple-50/50 p-3 rounded-2xl border border-purple-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-purple-600 block tracking-wider">Billed</span>
-            <p id="cc-billed" class="text-xl font-black text-purple-700 mt-1">0</p>
+        <div class="bg-emerald-50/50 p-2 rounded-2xl border border-emerald-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-emerald-600 block tracking-wider">Completed</span>
+            <p id="cc-completed" class="text-lg font-black text-emerald-700 mt-1">0</p>
+        </div>
+        <div class="bg-purple-50/50 p-2 rounded-2xl border border-purple-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-purple-600 block tracking-wider">Billed</span>
+            <p id="cc-billed" class="text-lg font-black text-purple-700 mt-1">0</p>
         </div>
         <!-- Reports -->
-        <div class="bg-indigo-50/50 p-3 rounded-2xl border border-indigo-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-indigo-600 block tracking-wider">Rep Recv</span>
-            <p id="cc-rep-recv" class="text-xl font-black text-indigo-700 mt-1">0</p>
+        <div class="bg-indigo-50/50 p-2 rounded-2xl border border-indigo-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-indigo-600 block tracking-wider">Rep Recv</span>
+            <p id="cc-rep-recv" class="text-lg font-black text-indigo-700 mt-1">0</p>
         </div>
-        <div class="bg-cyan-50/50 p-3 rounded-2xl border border-cyan-200 shadow-xs text-center flex flex-col justify-center">
-            <span class="text-[9px] font-black uppercase text-cyan-600 block tracking-wider">Rep Mailed</span>
-            <p id="cc-rep-mail" class="text-xl font-black text-cyan-700 mt-1">0</p>
+        <div class="bg-cyan-50/50 p-2 rounded-2xl border border-cyan-200 shadow-xs text-center flex flex-col justify-center">
+            <span class="text-[8px] font-black uppercase text-cyan-600 block tracking-wider">Rep Mailed</span>
+            <p id="cc-rep-mail" class="text-lg font-black text-cyan-700 mt-1">0</p>
         </div>
     </div>
 
@@ -122,14 +126,14 @@
             </div>
         </div>
 
-        <!-- PANEL 3: CALLS NOT SCHEDULED -->
+        <!-- PANEL 3A: APPOINTED BUT NOT SCHEDULED -->
         <div class="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
             <div class="bg-orange-50 p-4 border-b border-orange-100 shrink-0">
                 <h4 class="font-black text-sm uppercase text-orange-700 tracking-wider flex items-center gap-2">
-                    <i data-lucide="clock-alert" class="w-5 h-5"></i> Calls Not Scheduled
-                    <span id="count-not-sched" class="bg-orange-200 text-orange-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                    <i data-lucide="user-check" class="w-5 h-5"></i> Appointed but Not Scheduled
+                    <span id="count-appointed-not-sched" class="bg-orange-200 text-orange-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
                 </h4>
-                <p class="text-[10px] text-orange-600 font-bold mt-1">All valid calls currently stuck in Pending status.</p>
+                <p class="text-[10px] text-orange-600 font-bold mt-1">Inspector assigned but schedule date is pending.</p>
             </div>
             <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
                 <table class="w-full text-left text-xs border-collapse block md:table">
@@ -141,7 +145,33 @@
                             <th class="p-3 text-center w-20">Wait Days</th>
                         </tr>
                     </thead>
-                    <tbody id="cc-not-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
+                    <tbody id="cc-appointed-not-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
+                        <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PANEL 3B: NOT APPOINTED - NOT SCHEDULED -->
+        <div class="bg-white rounded-3xl border border-amber-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
+            <div class="bg-amber-50 p-4 border-b border-amber-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-amber-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="user-x" class="w-5 h-5"></i> Not Appointed - Not Scheduled
+                    <span id="count-not-appointed-not-sched" class="bg-amber-200 text-amber-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-amber-600 font-bold mt-1">Pending calls with neither inspector nor schedule assigned.</p>
+            </div>
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
+                        <tr>
+                            <th class="p-3 w-36">Inspection ID</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 text-center w-24">Recv Date</th>
+                            <th class="p-3 text-center w-20">Wait Days</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-not-appointed-not-sched-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
@@ -189,7 +219,7 @@
                         <tr>
                             <th class="p-3 w-36">Inspection ID</th>
                             <th class="p-3">Manufacturer</th>
-                            <th class="p-3 text-center w-28">NABL Date</th>
+                            <th class="p-3 w-48">Schedule & Witness</th>
                             <th class="p-3 text-center w-20">Elapsed</th>
                         </tr>
                     </thead>
@@ -221,6 +251,81 @@
                     </thead>
                     <tbody id="cc-ready-billing-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
                         <tr><td colspan="4" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PANEL 7: FAILED IN NABL LAB -->
+        <div class="bg-white rounded-3xl border border-rose-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
+            <div class="bg-rose-50 p-4 border-b border-rose-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-rose-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="x-circle" class="w-5 h-5"></i> Failed in NABL Lab
+                    <span id="count-failed-nabl" class="bg-rose-200 text-rose-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-rose-600 font-bold mt-1">Inspections with failed NABL lab results.</p>
+            </div>
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
+                        <tr>
+                            <th class="p-3 w-36">Inspection ID</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 w-48">Sub-Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-failed-nabl-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PANEL 8: ON HOLD -->
+        <div class="bg-white rounded-3xl border border-amber-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
+            <div class="bg-amber-50 p-4 border-b border-amber-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-amber-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="pause-circle" class="w-5 h-5"></i> On Hold / Hold by TKC / Mfr
+                    <span id="count-on-hold" class="bg-amber-200 text-amber-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-amber-600 font-bold mt-1">Inspections currently on hold.</p>
+            </div>
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
+                        <tr>
+                            <th class="p-3 w-36">Inspection ID</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 w-48">Sub-Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-on-hold-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PANEL 9: COMPLETED - NABL AWAITED -->
+        <div class="bg-white rounded-3xl border border-cyan-100 shadow-sm overflow-hidden flex flex-col md:h-[55vh]">
+            <div class="bg-cyan-50 p-4 border-b border-cyan-100 shrink-0">
+                <h4 class="font-black text-sm uppercase text-cyan-700 tracking-wider flex items-center gap-2">
+                    <i data-lucide="file-clock" class="w-5 h-5"></i> Completed - NABL Awaited
+                    <span id="count-nabl-awaited" class="bg-cyan-200 text-cyan-800 py-0.5 px-2 rounded-full text-[10px] ml-1 font-black">0</span>
+                </h4>
+                <p class="text-[10px] text-cyan-600 font-bold mt-1">Completed inspections awaiting NABL results.</p>
+            </div>
+            <div class="p-0 md:p-1 overflow-x-hidden md:overflow-x-auto overflow-y-auto custom-scrollbar flex-1">
+                <table class="w-full text-left text-xs border-collapse block md:table">
+                    <thead class="bg-white text-slate-400 uppercase text-[9px] font-black border-b sticky top-0 hidden md:table-header-group z-10">
+                        <tr>
+                            <th class="p-3 w-36">Inspection ID</th>
+                            <th class="p-3">Manufacturer</th>
+                            <th class="p-3 w-48">Completed On</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cc-nabl-awaited-body" class="block md:table-row-group divide-y md:divide-y-0 divide-slate-100 font-medium text-slate-700">
+                        <tr><td colspan="3" class="p-8 text-center text-slate-400">Loading alerts...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -365,7 +470,6 @@
                d1.getFullYear() === d2.getFullYear();
     }
 
-    // 🎯 Active Schedule Date-Matching Logic
     function parseDateToKey(dateStr) {
         if (!dateStr || String(dateStr).trim() === "" || dateStr === "-") return null;
         let clean = String(dateStr).trim().split('T')[0];
@@ -390,47 +494,15 @@
     }
 
     function isInspectionActiveOnDate(row, targetKey) {
-        const schedKey = parseDateToKey(row.scheduleDate);
-        if (schedKey && schedKey === targetKey) return true;
-        if (schedKey && schedKey < targetKey) {
-            const stat = String(row.status || "").trim().toLowerCase();
-            if (stat.includes("sched")) return true;
-        }
-        const fromKey = parseDateToKey(row.dateFrom);
-        if (fromKey && fromKey === targetKey) return true;
-        if (fromKey && row.dateTo) {
-            const fromParts = fromKey.split('-');
-            const fromDate = new Date(parseInt(fromParts[0], 10), parseInt(fromParts[1], 10) - 1, parseInt(fromParts[2], 10));
-            const regex = /(To|And)[\s\n\r]+(\d{2}\/\d{2}\/\d{4})/gi;
-            let match;
-            let currentBase = new Date(fromDate);
-            const activeDates = new Set();
-            activeDates.add(fromKey);
+        const stat = String(row.status || "").trim().toLowerCase();
+        if (!stat.includes("sched") && !stat.includes("pend")) return false;
 
-            while ((match = regex.exec(row.dateTo)) !== null) {
-                const kw = match[1].toLowerCase();
-                const targetK = parseDateToKey(match[2]);
-                if (targetK) {
-                    const tp = targetK.split('-');
-                    const tDate = new Date(parseInt(tp[0], 10), parseInt(tp[1], 10) - 1, parseInt(tp[2], 10));
-                    if (kw === 'to') {
-                        let cur = new Date(currentBase);
-                        cur.setDate(cur.getDate() + 1);
-                        while (cur <= tDate) {
-                            const y = cur.getFullYear();
-                            const m = String(cur.getMonth() + 1).padStart(2, '0');
-                            const d = String(cur.getDate()).padStart(2, '0');
-                            activeDates.add(`${y}-${m}-${d}`);
-                            cur.setDate(cur.getDate() + 1);
-                        }
-                    } else if (kw === 'and') {
-                        activeDates.add(targetK);
-                    }
-                    currentBase = new Date(tDate);
-                }
-            }
-            if (activeDates.has(targetKey)) return true;
-        }
+        const schedKey = parseDateToKey(row.scheduleDate);
+        if (!schedKey) return false;
+
+        if (schedKey === targetKey) return true;
+        if (schedKey < targetKey && stat.includes("sched")) return true;
+
         return false;
     }
 
@@ -505,7 +577,6 @@
         
         if (!dateInput || !window.ccRawData) return;
 
-        // Default to yesterday if empty
         if (!dateInput.value) {
             const d = new Date();
             d.setDate(d.getDate() - 1);
@@ -526,7 +597,8 @@
             if (window.ccActiveDiscom !== "ALL" && String(r.discom || "").trim().toUpperCase() !== window.ccActiveDiscom) return;
             
             const stat = String(r.status || "").trim().toLowerCase();
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            const sub = String(r.subStatus || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis") || stat.includes("waiver") || sub.includes("waiver")) return;
 
             let dRec = parseAnyDateObj(r.receivedDate);
             if (isSameDate(dRec, targetDate)) {
@@ -557,10 +629,11 @@
         safeSetText("cc-record-count-badge", `Live Scanning: ${records.length} Records`);
 
         let tTotal = records.length;
-        let tCancelRev = 0, tValid = 0, tSched = 0, tPend = 0, tComp = 0, tBill = 0, tRepRecv = 0, tRepMail = 0;
+        let tCancelled = 0, tRevised = 0, tWaivered = 0, tValid = 0, tSched = 0, tPend = 0, tComp = 0, tBill = 0, tRepRecv = 0, tRepMail = 0;
 
         let todaySchedAlerts = [];
-        let deadlineAlerts = [], notScheduledAlerts = [], nablAlerts = [], readyBillingAlerts = [];
+        let deadlineAlerts = [], appointedNotSchedAlerts = [], notAppointedNotSchedAlerts = [], nablAlerts = [], readyBillingAlerts = [];
+        let failedNablAlerts = [], onHoldAlerts = [], nablAwaitedAlerts = [];
 
         const today = new Date();
         today.setHours(0,0,0,0);
@@ -576,20 +649,39 @@
             const bill = String(r.billingStatus || "").trim().toLowerCase();
             const discom = String(r.discom || "OTHER").trim().toUpperCase();
 
-            if (stat.includes("cancel") || stat.includes("revis")) {
-                tCancelRev++;
-            } else {
-                tValid++;
-                if (stat === "schedule" || stat === "scheduled") tSched++;
-                else if (stat.includes("pend") || sub.includes("pend")) tPend++;
-                if (sub.includes("pass") || sub.includes("mom")) tComp++;
-            }
+            const isCancelled = stat.includes("cancel");
+            const isRevised = stat.includes("revis");
+            const isWaivered = stat.includes("waiver") || sub.includes("waiver");
+
+            if (isCancelled) { tCancelled++; return; }
+            if (isRevised) { tRevised++; return; }
+            if (isWaivered) { tWaivered++; return; }
+
+            tValid++;
+            if (stat === "schedule" || stat === "scheduled") tSched++;
+            else if (stat.includes("pend") || sub.includes("pend")) tPend++;
+            if (sub.includes("pass") || sub.includes("mom")) tComp++;
 
             if (bill === "billed") tBill++;
             if (String(r.reportReceived || "").trim().toLowerCase() === "yes") tRepRecv++;
             if (String(r.reportMail || "").trim().toLowerCase() === "yes") tRepMail++;
 
-            if (stat.includes("cancel") || stat.includes("revis")) return;
+            const isFailedNabl = sub.includes("failed in nabl");
+            const isOnHold = stat.includes("on hold") || sub.includes("on hold") || sub.includes("hold by manufacturer") || sub.includes("hold by tkc");
+            const isNablAwaited = stat === "completed" && sub.includes("nabl awaited");
+
+            if (isFailedNabl) {
+                failedNablAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, subStat: r.subStatus || 'N/A', mfg: r.manufacturer || 'N/A', raw: r });
+                return;
+            }
+            if (isOnHold) {
+                onHoldAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, subStat: r.subStatus || 'N/A', mfg: r.manufacturer || 'N/A', raw: r });
+                return;
+            }
+            if (isNablAwaited) {
+                nablAwaitedAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, compDate: r.inspectionCompletedOn || 'N/A', mfg: r.manufacturer || 'N/A', raw: r });
+                return;
+            }
 
             let dSch = parseAnyDateObj(r.scheduleDate);
             let dRec = parseAnyDateObj(r.receivedDate);
@@ -599,11 +691,28 @@
                 todaySchedAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, insp: r.conductedBy || r.tpiaInspector || 'Not Appointed', mfg: r.manufacturer || 'N/A', raw: r });
             }
 
-            // CALLS NOT SCHEDULED (Any Pending Status)
+            // 🎯 CALLS NOT SCHEDULED (Split strictly into Appointed & Not Appointed)
             if (stat.includes("pend")) {
                 let diffDays = 0;
                 if (dRec) diffDays = Math.floor((today - dRec) / (1000 * 60 * 60 * 24));
-                notScheduledAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, mfg: r.manufacturer || 'N/A', recvDate: dRec ? `${String(dRec.getDate()).padStart(2,'0')}/${String(dRec.getMonth()+1).padStart(2,'0')}/${dRec.getFullYear()}` : 'N/A', daysWait: diffDays, raw: r });
+                
+                const inspName = String(r.conductedBy || r.tpiaInspector || "").trim();
+                const isAppointed = inspName && inspName.toLowerCase() !== "pending" && inspName.toLowerCase() !== "not appointed" && inspName !== "-";
+                
+                const itemObj = { 
+                    id: r.inspectionId || r.InspectionID || 'N/A', 
+                    discom: discom, 
+                    mfg: r.manufacturer || 'N/A', 
+                    recvDate: dRec ? `${String(dRec.getDate()).padStart(2,'0')}/${String(dRec.getMonth()+1).padStart(2,'0')}/${dRec.getFullYear()}` : 'N/A', 
+                    daysWait: diffDays, 
+                    raw: r 
+                };
+
+                if (isAppointed) {
+                    appointedNotSchedAlerts.push(itemObj);
+                } else {
+                    notAppointedNotSchedAlerts.push(itemObj);
+                }
             }
 
             // READY FOR BILLING
@@ -626,22 +735,69 @@
 
             // NABL ALERTS
             const nablRaw = String(r.nablStatusDate || "").trim();
-            if (nablRaw.toLowerCase().includes("sample send for nabl test") && String(r.reportMail || "").trim().toLowerCase() !== "yes") {
-                let extractedDate = "No Date Found";
+            const nablLower = nablRaw.toLowerCase();
+
+            // Check for "Sample Sent" (or "Send" just in case of typos) and ensure it hasn't been mailed
+            if ((nablLower.includes("sample sent for nabl test") || nablLower.includes("sample send for nabl test")) && String(r.reportMail || "").trim().toLowerCase() !== "yes") {
+                
+                let extractedDateStr = "No Date Found";
+                let witnessName = "Not Specified";
                 let diffDays = 0;
-                let dMatch = nablRaw.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
-                if (dMatch) {
-                    extractedDate = `${dMatch[1]}/${dMatch[2]}/${dMatch[3]}`;
-                    let nablDate = new Date(dMatch[3], dMatch[2] - 1, dMatch[1]);
-                    nablDate.setHours(0,0,0,0);
-                    diffDays = Math.ceil((today - nablDate) / (1000 * 60 * 60 * 24));
+                
+                // 1. Extract the Schedule Date string
+                let schedMatch = nablRaw.match(/Schedule Test on Date\s+(.*?)(?:,\s*Witnessed by|$)/i);
+                if (schedMatch) {
+                    extractedDateStr = schedMatch[1].trim();
+                } else {
+                    // Fallback: If exact words aren't used, just grab all dates
+                    let dates = nablRaw.match(/\d{2}[-/]\d{2}[-/]\d{4}/g);
+                    if (dates) extractedDateStr = dates.join(', ');
                 }
-                nablAlerts.push({ id: r.inspectionId || r.InspectionID || 'N/A', discom: discom, mfg: r.manufacturer || 'N/A', nablDate: extractedDate, daysElapsed: diffDays, raw: r });
+
+                // 2. Extract the Witness Name
+                let witnessMatch = nablRaw.match(/Witnessed by\s+(.*)/i);
+                if (witnessMatch) {
+                    witnessName = witnessMatch[1].trim();
+                }
+
+                // 3. Find the LATEST date in the string to calculate elapsed time
+                let allDates = nablRaw.match(/\d{2}[-/]\d{2}[-/]\d{4}/g);
+                if (allDates && allDates.length > 0) {
+                    let maxDate = null;
+                    allDates.forEach(dStr => {
+                        let parts = dStr.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+                        if (parts) {
+                            let d = new Date(parts[3], parts[2] - 1, parts[1]);
+                            d.setHours(0,0,0,0);
+                            if (!maxDate || d > maxDate) {
+                                maxDate = d;
+                            }
+                        }
+                    });
+                    
+                    // Calculate days elapsed from the max (last) date
+                    if (maxDate) {
+                        diffDays = Math.ceil((today - maxDate) / (1000 * 60 * 60 * 24));
+                    }
+                }
+
+                nablAlerts.push({ 
+                    id: r.inspectionId || r.InspectionID || 'N/A', 
+                    discom: discom, 
+                    mfg: r.manufacturer || 'N/A', 
+                    scheduleStr: extractedDateStr,
+                    witness: witnessName,
+                    daysElapsed: diffDays, 
+                    raw: r 
+                });
             }
         });
 
         safeSetText("cc-total-calls", tTotal);
         safeSetText("cc-valid-calls", tValid);
+        safeSetText("cc-cancelled", tCancelled);
+        safeSetText("cc-revised", tRevised);
+        safeSetText("cc-waivered", tWaivered);
         safeSetText("cc-scheduled", tSched);
         safeSetText("cc-pending", tPend);
         safeSetText("cc-completed", tComp);
@@ -650,27 +806,55 @@
         safeSetText("cc-rep-mail", tRepMail);
 
         safeSetText("count-today-sched", todaySchedAlerts.length);
-        safeSetText("count-not-sched", notScheduledAlerts.length);
+        safeSetText("count-appointed-not-sched", appointedNotSchedAlerts.length);
+        safeSetText("count-not-appointed-not-sched", notAppointedNotSchedAlerts.length);
         safeSetText("count-deadlines", deadlineAlerts.length);
         safeSetText("count-nabl", nablAlerts.length);
         safeSetText("count-ready-billing", readyBillingAlerts.length);
+        safeSetText("count-failed-nabl", failedNablAlerts.length);
+        safeSetText("count-on-hold", onHoldAlerts.length);
+        safeSetText("count-nabl-awaited", nablAwaitedAlerts.length);
 
-        // 🎯 RENDER GROUPED TABLES (Strictly maintaining original database/sheet order)
+        // 🎯 RENDER GROUPED TABLES
         renderGroupedTable("cc-today-sched-body", todaySchedAlerts, a => `<td class="p-3 text-slate-600 hidden md:table-cell w-48 truncate" title="${a.insp}">${a.insp}</td>`);
         
-        renderGroupedTable("cc-not-sched-body", notScheduledAlerts, a => `<td class="p-3 font-mono font-bold text-orange-700 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.recvDate}</td><td class="p-3 text-center font-black text-orange-600 hidden md:table-cell w-20">${a.daysWait} d</td>`);
+        renderGroupedTable("cc-appointed-not-sched-body", appointedNotSchedAlerts, a => `<td class="p-3 font-mono font-bold text-orange-700 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.recvDate}</td><td class="p-3 text-center font-black text-orange-600 hidden md:table-cell w-20">${a.daysWait} d</td>`);
         
+        renderGroupedTable("cc-not-appointed-not-sched-body", notAppointedNotSchedAlerts, a => `<td class="p-3 font-mono font-bold text-amber-700 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.recvDate}</td><td class="p-3 text-center font-black text-amber-600 hidden md:table-cell w-20">${a.daysWait} d</td>`);
+
         renderGroupedTable("cc-deadlines-body", deadlineAlerts, a => {
             let statusBadge = a.daysLeft < 0 ? `<span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold shadow-xs">Overdue ${Math.abs(a.daysLeft)}d</span>` : a.daysLeft === 0 ? `<span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-bold shadow-xs">Due Today</span>` : `<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold shadow-xs">Due in ${a.daysLeft}d</span>`;
             return `<td class="p-3 font-mono font-bold text-slate-600 text-center border-r border-slate-100 hidden md:table-cell w-24">${a.deadlineDate}</td><td class="p-3 text-right hidden md:table-cell w-24">${statusBadge}</td>`;
         });
+        
+        renderGroupedTable("cc-nabl-body", nablAlerts, a => {
+            let elapsedBadge = "";
+            if (a.daysElapsed > 15) {
+                elapsedBadge = `<span class="text-rose-600">${a.daysElapsed} d</span>`;
+            } else if (a.daysElapsed > 0) {
+                elapsedBadge = `<span class="text-indigo-600">${a.daysElapsed} d</span>`;
+            } else {
+                elapsedBadge = `<span class="text-amber-500 text-[9px] uppercase tracking-wider bg-amber-50 px-2 py-1 rounded border border-amber-200">Awaiting</span>`;
+            }
 
-        renderGroupedTable("cc-nabl-body", nablAlerts, a => `<td class="p-3 font-mono font-bold text-indigo-700 text-center border-r border-slate-100 hidden md:table-cell w-28">${a.nablDate}</td><td class="p-3 text-center font-black ${a.daysElapsed > 15 ? 'text-rose-600' : 'text-indigo-600'} hidden md:table-cell w-20">${a.daysElapsed} d</td>`);
-
+            return `<td class="p-3 border-r border-slate-100 hidden md:table-cell w-48">
+                <div class="font-mono font-bold text-indigo-700 text-[10px] leading-snug whitespace-normal">${a.scheduleStr}</div>
+                <div class="text-[9px] text-slate-500 font-bold mt-1 uppercase flex items-center gap-1">
+                    <i data-lucide="eye" class="w-3 h-3"></i> By: ${a.witness}
+                </div>
+            </td>
+            <td class="p-3 text-center font-black hidden md:table-cell w-20">
+                ${elapsedBadge}
+            </td>`;
+        });
+        
         renderGroupedTable("cc-ready-billing-body", readyBillingAlerts, a => {
             const outColor = a.outcome === "Material Pass" ? "text-emerald-700" : "text-purple-700";
             return `<td class="p-3 font-bold ${outColor} text-center border-r border-slate-100 hidden md:table-cell w-24">${a.outcome}</td><td class="p-3 text-center font-mono font-bold text-slate-600 hidden md:table-cell w-20">${a.md}</td>`;
         });
+        renderGroupedTable("cc-failed-nabl-body", failedNablAlerts, a => `<td class="p-3 text-rose-700 font-bold hidden md:table-cell w-48 truncate" title="${a.subStat}">${a.subStat}</td>`);
+        renderGroupedTable("cc-on-hold-body", onHoldAlerts, a => `<td class="p-3 text-amber-700 font-bold hidden md:table-cell w-48 truncate" title="${a.subStat}">${a.subStat}</td>`);
+        renderGroupedTable("cc-nabl-awaited-body", nablAwaitedAlerts, a => `<td class="p-3 font-mono font-black text-cyan-700 text-center hidden md:table-cell w-48">${a.compDate}</td>`);
 
         // Initialize Dynamic Logs Panel
         window.renderDynamicRecvLog();
@@ -679,4 +863,4 @@
     }
 
     setTimeout(initCommandCenter, 50);
-</script> 
+</script>
