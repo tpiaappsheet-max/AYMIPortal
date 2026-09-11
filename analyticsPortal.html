@@ -197,7 +197,7 @@
         </div>
     </div>
 
-    <!-- 🎯 NEW INTEGRATED COMBO CHART (SIDE-BY-SIDE BARS) -->
+    <!-- 🎯 INTEGRATED COMBO CHART (SIDE-BY-SIDE BARS) -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h4 class="font-black text-xs uppercase text-slate-800 tracking-wider flex items-center gap-2">
@@ -382,7 +382,7 @@
                 </select>
             </div>
             
-            <!-- 🎯 Filter Group Data changed to Input + Datalist Combobox -->
+            <!-- 🎯 Filter Group Data -->
             <div class="flex-1 min-w-[150px] hidden" id="matrix-filter-wrap">
                 <label class="block text-[9px] font-black uppercase text-slate-400 mb-1 text-emerald-700">Filter Group Data</label>
                 <input type="text" id="matrix-filter-primary" list="matrix-filter-primary-list" oninput="window.applyMatrixFilter()" onfocus="if(this.value==='ALL')this.value='';" onblur="if(this.value==='')this.value='ALL';" placeholder="Select or type..." value="ALL" class="w-full p-2.5 border border-emerald-300 rounded-xl text-xs font-bold outline-none bg-emerald-50 focus:bg-white focus:border-emerald-500 transition cursor-pointer shadow-xs">
@@ -408,9 +408,9 @@
         </div>
     </div>
 
-    <!-- ======================= INTEGRATED COMPLETED INSPECTIONS LOG ======================= -->
-    <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 print-wrapper mt-8">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4 hide-on-print">
+    <!-- ======================= COMPLETED INSPECTIONS LOG ======================= -->
+    <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4 mt-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
             <div>
                 <h3 class="font-black text-lg uppercase text-slate-800 flex items-center gap-2">
                     <i data-lucide="calendar-check" class="text-violet-600 w-6 h-6"></i> Completed Inspections Log
@@ -419,7 +419,6 @@
             </div>
             
             <div class="flex items-center gap-3 flex-wrap">
-                <!-- Date Selector Input -->
                 <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
                     <label class="text-[10px] font-black uppercase text-violet-800">Select Date:</label>
                     <input type="date" id="completed-log-filter-date" onchange="window.renderCompletedDateLog()" class="p-1 border border-violet-300 rounded-lg text-xs font-bold outline-none bg-white cursor-pointer shadow-2xs">
@@ -427,9 +426,6 @@
             </div>
         </div>
 
-        <h2 id="pdf-report-title-log" class="print-title font-black text-2xl uppercase tracking-wider text-center text-slate-800 mb-6 border-b pb-4"></h2>
-
-        <!-- Completed Inspections Detail Table (DISCOM added alongside Inspection ID) -->
         <div id="yesterday-table-container" class="border border-violet-200 rounded-2xl shadow-sm overflow-hidden flex flex-col bg-white relative">
             <div class="p-4 bg-violet-100/50 border-b border-violet-200 flex items-center justify-between">
                 <h4 class="font-black text-sm uppercase text-violet-900 flex items-center gap-2">
@@ -456,14 +452,13 @@
             </div>
         </div>
         
-        <p class="text-[10px] text-slate-400 mt-2 text-center italic hide-on-print">* Automatically synchronizes with the Global DISCOM filter at the top of the dashboard.</p>
+        <p class="text-[10px] text-slate-400 mt-2 text-center italic">* Automatically synchronizes with the Global DISCOM filter at the top of the dashboard.</p>
     </div>
-
 </div>
 
 <!-- 🎯 DRILL-DOWN MODAL FOR CHARTS -->
 <div id="analytics-drilldown-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl p-6 sm:p-8 relative border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+    <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl p-6 sm:p-8 relative border space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
         <div class="flex items-center justify-between border-b pb-3 sticky top-0 bg-white z-10">
             <div>
                 <h3 id="drilldown-modal-title" class="font-black text-sm uppercase text-slate-900 flex items-center gap-2">
@@ -475,8 +470,8 @@
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-        <div id="drilldown-modal-body" class="space-y-2">
-            <!-- Populated dynamically -->
+        <div id="drilldown-modal-body" class="space-y-3">
+            <!-- Populated dynamically with complete profile expansion -->
         </div>
     </div>
 </div>
@@ -486,47 +481,9 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 2px solid #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-    .print-title { display: none; }
-
-    /* 🎯 ROBUST NATIVE PRINT SETTINGS */
-    @media print {
-        @page {
-            size: landscape;
-            margin: 0.3in;
-        }
-        body * {
-            visibility: hidden !important;
-        }
-        .hide-on-print {
-            display: none !important;
-        }
-        .print-wrapper, .print-wrapper * {
-            visibility: visible !important;
-        }
-        .print-wrapper {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        .print-title {
-            display: block !important;
-        }
-        .scroll-target {
-            overflow: visible !important;
-            max-height: none !important;
-        }
-        .sticky {
-            position: static !important;
-        }
-    }
 </style>
 
 <script>
-    // State Store & Bind UI functions to window for global access
     window.analyticsRawData = [];
     window.analyticsInspectorsMaster = [];
     window.analyticsFilteredCache = [];
@@ -539,6 +496,52 @@
         materialCategory: null,
         adherenceChart: null,
         qualityChart: null
+    };
+
+    // 🎯 EXACT 42-COLUMN MAPPING SEQUENCE
+    const fullHeaderCustomNames = {
+        "srNo": "Sr. No",
+        "inspectionId": "Inspection ID",
+        "discom": "DISCOM",
+        "scheme": "Scheme",
+        "district": "District",
+        "letterNo": "Inspection Letter No",
+        "letterDate": "Letter Date (dd/mm/yyyy)",
+        "receivedDate": "Date of received Inspection Call / Scheduled Date (dd/mm/yyyy)",
+        "pqccName": "PQCC Name",
+        "officials": "Name of Officials",
+        "nodalCe": "Nodal Chief Engineer",
+        "manufacturer": "Manufacturer Name",
+        "address": "Address",
+        "contactPerson": "Contact Person",
+        "mobile": "Mobile No",
+        "materialInspected": "Material Inspected",
+        "materialSpec": "Material Specification",
+        "quantity": "Quantity",
+        "tkc": "Name of TKC",
+        "tpiaInspector": "Name of TPIA Inspector (Appointed)",
+        "tpiaContact": "Contact Number (Formula)",
+        "authLetterNo": "Authorization Letter No",
+        "scheduleDate": "Schedule Date (dd/mm/yyyy)",
+        "status": "Inspection Status",
+        "subStatus": "Inspection Sub Status",
+        "inspectionCompletedOn": "Inspection Completed On (dd/mm/yyyy)",
+        "reportOm": "Report/ OM No and Date",
+        "conductedBy": "Inspection conducted by TPIA Inspector",
+        "dateFrom": "Date(s) of Inspection (From - To)",
+        "dateTo": "Date(s) of NABL Witness (From - To)",
+        "manDays": "Man Days",
+        "sealType": "Type of Seal",
+        "sealSerial": "Seal Serial No Used in Inspection",
+        "sealNoCount": "No of Seal",
+        "nablStatusDate": "NABL Status and Testing Date",
+        "reportReceived": "Report Received",
+        "reportMail": "Report Mail",
+        "letterRevision": "Letter Revision Status",
+        "remarks": "Remark",
+        "month": "Month of Inspection (conducted)",
+        "billingStatus": "Billing Status",
+        "invoiceNo": "Invoice No"
     };
 
     function cleanInspectorName(name) {
@@ -557,21 +560,108 @@
     }
 
     function parseAnyDateToObject(dateStr) {
-        if (!dateStr || String(dateStr).trim() === "" || String(dateStr).trim() === "-") return null;
-        let s = String(dateStr).trim().split('T')[0];
+        if (!dateStr || dateStr === "-" || dateStr === "undefined" || dateStr === "null") return null;
+        if (dateStr instanceof Date) return isNaN(dateStr.getTime()) ? null : dateStr;
         
-        if (s.includes('/')) {
-            let p = s.split('/');
-            if (p.length === 3) return new Date(parseInt(p[2],10), parseInt(p[1],10)-1, parseInt(p[0],10));
-        } else if (s.includes('-')) {
-            let p = s.split('-');
-            if (p.length === 3) {
-                if (p[0].length === 4) return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
-                else return new Date(parseInt(p[2],10), parseInt(p[1],10)-1, parseInt(p[0],10));
+        let s = String(dateStr).trim();
+
+        // Handle Excel serial date numbers (e.g., 45000+)
+        if (!isNaN(s) && Number(s) > 30000 && Number(s) < 60000) {
+            let excelDate = new Date(Math.round((Number(s) - (25567 + 2)) * 86400 * 1000));
+            return isNaN(excelDate.getTime()) ? null : excelDate;
+        }
+
+        // Handle ISO strings or timestamps
+        if (s.includes('T') || (s.includes('-') && s.length >= 10)) {
+            let d = new Date(s);
+            if (!isNaN(d.getTime())) {
+                d.setHours(0,0,0,0);
+                return d;
             }
         }
-        return null;
+
+        // Match DD/MM/YYYY or DD-MM-YYYY
+        let mDMY = s.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
+        if (mDMY) {
+            return new Date(parseInt(mDMY[3], 10), parseInt(mDMY[2], 10) - 1, parseInt(mDMY[1], 10));
+        }
+
+        // Match YYYY-MM-DD or YYYY/MM/DD
+        let mYMD = s.match(/(\d{4})[-/](\d{2})[-/](\d{2})/);
+        if (mYMD) {
+            return new Date(parseInt(mYMD[1], 10), parseInt(mYMD[2], 10) - 1, parseInt(mYMD[3], 10));
+        }
+
+        let fallback = new Date(s);
+        fallback.setHours(0,0,0,0);
+        return isNaN(fallback.getTime()) ? null : fallback;
     }
+
+    function extractFirstDate(str) {
+        if (!str) return null;
+        let s = String(str).trim();
+        
+        // Extract first valid date occurrence from sequence strings (e.g. "09/09/2026 To 11/09/2026")
+        let matches = s.match(/(\d{2}[-/]\d{2}[-/]\d{4}|\d{4}[-/]\d{2}[-/]\d{2})/g);
+        if (matches && matches.length > 0) {
+            return parseAnyDateToObject(matches[0]);
+        }
+        
+        return parseAnyDateToObject(str);
+    }
+
+    window.renderAdherenceChart = function(records) {
+        const ctx = document.getElementById("chart-adherence");
+        if (!ctx) return;
+
+        let earlyArr = [], minorArr = [], majorArr = [], notStartArr = [];
+
+        records.forEach(r => {
+            const stat = String(r.status || "").trim().toLowerCase();
+            if (stat.includes("cancel") || stat.includes("revis")) return;
+
+            const dSch = extractFirstDate(r.scheduleDate);
+            const dFrm = extractFirstDate(r.dateFrom);
+
+            if (dSch) {
+                if (dFrm) {
+                    let diff = (dFrm - dSch) / 86400000;
+                    if (diff <= 0) earlyArr.push(r);
+                    else if (diff <= 3) minorArr.push(r);
+                    else majorArr.push(r);
+                } else {
+                    notStartArr.push(r);
+                }
+            }
+        });
+
+        if (window.analyticsChartInstances.adherenceChart) window.analyticsChartInstances.adherenceChart.destroy();
+
+        window.analyticsChartInstances.adherenceChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['On-Time / Early', 'Minor Delay (1-3d)', 'Major Delay (>3d)', 'Not Started'],
+                datasets: [{ data: [earlyArr.length, minorArr.length, majorArr.length, notStartArr.length], backgroundColor: ['#10b981', '#facc15', '#f43f5e', '#cbd5e1'], borderWidth: 2, borderColor: '#ffffff' }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '65%',
+                onClick: (evt, elements) => {
+                    if (elements.length > 0) {
+                        const idx = elements[0].index;
+                        let matched = [];
+                        let catName = '';
+                        if (idx === 0) { matched = earlyArr; catName = 'On-Time / Early Executions'; }
+                        else if (idx === 1) { matched = minorArr; catName = 'Minor Delay (1-3 days)'; }
+                        else if (idx === 2) { matched = majorArr; catName = 'Major Delay (>3 days)'; }
+                        else { matched = notStartArr; catName = 'Not Started Yet'; }
+
+                        openDrilldownModal(`Schedule Adherence: ${catName}`, `${matched.length} inspection records`, matched);
+                    }
+                },
+                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10, weight: 'bold' } } } }
+            }
+        });
+    };
 
     function getCompletionMonth(row) {
         const stat = String(row.status || "").trim().toLowerCase();
@@ -596,7 +686,7 @@
             }
         }
         
-        if (!latestDate && row.dateFrom) latestDate = parseAnyDateToObject(row.dateFrom);
+        if (!latestDate && row.dateFrom) latestDate = extractFirstDate(row.dateFrom);
 
         if (latestDate && !isNaN(latestDate.getTime())) {
             const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -638,39 +728,6 @@
         }
     };
 
-    window.switchAnalysisTab = function(tabKey) {
-        const inspPanel = document.getElementById("matrix-inspector-panel");
-        const mfgPanel = document.getElementById("matrix-manufacturer-panel");
-        const matPanel = document.getElementById("matrix-materials-panel");
-
-        const btnInsp = document.getElementById("tab-btn-inspector");
-        const btnMfg = document.getElementById("tab-btn-manufacturer");
-        const btnMat = document.getElementById("tab-btn-materials");
-
-        const activeClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer bg-blue-600 text-white shadow-xs";
-        const inactiveClass = "px-3 py-1.5 rounded-lg font-black transition cursor-pointer text-slate-600 hover:text-slate-900";
-
-        if (inspPanel) inspPanel.classList.add("hidden");
-        if (mfgPanel) mfgPanel.classList.add("hidden");
-        if (matPanel) matPanel.classList.add("hidden");
-
-        if (btnInsp) btnInsp.className = inactiveClass;
-        if (btnMfg) btnMfg.className = inactiveClass;
-        if (btnMat) btnMat.className = inactiveClass;
-
-        if (tabKey === 'inspector') {
-            if (inspPanel) inspPanel.classList.remove("hidden");
-            if (btnInsp) btnInsp.className = activeClass;
-        } else if (tabKey === 'manufacturer') {
-            if (mfgPanel) mfgPanel.classList.remove("hidden");
-            if (btnMfg) btnMfg.className = activeClass;
-        } else if (tabKey === 'materials') {
-            if (matPanel) matPanel.classList.remove("hidden");
-            if (btnMat) btnMat.className = activeClass;
-        }
-    };
-
-    // 🎯 Properly hoisted functions attached to window scope
     window.computeExecutiveKpis = function(records) {
         const total = records.length;
         let pass = 0, mom = 0, pending = 0, totalManDays = 0, cancelledRev = 0;
@@ -947,8 +1004,8 @@
             const stat = String(r.status || "").trim().toLowerCase();
             if (stat.includes("cancel") || stat.includes("revis")) return;
 
-            const dSch = parseAnyDateToObject(r.scheduleDate);
-            const dFrm = parseAnyDateToObject(r.dateFrom);
+            const dSch = extractFirstDate(r.scheduleDate);
+            const dFrm = extractFirstDate(r.dateFrom);
 
             if (dSch) {
                 if (dFrm) {
@@ -1408,19 +1465,49 @@
                     <div class="text-[10px] text-slate-500 whitespace-normal break-words mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline relative -top-0.5"></i> ${r.address || '-'}</div>
                 `;
                 
-                html += `<tr class="hover:bg-slate-50 transition border-b border-violet-100 last:border-0">
-                    <td class="p-3 font-mono align-top">
-                        <div class="font-bold text-indigo-700">${r.inspectionId || '-'}</div>
+                let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
+                Object.keys(fullHeaderCustomNames).forEach(k => {
+                    const label = fullHeaderCustomNames[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
+                    detailsHtml += `<div><span class="block text-[9px] font-black uppercase text-slate-400 mb-0.5">${label}</span><span class="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words">${val}</span></div>`;
+                });
+                detailsHtml += `</div>`;
+
+                html += `
+                <tr class="flex flex-col md:table-row bg-white hover:bg-slate-50 transition border-b border-violet-100 cursor-pointer" onclick="window.toggleMobileRow(this)">
+                    <td class="p-3 flex md:hidden items-start justify-between w-full gap-2">
+                        <div class="flex items-start gap-2 overflow-hidden flex-1">
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0 mt-0.5"></i>
+                            <div class="min-w-0 pr-2">
+                                <div class="font-mono font-black text-indigo-700 truncate">${r.inspectionId || '-'}</div>
+                                <div class="text-[10px] font-bold text-slate-800 line-clamp-2 mt-0.5">${r.manufacturer || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end shrink-0 max-w-[40%] text-right">
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 truncate max-w-full">${r.status || 'Completed'}</span>
+                            <span class="text-[8px] text-slate-500 mt-1 truncate max-w-full block">${r.subStatus || '-'}</span>
+                        </div>
+                    </td>
+
+                    <td class="p-3 font-mono font-bold text-indigo-700 align-top hidden md:table-cell border-r border-violet-100">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0"></i>
+                            ${r.inspectionId || '-'}
+                        </div>
                         <span class="text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 border-slate-200 text-slate-700 inline-block mt-1">${r.discom || '-'}</span>
                     </td>
-                    <td class="p-3 align-top">${mfgDetails}</td>
-                    <td class="p-3 align-top">${matDetails}</td>
-                    <td class="p-3 font-bold align-top whitespace-normal break-words">${r.conductedBy || '-'}</td>
-                    <td class="p-3 align-top">
-                        <div class="font-bold text-emerald-700">${r.status || '-'}</div>
-                        <div class="text-[10px] font-bold text-slate-500 mt-0.5">${r.subStatus || '-'}</div>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-violet-100">${mfgDetails}</td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-violet-100">${matDetails}</td>
+                    <td class="p-3 font-bold align-top whitespace-normal break-words hidden md:table-cell border-r border-violet-100">${r.conductedBy || '-'}</td>
+                    <td class="p-3 align-top hidden md:table-cell border-r border-violet-100"><div class="font-bold text-emerald-700">${r.status || '-'}</div><div class="text-[10px] font-bold text-slate-500 mt-0.5">${r.subStatus || '-'}</div></td>
+                    <td class="p-3 text-center font-mono font-black bg-violet-50/50 align-top text-violet-900 whitespace-nowrap hidden md:table-cell">${r.inspectionCompletedOn || '-'}</td>
+                </tr>
+                <tr class="mobile-expand-drawer hidden bg-slate-50/80 cursor-default" onclick="event.stopPropagation()">
+                    <td colspan="6" class="p-4 border-t border-slate-100 text-xs w-full block md:table-cell">
+                        <div class="pl-6 md:pl-2">
+                            <h5 class="text-[10px] font-black uppercase text-indigo-400 mb-3 border-b border-slate-200 pb-2 flex items-center gap-2"><i data-lucide="file-search" class="w-4 h-4"></i> Complete Inspection Profile</h5>
+                            ${detailsHtml}
+                        </div>
                     </td>
-                    <td class="p-3 text-center font-mono font-black bg-violet-50/50 align-top text-violet-900 whitespace-nowrap">${r.inspectionCompletedOn || '-'}</td>
                 </tr>`;
             });
         }
@@ -1529,7 +1616,8 @@
                 calculatedFee: calculatedFee,
                 insp: conductedBy,
                 manDays: rawManDays,
-                dates: datesFormatted
+                dates: datesFormatted,
+                raw: r
             });
         });
 
@@ -1701,62 +1789,47 @@
         let subHtml = `
             <tr class="matrix-expanded-row bg-slate-50 border-b border-slate-200 shadow-inner">
                 <td colspan="${colspan}" class="p-4">
-                    <div class="overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-xs">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead class="bg-slate-100 text-slate-600 uppercase text-[9px] font-black border-b border-slate-200">
-                                <tr>
-                                    <th class="p-2.5 border-r">ID & Status</th>
-                                    <th class="p-2.5 border-r text-center">Discom</th>
-                                    <th class="p-2.5 border-r">Entity Detail</th>
-                                    <th class="p-2.5 border-r w-56">Spec & Qty</th>
-                                    <th class="p-2.5 border-r">Execution</th>
-                                    <th class="p-2.5 border-r">Criteria</th>
-                                    <th class="p-2.5 border-r text-right">Mat Value</th>
-                                    <th class="p-2.5 text-right">Calculated Fee</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 font-medium">
+                    <div class="space-y-4">
         `;
 
-        groupData.records.forEach(r => {
+        groupData.records.forEach(item => {
+            const r = item.raw || {};
+            const insp = String(r.conductedBy || r.tpiaInspector || "").trim();
+            const isAppointed = insp && insp.toLowerCase() !== "pending" && insp.toLowerCase() !== "not appointed" && insp !== "-";
+
+            let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
+            Object.keys(fullHeaderCustomNames).forEach(k => {
+                const label = fullHeaderCustomNames[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
+                detailsHtml += `<div><span class="block text-[9px] font-black uppercase text-slate-400 mb-0.5">${label}</span><span class="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words">${val}</span></div>`;
+            });
+            detailsHtml += `</div>`;
+
             subHtml += `
-                <tr class="hover:bg-slate-50 transition align-top">
-                    <td class="p-2.5 border-r">
-                        <div class="font-mono font-bold text-blue-600 mb-1">${r.id}</div>
-                        <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold block whitespace-nowrap">${r.statusFmt} / ${r.subStatusFmt}</span>
-                    </td>
-                    <td class="p-2.5 border-r text-center">
-                        <span class="text-[9px] font-black px-2 py-0.5 rounded border bg-slate-100 border-slate-200">${r.discom}</span>
-                    </td>
-                    <td class="p-2.5 border-r text-[10px] leading-tight w-48">
-                        <strong class="text-slate-400 block mb-0.5">Mfg:</strong> <span class="text-slate-800">${r.mfg}</span>
-                        <div class="h-1"></div>
-                        <strong class="text-slate-400 block mb-0.5">Cat:</strong> <span class="text-indigo-700">${r.cat}</span>
-                    </td>
-                    <td class="p-2.5 border-r text-[10px] text-slate-600">
-                        <div class="max-h-24 overflow-y-auto custom-scrollbar pr-1 whitespace-pre-wrap leading-tight"><strong class="text-slate-800">Spec:</strong>\n${r.spec}\n\n<strong class="text-blue-700">Qty:</strong>\n${r.qty}</div>
-                    </td>
-                    <td class="p-2.5 border-r text-[10px] leading-tight w-32">
-                        <strong class="text-slate-400 block mb-0.5">By:</strong> <span class="text-slate-800">${r.insp}</span>
-                        <div class="h-1"></div>
-                        <span class="text-slate-500 font-mono">${r.dates}</span>
-                    </td>
-                    <td class="p-2.5 border-r text-[10px] text-emerald-700 font-bold font-mono bg-emerald-50/20">${r.criteriaFmt}</td>
-                    <td class="p-2.5 border-r text-right font-mono font-bold text-slate-800">Rs ${r.tMatVal > 0 ? r.tMatVal.toLocaleString('en-IN') : '0'}</td>
-                    <td class="p-2.5 text-right font-mono font-black text-purple-700 bg-purple-50/20">Rs ${r.calculatedFee > 0 ? r.calculatedFee.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '0.00'}</td>
-                </tr>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-black text-blue-700 text-sm">${item.id}</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 border text-slate-700">${item.discom}</span>
+                            ${isAppointed ? `<span class="bg-emerald-100 text-emerald-800 text-[9px] px-2 py-0.5 rounded-full font-black uppercase border border-emerald-200">Appointed</span>` : ''}
+                        </div>
+                        <span class="text-xs font-mono font-black text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg">Fee: Rs ${item.calculatedFee > 0 ? item.calculatedFee.toLocaleString('en-IN', {minimumFractionDigits: 2}) : '0.00'}</span>
+                    </div>
+                    <div class="pl-1">
+                        <h5 class="text-[10px] font-black uppercase text-indigo-400 mb-3 flex items-center gap-2"><i data-lucide="file-search" class="w-4 h-4"></i> Complete Inspection Profile</h5>
+                        ${detailsHtml}
+                    </div>
+                </div>
             `;
         });
 
         subHtml += `
-                            </tbody>
-                        </table>
                     </div>
                 </td>
             </tr>
         `;
 
         rowEl.insertAdjacentHTML('afterend', subHtml);
+        if (window.lucide) lucide.createIcons();
     };
 
     window.openDrilldownModal = function(title, subtitle, matchingRecords) {
@@ -1771,28 +1844,30 @@
         if (!matchingRecords || matchingRecords.length === 0) {
             bodyEl.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">No inspection codes found for this selection.</p>`;
         } else {
-            let html = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto p-1 custom-scrollbar">`;
+            let html = `<div class="space-y-3 max-h-[70vh] overflow-y-auto p-1 custom-scrollbar">`;
             matchingRecords.forEach(r => {
-                const id = r.inspectionId || r.InspectionID || r.inspectionID || r.id || 'N/A';
-                const discom = r.discom || 'N/A';
-                const mfg = r.manufacturer || 'N/A';
-                const status = r.subStatus || r.status || 'Pending';
-                
-                const repMailedVal = String(r.reportMail || "No").trim();
-                const mailBadge = repMailedVal.toLowerCase() === 'yes' 
-                    ? `<span class="text-[9px] font-mono px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold block mt-1"><i data-lucide="mail-check" class="w-3 h-3 inline"></i> Mail: Yes</span>` 
-                    : `<span class="text-[9px] font-mono px-2 py-0.5 rounded bg-rose-100 text-rose-800 font-bold block mt-1"><i data-lucide="mail-warning" class="w-3 h-3 inline"></i> Mail: No</span>`;
-                
+                let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
+                Object.keys(fullHeaderCustomNames).forEach(k => {
+                    const label = fullHeaderCustomNames[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
+                    detailsHtml += `<div><span class="block text-[9px] font-black uppercase text-slate-400 mb-0.5">${label}</span><span class="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words">${val}</span></div>`;
+                });
+                detailsHtml += `</div>`;
+
                 html += `
-                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2 shadow-2xs">
-                        <div>
-                            <span class="font-mono font-black text-blue-700 text-xs block">${id}</span>
-                            <span class="text-[10px] text-slate-600 block truncate max-w-[220px] mb-1">${mfg}</span>
-                            ${mailBadge}
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 shadow-2xs">
+                        <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                            <div>
+                                <span class="font-mono font-black text-blue-700 text-sm block">${r.inspectionId || r.InspectionID || '-'}</span>
+                                <span class="text-[10px] text-slate-600 block truncate max-w-sm">${r.manufacturer || '-'}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold block mb-0.5">${r.discom || '-'}</span>
+                                <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">${r.status || 'Pending'}</span>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-bold block mb-1">${discom}</span>
-                            <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">${status}</span>
+                        <div class="pl-1">
+                            <h5 class="text-[10px] font-black uppercase text-indigo-400 mb-2 flex items-center gap-1.5"><i data-lucide="file-search" class="w-3.5 h-3.5"></i> Complete Inspection Profile</h5>
+                            ${detailsHtml}
                         </div>
                     </div>
                 `;
