@@ -217,8 +217,22 @@
     /* 🎯 Adjust Executive Summary Matrix Widths (Fixed 30% first col, Equal Flex mid cols) */
     #summary-thead th:first-child, 
     #summary-tbody td:first-child { width: 30% !important; max-width: 300px !important; white-space: normal !important; word-wrap: break-word !important; }
+   /* 🎯 Adjust Executive Summary Matrix Widths (Fixed 30% first col, Equal Flex mid cols) */
+   #summary-thead th:first-child, 
+    #summary-tbody td:first-child { width: 30% !important; max-width: 300px !important; white-space: normal !important; word-wrap: break-word !important; }
+    
     #summary-thead th:not(:first-child):not(:last-child), 
-    #summary-tbody td:not(:first-child):not(:last-child) { width: auto !important; min-width: 80px; text-align: center !important; }
+    #summary-tbody td:not(:first-child):not(:last-child) { 
+        width: auto !important; 
+        min-width: 70px; 
+        text-align: center !important; 
+        /* 🎯 Force word break and wrapping to fix overlapping in headers */
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        word-wrap: break-word !important;
+        word-break: break-word !important;
+    }
+    
     #summary-thead th:last-child, 
     #summary-tbody td:last-child { width: 12% !important; text-align: center !important; }
 
@@ -519,8 +533,14 @@
 
         const thead = document.getElementById("summary-thead"), tbody = document.getElementById("summary-tbody");
         let headerHtml = `<tr><th class="p-2 sticky-header-left border-y border-slate-800 bg-[#93c5fd] ">Description / Schemes <i data-lucide="arrow-right" class="inline w-3 h-3 text-slate-700"></i></th>`;
-        schemes.forEach(sc => { headerHtml += `<th class="p-2 border border-slate-800 font-bold text-center">${sc}</th>`; });
-        headerHtml += `<th class="p-2 sticky-header-right text-center border-y border-slate-800 bg-[#06b6d4]">TOTAL</th></tr>`;
+        
+        schemes.forEach(sc => { 
+            // 🎯 Added whitespace-normal break-words
+            headerHtml += `<th class="p-2 border border-slate-800 font-bold text-center whitespace-normal break-words">${sc}</th>`; 
+        });
+        
+        // 🎯 Added whitespace-normal break-words to Total column as well
+        headerHtml += `<th class="p-2 sticky-header-right text-center border-y border-slate-800 bg-[#06b6d4] whitespace-normal break-words">TOTAL</th></tr>`;
         thead.innerHTML = headerHtml;
 
         const deadlineLabel = (discom === 'PVVNL') ? "Pending Calls Over Deadline (7 Days or +)" : "Pending Calls Over Deadline (15 Days or +)";
