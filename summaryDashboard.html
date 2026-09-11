@@ -217,16 +217,12 @@
     /* 🎯 Adjust Executive Summary Matrix Widths (Fixed 30% first col, Equal Flex mid cols) */
     #summary-thead th:first-child, 
     #summary-tbody td:first-child { width: 30% !important; max-width: 300px !important; white-space: normal !important; word-wrap: break-word !important; }
-   /* 🎯 Adjust Executive Summary Matrix Widths (Fixed 30% first col, Equal Flex mid cols) */
-   #summary-thead th:first-child, 
-    #summary-tbody td:first-child { width: 30% !important; max-width: 300px !important; white-space: normal !important; word-wrap: break-word !important; }
     
     #summary-thead th:not(:first-child):not(:last-child), 
     #summary-tbody td:not(:first-child):not(:last-child) { 
         width: auto !important; 
         min-width: 70px; 
         text-align: center !important; 
-        /* 🎯 Force word break and wrapping to fix overlapping in headers */
         white-space: normal !important;
         overflow-wrap: break-word !important;
         word-wrap: break-word !important;
@@ -278,8 +274,10 @@
         "contactPerson": "Contact Person", "mobile": "Mobile No", "materialInspected": "Material Category", "materialSpec": "Material Specification",
         "quantity": "Quantity", "tkc": "TKC", "tpiaInspector": "TPIA Inspector", "tpiaContact": "TPIA Contact No",
         "authLetterNo": "Auth Letter No", "scheduleDate": "Schedule Date", "status": "Status", "subStatus": "Sub-Status",
-        "inspectionCompletedOn": "Completed On", "reportOm": "Report / OM No", "conductedBy": "Conducted By", "dateFrom": "Date From",
-        "dateTo": "Date To", "manDays": "Man-Days", "sealType": "Seal Type", "sealSerial": "Seal Serial No", "sealNoCount": "Seal Count",
+        "inspectionCompletedOn": "Completed On", "reportOm": "Report / OM No", "conductedBy": "Conducted By", 
+        "dateFrom": "Date(s) of Inspection (From - To)",
+        "dateTo": "Date(s) of NABL Witness (From - To)", 
+        "manDays": "Man-Days", "sealType": "Seal Type", "sealSerial": "Seal Serial No", "sealNoCount": "Seal Count",
         "nablStatusDate": "NABL Status & Date", "reportReceived": "Report Received", "reportMail": "Report Mail", "letterRevision": "Letter Revision Status",
         "remarks": "Remarks", "month": "Month", "billingStatus": "Billing Status", "invoiceNo": "Invoice No"
     };
@@ -319,7 +317,7 @@
         }
     };
 
-    // 🎯 MOBILE-ONLY SUMMARY GRID EXPANSION (Remains restricted to mobile view size)
+    // 🎯 MOBILE-ONLY SUMMARY GRID EXPANSION
     window.toggleSummaryMobileRow = function(element) {
         if (window.innerWidth >= 768) return; 
         const drawer = element.querySelector('.summary-expand-drawer');
@@ -425,7 +423,11 @@
         const today = new Date();
         today.setHours(0,0,0,0);
         
-        // 🎯 Enforce EXACT Yesterday Date logic automatically
+        const y_str = today.getFullYear();
+        const m_str = String(today.getMonth() + 1).padStart(2, '0');
+        const d_str = String(today.getDate()).padStart(2, '0');
+        const todayKey = `${y_str}-${m_str}-${d_str}`;
+
         const yesterdayObj = new Date(today);
         yesterdayObj.setDate(yesterdayObj.getDate() - 1);
         const y_dd = String(yesterdayObj.getDate()).padStart(2, '0');
@@ -532,14 +534,12 @@
         document.getElementById("kpi-unbilled-md").innerText = currentMetricsObject['TOTAL'].unbilledManDays.val;
 
         const thead = document.getElementById("summary-thead"), tbody = document.getElementById("summary-tbody");
-        let headerHtml = `<tr><th class="p-2 sticky-header-left border-y border-slate-800 bg-[#93c5fd] ">Description / Schemes <i data-lucide="arrow-right" class="inline w-3 h-3 text-slate-700"></i></th>`;
+        let headerHtml = `<tr><th class="p-2 sticky-header-left border-y border-slate-800 bg-[#93c5fd]">Description / Schemes <i data-lucide="arrow-right" class="inline w-3 h-3 text-slate-700"></i></th>`;
         
         schemes.forEach(sc => { 
-            // 🎯 Added whitespace-normal break-words
             headerHtml += `<th class="p-2 border border-slate-800 font-bold text-center whitespace-normal break-words">${sc}</th>`; 
         });
         
-        // 🎯 Added whitespace-normal break-words to Total column as well
         headerHtml += `<th class="p-2 sticky-header-right text-center border-y border-slate-800 bg-[#06b6d4] whitespace-normal break-words">TOTAL</th></tr>`;
         thead.innerHTML = headerHtml;
 
@@ -552,10 +552,8 @@
             const totalVal = currentMetricsObject['TOTAL'][rowDef.key].val;
             const totalHover = totalVal > 0 ? "cursor-pointer hover:opacity-80 transition" : "";
 
-            // 🎯 Mobile-responsive row wrapper
             bodyHtml += `<tr class="${rowClass} border-b border-slate-200 md:border-none block md:table-row cursor-pointer md:cursor-auto" onclick="window.toggleSummaryMobileRow(this)">`;
             
-            // 1. Mobile Compact Card
             bodyHtml += `
                 <td class="p-3 block md:hidden w-full bg-inherit">
                     <div class="flex items-center justify-between w-full">
@@ -583,17 +581,14 @@
 
             bodyHtml += `</div></div></td>`;
 
-            // 2. Desktop First Column (Description)
             bodyHtml += `<td class="p-2 sticky-col-left border-y border-slate-800 bg-inherit whitespace-normal min-w-[130px] leading-tight hidden md:table-cell">${displayLabel}</td>`;
             
-            // 3. Desktop Scheme Columns
             schemes.forEach(sc => {
                 const val = currentMetricsObject[sc][rowDef.key].val;
                 const cellHover = val > 0 ? "cursor-pointer hover:bg-slate-900/10 hover:shadow-inner transition" : "";
                 bodyHtml += `<td onclick="event.stopPropagation(); ${val > 0 ? `window.openDrilldown('${sc}', '${rowDef.key}', '${rowDef.label}', 'scheme')` : ''}" class="p-2 border border-slate-800 text-center font-bold ${cellHover} hidden md:table-cell">${val}</td>`;
             });
 
-            // 4. Desktop Total Column
             bodyHtml += `<td onclick="event.stopPropagation(); ${totalVal > 0 ? `window.openDrilldown('TOTAL', '${rowDef.key}', '${rowDef.label}', 'scheme')` : ''}" class="p-2 sticky-col-right text-center border-y border-slate-800 ${rowDef.totalBg} ${totalHover} hidden md:table-cell">${totalVal}</td>`;
             
             bodyHtml += `</tr>`;
@@ -603,7 +598,6 @@
         window.renderCompletedDateLog(yesterdayStr);
     };
 
-    // 🎯 Render Responsive Completed Inspections Log (Dynamic Yesterday Strict Validation)
     window.renderCompletedDateLog = function(yesterdayStr) {
         const tbody = document.getElementById("yesterday-tbody");
         const countSpan = document.getElementById("yesterday-table-count");
@@ -629,14 +623,13 @@
                 const matDetails = `<div class="font-bold text-slate-800 whitespace-normal break-words">${r.materialInspected || '-'}</div><div class="text-[9px] text-slate-500 whitespace-normal break-words mt-0.5">${r.materialSpec || '-'}</div><div class="text-xs font-black text-indigo-600 mt-1">Qty: ${r.quantity || '-'}</div>`;
                 const mfgDetails = `<div class="font-bold text-slate-800 whitespace-normal break-words">${r.manufacturer || '-'}</div><div class="text-[10px] text-slate-500 whitespace-normal break-words mt-0.5"><i data-lucide="map-pin" class="w-3 h-3 inline relative -top-0.5"></i> ${r.address || '-'}</div>`;
                 
-                let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 mt-2">`;
+                let detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3 mt-2">`;
                 Object.keys(fullHeaderCustomNames).forEach(k => {
                     const label = fullHeaderCustomNames[k], rawVal = r[k], val = (rawVal !== null && rawVal !== undefined && String(rawVal).trim() !== "") ? String(rawVal) : "-";
                     detailsHtml += `<div><span class="block text-[9px] font-black uppercase text-slate-400 mb-0.5">${label}</span><span class="text-xs font-semibold text-slate-800 whitespace-pre-wrap break-words">${val}</span></div>`;
                 });
                 detailsHtml += `</div>`;
 
-                // 🎯 COMBINED COMPACT CARD (NO DISCOM) WITH FULL DESKTOP AND MOBILE EXPANSION
                 html += `
                 <tr class="flex flex-col md:table-row bg-white hover:bg-slate-50 transition border-b border-violet-100 cursor-pointer" onclick="window.toggleMobileRow(this)">
                     <td class="p-3 flex md:hidden items-start justify-between w-full gap-2">
@@ -663,7 +656,12 @@
                     <td class="p-3 align-top hidden md:table-cell border-r border-violet-100">${matDetails}</td>
                     <td class="p-3 font-bold align-top whitespace-normal break-words hidden md:table-cell border-r border-violet-100">${r.conductedBy || '-'}</td>
                     <td class="p-3 align-top hidden md:table-cell border-r border-violet-100"><div class="font-bold text-emerald-700">${r.status || '-'}</div><div class="text-[10px] font-bold text-slate-500 mt-0.5">${r.subStatus || '-'}</div></td>
-                    <td class="p-3 text-center font-mono font-black bg-violet-50/50 align-top text-violet-900 whitespace-nowrap hidden md:table-cell">${r.inspectionCompletedOn || '-'}</td>
+                    
+                    <!-- 🎯 ADDED SCHEDULE DATE DISPLAY UNDER COMPLETED ON -->
+                    <td class="p-3 text-center align-top bg-violet-50/50 hidden md:table-cell border-r border-violet-100">
+                        <div class="font-mono font-black text-violet-900 whitespace-nowrap">${r.inspectionCompletedOn || '-'}</div>
+                        <div class="text-[9px] font-medium text-slate-500 whitespace-nowrap mt-1">Schedule start On <span class="font-mono font-bold text-slate-700">${r.scheduleDate || '-'}</span></div>
+                    </td>
                 </tr>
                 <tr class="mobile-expand-drawer hidden bg-slate-50/80 cursor-default" onclick="event.stopPropagation()">
                     <td colspan="6" class="p-4 border-t border-slate-100 text-xs w-full block md:table-cell">
@@ -679,9 +677,6 @@
         if (window.lucide) lucide.createIcons();
     };
 
-    /* =========================================================
-       VIEW 2: INSPECTOR-WISE LOGIC
-       ========================================================= */
     window.loadInspectorAnalytics = async function() {
         document.getElementById('analytics-loader-inspector').classList.remove('hidden');
 
@@ -755,7 +750,6 @@
         let bodyHtml = "";
         inspectors.forEach((insp, idx) => {
             let bg = idx % 2 === 0 ? 'bg-white text-slate-800' : 'bg-slate-50 text-slate-800';
-            const rowSafeId = "insp-row-" + idx;
 
             let inspCategories = new Set();
             let catCounts = { NBPDCL: {}, SBPDCL: {}, PVVNL: {} };
@@ -842,9 +836,6 @@
         if (window.lucide) lucide.createIcons();
     };
 
-    /* =========================================================
-       SHARED DRILL-DOWN ACCODRDION LOGIC
-       ========================================================= */
     window.openDrilldown = function(primaryKey, secondaryKey, metricLabel, contextType, categoryFilter = null) {
         let dataRows = [];
         let locationContext = "";
@@ -882,10 +873,8 @@
             dataRows.forEach((row, idx) => {
                 const bg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50';
                 
-                // 🎯 Desktop & Mobile Universal Toggle Card
                 html += `
                 <tr class="flex flex-col md:table-row ${bg} hover:bg-slate-100 transition border-b md:border-b-0 border-slate-200 cursor-pointer" onclick="window.toggleMobileRow(this)">
-                    
                     <td class="p-3 flex md:hidden items-start justify-between w-full gap-2">
                         <div class="flex items-start gap-2 overflow-hidden flex-1">
                             <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 toggle-icon transition-transform duration-200 shrink-0 mt-0.5"></i>
@@ -943,7 +932,6 @@
         document.getElementById("drilldown-modal").classList.add("hidden");
     };
 
-    // 🎯 Context-Aware FLAWLESS PDF Exporter
     window.downloadSummaryPDF = function(contextType) {
         const titleContext = contextType === 'scheme' ? activeAnalyticsDiscom + ' Executive Summary & Yesterday Log' : 'Overall Inspector Performance Summary';
 
@@ -1051,5 +1039,4 @@
     };
 
     setTimeout(() => { window.loadAnalyticsForDiscom('NBPDCL'); }, 100);
-
 </script>
