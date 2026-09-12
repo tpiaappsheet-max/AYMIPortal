@@ -969,7 +969,7 @@
             });
             
             helpText.classList.add('hidden');
-            titleEl.innerText = `${titleContext} - ${new Date().toLocaleDateString()}`;
+            titleEl.innerText = `${titleContext} - ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
             titleEl.classList.remove('hidden');
 
             document.body.classList.add("pdf-export-mode");
